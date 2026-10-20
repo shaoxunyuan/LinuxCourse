@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -292,12 +292,18 @@
       font-weight: 500;
     }
 
+    .reveal ol.num-list,
+    .reveal ul.num-list,
     .num-list {
       margin: 0.2em 0 0;
       padding: 0;
-      list-style: none;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
       counter-reset: n;
     }
+    .reveal .num-list > li,
     .num-list > li {
       counter-increment: n;
       margin: 0.28em 0;
@@ -305,7 +311,15 @@
       position: relative;
       font-size: 0.72em;
       line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
     }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
     .num-list > li::before {
       content: counter(n);
       position: absolute;
@@ -392,21 +406,21 @@
         <div class="two-col">
           <div class="card blue">
             <h3>实验目的</h3>
-            <ol class="num-list">
+            <ul class="num-list">
               <li>理解文本搜索与统计的用途</li>
               <li>掌握 grep 基础与常用选项</li>
               <li>学会用 wc -l 统计行数</li>
               <li>组合 grep 与 wc 的管道用法</li>
-            </ol>
+            </ul>
           </div>
           <div class="card green">
             <h3>实验内容和要求</h3>
-            <ol class="num-list">
+            <ul class="num-list">
               <li>使用 grep 及 -i / -n / -v</li>
               <li>使用 wc -l 统计行数</li>
               <li>使用管道符 |</li>
               <li>完成综合练习并提交报告</li>
-            </ol>
+            </ul>
           </div>
         </div>
         <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
@@ -505,11 +519,11 @@ wc -l app.log</code></pre>
           <div>
             <div class="card blue" style="margin-bottom:0.55em;">
               <h3>准备目录</h3>
-              <ol class="num-list">
+              <ul class="num-list">
                 <li>进入桌面目录</li>
                 <li>创建 LogLab</li>
                 <li>进入并确认路径</li>
-              </ol>
+              </ul>
             </div>
             <div class="card green">
               <h3>导入文件</h3>
@@ -523,12 +537,12 @@ wc -l app.log</code></pre>
       <!-- 07 -->
       <section data-page="07">
         <h2>配套练习文件说明：app.log</h2>
-        <ol class="num-list" style="margin-top:0.6em;">
+        <ul class="num-list" style="margin-top:0.6em;">
           <li>生成 UTF-8 纯文本 <code>app.log</code>，不少于 100 行。</li>
           <li>模拟 Linux 程序日志，含时间戳 / 级别 / 信息；INFO、WARN、ERROR、Error、error 均多次出现。</li>
           <li>内容多样化，避免大量重复行。</li>
           <li>每行一条记录，行末有换行符。</li>
-        </ol>
+        </ul>
         <div class="band band-orange" style="margin-top:0.9em;">教师准备并发放；学生不自行编写生成脚本。</div>
         <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>07</span></div>
       </section>
@@ -684,11 +698,11 @@ grep "INFO" app.log</code></pre>
           </div>
           <div class="card green">
             <h3>观察</h3>
-            <ol class="num-list">
+            <ul class="num-list">
               <li>分别匹配了哪些行？</li>
               <li>哪个关键词出现更多？</li>
               <li>输出的是整行还是关键词？</li>
-            </ol>
+            </ul>
           </div>
         </div>
         <div class="band band-blue">练习要求：能解释关键词与文件名在命令中的位置。</div>
@@ -707,11 +721,11 @@ grep -in "error" app.log</code></pre>
           </div>
           <div class="card green">
             <h3>观察</h3>
-            <ol class="num-list">
+            <ul class="num-list">
               <li>匹配数量有何不同？</li>
               <li>哪条命令显示了行号？</li>
               <li>行号对应原文件哪一行？</li>
-            </ol>
+            </ul>
           </div>
         </div>
         <div class="band band-blue">练习要求：解释组合选项如何便于定位。</div>
@@ -788,7 +802,7 @@ grep "INFO" app.log | wc -l</code></pre>
           </div>
           <div class="card green">
             <h3>八步任务</h3>
-            <ol class="num-list">
+            <ul class="num-list">
               <li>pwd / ls / cat 确认环境</li>
               <li>grep 找 ERROR</li>
               <li>grep -i 找全部错误</li>
@@ -797,7 +811,7 @@ grep "INFO" app.log | wc -l</code></pre>
               <li>wc -l 总行数</li>
               <li>grep -i | wc -l 错误数</li>
               <li>解释两个数字的区别</li>
-            </ol>
+            </ul>
           </div>
         </div>
         <div class="band band-blue">只需提交这一整套综合练习（写入正式实验报告）。</div>
