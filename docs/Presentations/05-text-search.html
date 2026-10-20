@@ -389,6 +389,13 @@
       border-color: var(--accent);
     }
 
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
     @media (prefers-reduced-motion: reduce) {
       .reveal .slides section { transition: none !important; }
     }
@@ -408,7 +415,7 @@
             <h3>实验目的</h3>
             <ul class="num-list">
               <li>理解文本搜索与统计的用途</li>
-              <li>掌握 grep 基础与常用选项</li>
+              <li>掌握 grep 基础与常用进阶选项</li>
               <li>学会用 wc -l 统计行数</li>
               <li>组合 grep 与 wc 的管道用法</li>
             </ul>
@@ -416,10 +423,10 @@
           <div class="card green">
             <h3>实验内容和要求</h3>
             <ul class="num-list">
-              <li>使用 grep 及 -i / -n / -v</li>
-              <li>使用 wc -l 统计行数</li>
-              <li>使用管道符 |</li>
-              <li>完成综合练习并提交报告</li>
+              <li>grep 基础：-i / -n / -v / -w</li>
+              <li>上下文与计数：-A / -B / -C / -c</li>
+              <li>文件与目录：-l / -L / -r / -d；模式：-E</li>
+              <li>管道、综合练习与实验报告</li>
             </ul>
           </div>
         </div>
@@ -438,27 +445,29 @@
           <div class="node"><span class="label">排除内容</span><code>grep -v</code></div>
           <div class="node"><span class="label">统计结果</span><code>wc -l</code></div>
         </div>
-        <div class="band band-blue">核心问题：哪些行符合条件？符合条件的行有多少？</div>
+        <div class="band band-green">进阶选项：<code>-w</code>　<code>-A/-B/-C</code>　<code>-c</code>　<code>-l/-L</code>　<code>-E</code>　<code>-r/-d</code></div>
+        <div class="band band-blue">核心问题：哪些行符合条件？符合条件的行有多少？在哪些文件里？</div>
         <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>02</span></div>
       </section>
 
       <!-- 03 -->
       <section data-page="03">
         <h2>实验流程与学习目标</h2>
-        <div class="flow-steps">
+        <div class="flow-steps six">
           <div class="step"><span>01</span>认识搜索</div>
-          <div class="step"><span>02</span>掌握 grep</div>
-          <div class="step"><span>03</span>学习 wc</div>
-          <div class="step"><span>04</span>理解管道</div>
-          <div class="step"><span>05</span>综合任务</div>
+          <div class="step"><span>02</span>基础选项</div>
+          <div class="step"><span>03</span>进阶选项</div>
+          <div class="step"><span>04</span>学习 wc</div>
+          <div class="step"><span>05</span>理解管道</div>
+          <div class="step"><span>06</span>综合任务</div>
         </div>
         <div class="two-col uneven">
           <div class="card blue">
             <h3>学习目标</h3>
             <ul>
-              <li>理解 grep 的输出含义</li>
-              <li>会使用 -i / -n / -v</li>
-              <li>区分 <code>wc -l</code> 与 <code>grep | wc -l</code></li>
+              <li>理解 grep 输出与常用选项</li>
+              <li>会用 -w / -A-B-C / -c / -l-L / -E / -r-d</li>
+              <li>区分 <code>grep -c</code>、<code>wc -l</code> 与 <code>grep | wc -l</code></li>
             </ul>
           </div>
           <div class="card green">
@@ -480,10 +489,10 @@
         <div class="card-grid">
           <div class="card blue"><h3>找什么？</h3><p>哪些行包含 ERROR</p></div>
           <div class="card green"><h3>忽略大小写吗？</h3><p>ERROR / Error / error</p></div>
-          <div class="card blue"><h3>出现在哪里？</h3><p>行号定位</p></div>
+          <div class="card blue"><h3>出现在哪里？</h3><p>行号与上下文</p></div>
           <div class="card green"><h3>一共有多少？</h3><p>错误记录总数</p></div>
         </div>
-        <div class="band band-blue">结论：grep 负责选择符合条件的行，wc -l 负责计算输入中有多少行。</div>
+        <div class="band band-blue">结论：grep 负责选择符合条件的行，wc -l / grep -c 负责计数。</div>
         <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>04</span></div>
       </section>
 
@@ -650,6 +659,166 @@ grep -in "error" app.log</code></pre>
 
       <!-- 12 -->
       <section data-page="12">
+        <h2>grep -w：整词匹配</h2>
+        <p class="subtitle">只匹配完整单词，避免匹配到单词的一部分</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>普通搜索</h3>
+            <div class="cmd">grep "error" app.log</div>
+            <p>可能匹配 terror、errorcode 等子串</p>
+          </div>
+          <div class="card green">
+            <h3>整词匹配</h3>
+            <div class="cmd">grep -w "error" app.log</div>
+            <p>只匹配独立的 error 单词</p>
+          </div>
+          <div class="card blue">
+            <h3>组合</h3>
+            <div class="cmd">grep -iw "error" app.log</div>
+            <p>忽略大小写 + 整词</p>
+          </div>
+          <div class="card green">
+            <h3>思考</h3>
+            <p>两次输出行数是否不同？多出来的行含什么？</p>
+          </div>
+        </div>
+        <div class="band band-blue">-w 让匹配更精确，适合查找独立关键词。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>grep -A / -B / -C：显示上下文</h2>
+        <p class="subtitle">在匹配行之外，额外显示前后若干行，便于理解日志语境</p>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue">
+            <h3>-A after</h3>
+            <div class="cmd">grep -A 2 "ERROR" app.log</div>
+            <p>匹配行 + 后面 2 行</p>
+          </div>
+          <div class="card green">
+            <h3>-B before</h3>
+            <div class="cmd">grep -B 2 "ERROR" app.log</div>
+            <p>匹配行 + 前面 2 行</p>
+          </div>
+          <div class="card blue">
+            <h3>-C context</h3>
+            <div class="cmd">grep -C 2 "ERROR" app.log</div>
+            <p>匹配行 + 前后各 2 行</p>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">可与 <code>-n</code> / <code>-i</code> 合用，例如 <code>grep -nC 1 -i "error" app.log</code></div>
+        <div class="band band-blue">-C n 等价于同时使用 -A n 与 -B n。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>grep -c：统计匹配行数</h2>
+        <p class="subtitle">不列出匹配行，只输出每个文件的匹配行数</p>
+        <pre><code class="language-bash">grep -c "ERROR" app.log
+grep -ci "error" app.log</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>grep -c</h3>
+            <p>直接给出匹配行计数；默认不打印行内容。</p>
+          </div>
+          <div class="card green">
+            <h3>与管道对比</h3>
+            <p><code>grep … | wc -l</code> 也能计数；<code>-c</code> 更短，且按文件分别统计。</p>
+          </div>
+        </div>
+        <div class="band band-blue">注意：-c 统计的是匹配行数，不是匹配次数（一行多次出现仍计 1）。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>grep -l / -L：列出文件名</h2>
+        <p class="subtitle">只关心“哪个文件命中 / 未命中”，不输出匹配行内容</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>-l 有匹配</h3>
+            <div class="cmd">grep -l "ERROR" *.log</div>
+            <p>列出至少含有 ERROR 的文件名</p>
+          </div>
+          <div class="card green">
+            <h3>-L 无匹配</h3>
+            <div class="cmd">grep -L "ERROR" *.log</div>
+            <p>列出不含 ERROR 的文件名</p>
+          </div>
+          <div class="card blue">
+            <h3>典型场景</h3>
+            <p>在多个日志中快速筛选“出过错的文件”</p>
+          </div>
+          <div class="card green">
+            <h3>提示</h3>
+            <p>当前练习以 <code>app.log</code> 为主；多文件时 <code>-l/-L</code> 更有用</p>
+          </div>
+        </div>
+        <div class="band band-blue">-l 与 -L 互为相反：一个列“有”，一个列“没有”。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>grep -E：扩展正则表达式</h2>
+        <p class="subtitle">启用 ERE，可用 |、()、+、? 等更灵活的模式</p>
+        <pre><code class="language-bash">grep -E "ERROR|WARN" app.log
+grep -Ei "error|warn" app.log</code></pre>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>交替匹配</h3>
+            <p><code>ERROR|WARN</code>：匹配 ERROR 或 WARN</p>
+          </div>
+          <div class="card green">
+            <h3>为何用 -E</h3>
+            <p>普通 grep 中 <code>|</code> 需写成 <code>\|</code>；-E 写法更直观</p>
+          </div>
+          <div class="card blue">
+            <h3>等价命令</h3>
+            <p><code>egrep</code> 常等价于 <code>grep -E</code>（推荐写 grep -E）</p>
+          </div>
+          <div class="card green">
+            <h3>尝试</h3>
+            <p>用一条命令同时找出 ERROR 与 INFO</p>
+          </div>
+        </div>
+        <div class="band band-blue">先掌握字面关键词，再逐步使用正则；模式请放在引号中。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>grep -r / -d：目录与递归搜索</h2>
+        <p class="subtitle">在目录树中搜索，或指定遇到目录时的处理方式</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>-r 递归</h3>
+            <div class="cmd">grep -r "ERROR" LogLab</div>
+            <p>进入目录及其子目录搜索所有文件</p>
+          </div>
+          <div class="card green">
+            <h3>-d 目录行为</h3>
+            <div class="cmd">grep -d skip "ERROR" LogLab</div>
+            <p>skip：跳过目录；recurse：递归（类似 -r）</p>
+          </div>
+          <div class="card blue">
+            <h3>常用组合</h3>
+            <div class="cmd">grep -rn "ERROR" LogLab</div>
+            <p>递归 + 显示行号</p>
+          </div>
+          <div class="card green">
+            <h3>注意</h3>
+            <p>对单个文件搜索时一般不需要 -r；对目录才需要</p>
+          </div>
+        </div>
+        <div class="band band-blue">-r 适合在工程或日志目录中“一把搜”；-d 精确控制目录处理。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
         <h2>wc -l：统计行数</h2>
         <p class="subtitle">wc 是统计命令，-l 表示统计换行符的数量</p>
         <pre><code class="language-bash">wc -l app.log
@@ -664,12 +833,12 @@ cat app.log | wc -l</code></pre>
             <p>统计管道收到的行，通常只显示数字。</p>
           </div>
         </div>
-        <div class="band band-blue">文件末尾应有换行；具体结果以实际文件为准。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>12</span></div>
+        <div class="band band-blue">对比：<code>grep -c</code> 统计匹配行；<code>wc -l</code> 统计输入总行数。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>18</span></div>
       </section>
 
-      <!-- 13 -->
-      <section data-page="13">
+      <!-- 19 -->
+      <section data-page="19">
         <h2>认识管道符 |</h2>
         <p class="subtitle">把左边命令的标准输出交给右边命令继续处理</p>
         <div class="flow-h">
@@ -682,12 +851,12 @@ cat app.log | wc -l</code></pre>
         <div class="card" style="margin-top:0.4em;">
           <p>grep 先输出匹配的日志行，wc -l 接收这些行并统计数量。管道不修改文件。</p>
         </div>
-        <div class="band band-blue">常用组合：<code>grep … | wc -l</code> → 符合条件的行有多少。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>13</span></div>
+        <div class="band band-blue">常用组合：<code>grep … | wc -l</code>；也可直接用 <code>grep -c</code>。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>19</span></div>
       </section>
 
-      <!-- 14 -->
-      <section data-page="14">
+      <!-- 20 -->
+      <section data-page="20">
         <h2>练习1：执行基本搜索</h2>
         <p class="subtitle">把两个 grep 命令分别运行，观察差别</p>
         <div class="two-col uneven-left">
@@ -706,11 +875,11 @@ grep "INFO" app.log</code></pre>
           </div>
         </div>
         <div class="band band-blue">练习要求：能解释关键词与文件名在命令中的位置。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>14</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>20</span></div>
       </section>
 
-      <!-- 15 -->
-      <section data-page="15">
+      <!-- 21 -->
+      <section data-page="21">
         <h2>练习2：忽略大小写与显示行号</h2>
         <p class="subtitle">把 -i、-n 单独和组合使用</p>
         <div class="two-col uneven-left">
@@ -729,11 +898,11 @@ grep -in "error" app.log</code></pre>
           </div>
         </div>
         <div class="band band-blue">练习要求：解释组合选项如何便于定位。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>15</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>21</span></div>
       </section>
 
-      <!-- 16 -->
-      <section data-page="16">
+      <!-- 22 -->
+      <section data-page="22">
         <h2>练习3：排除记录</h2>
         <p class="subtitle">利用 -v 去掉不需要的文本行</p>
         <div class="two-col uneven-left">
@@ -748,15 +917,16 @@ grep -iv "error" app.log</code></pre>
         </div>
         <div class="band band-orange" style="margin-top:0.55em;">尝试解释：筛选前后对照原文件，理解“保留 / 排除”。</div>
         <div class="band band-blue">筛选前后对照原文件，确认理解。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>16</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>22</span></div>
       </section>
 
-      <!-- 17 -->
-      <section data-page="17">
+      <!-- 23 -->
+      <section data-page="23">
         <h2>练习4：统计文件与匹配结果</h2>
         <div class="two-col uneven-left">
           <div>
             <pre><code class="language-bash">wc -l app.log
+grep -c "ERROR" app.log
 grep -i "error" app.log | wc -l
 grep "INFO" app.log | wc -l</code></pre>
           </div>
@@ -764,31 +934,62 @@ grep "INFO" app.log | wc -l</code></pre>
             <h3>结果核对（自行填写）</h3>
             <ul>
               <li>文件总行数：______</li>
+              <li>grep -c 结果：______</li>
               <li>error 相关行数：______</li>
               <li>INFO 相关行数：______</li>
             </ul>
             <p style="margin-top:0.4em;">均以实际输出为准。</p>
           </div>
         </div>
-        <div class="band band-blue">思考：为什么文件总行数与匹配行数不同？</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>17</span></div>
+        <div class="band band-blue">思考：<code>grep -c</code> 与 <code>grep | wc -l</code> 何时结果相同？</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>23</span></div>
       </section>
 
-      <!-- 18 -->
-      <section data-page="18">
+      <!-- 24 -->
+      <section data-page="24">
         <h2>练习5：综合使用命令</h2>
         <div class="card-grid">
           <div class="card blue"><h3>任务 A</h3><p>不区分大小写，找出全部 error</p></div>
           <div class="card green"><h3>任务 B</h3><p>显示 error 在原文件中的行号</p></div>
           <div class="card blue"><h3>任务 C</h3><p>排除全部 INFO 记录</p></div>
-          <div class="card green"><h3>任务 D</h3><p>统计 error 记录行数</p></div>
+          <div class="card green"><h3>任务 D</h3><p>用 -c 或管道统计 error 行数</p></div>
         </div>
         <div class="band band-blue">独立完成后与上一页核对；不仅记数字，还要能解释命令。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>18</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>24</span></div>
       </section>
 
-      <!-- 19 -->
-      <section data-page="19">
+      <!-- 25 -->
+      <section data-page="25">
+        <h2>练习6：进阶选项小练习</h2>
+        <p class="subtitle">在 LogLab 中尝试下列命令，观察输出差异</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>整词与上下文</h3>
+            <div class="cmd">grep -w "ERROR" app.log</div>
+            <div class="cmd">grep -nC 1 "ERROR" app.log</div>
+          </div>
+          <div class="card green">
+            <h3>计数与模式</h3>
+            <div class="cmd">grep -c "WARN" app.log</div>
+            <div class="cmd">grep -E "ERROR|WARN" app.log</div>
+          </div>
+          <div class="card blue">
+            <h3>文件列表</h3>
+            <div class="cmd">grep -l "ERROR" *.log</div>
+            <div class="cmd">grep -L "ERROR" *.log</div>
+          </div>
+          <div class="card green">
+            <h3>目录搜索</h3>
+            <div class="cmd">grep -rn "ERROR" .</div>
+            <p>在当前目录递归搜索并显示行号</p>
+          </div>
+        </div>
+        <div class="band band-blue">重点：说清每个选项改变了输出的哪一部分。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>25</span></div>
+      </section>
+
+      <!-- 26 -->
+      <section data-page="26">
         <h2>课堂综合练习：分析一个日志文件</h2>
         <div class="two-col uneven">
           <div class="card blue">
@@ -797,29 +998,27 @@ grep "INFO" app.log | wc -l</code></pre>
               <li>目录：<code>/home/njucm/Desktop/LogLab</code></li>
               <li>文件：<code>app.log</code></li>
               <li>不得修改原始日志</li>
-              <li>最终给出：错误行号 / 总行数 / 错误记录数</li>
+              <li>给出：错误行号 / 总行数 / 错误数 / 上下文示例</li>
             </ul>
           </div>
           <div class="card green">
-            <h3>八步任务</h3>
+            <h3>任务步骤</h3>
             <ul class="num-list">
               <li>pwd / ls / cat 确认环境</li>
-              <li>grep 找 ERROR</li>
-              <li>grep -i 找全部错误</li>
-              <li>grep -in 显示行号</li>
-              <li>grep -v 排除 INFO</li>
-              <li>wc -l 总行数</li>
-              <li>grep -i | wc -l 错误数</li>
-              <li>解释两个数字的区别</li>
+              <li>grep / -i / -in / -v 基础筛选</li>
+              <li>用 -w 与 -C 查看精确匹配与上下文</li>
+              <li>用 -c 或管道统计错误数</li>
+              <li>可选：-E 同时匹配 ERROR|WARN</li>
+              <li>解释总行数与匹配行数的区别</li>
             </ul>
           </div>
         </div>
         <div class="band band-blue">只需提交这一整套综合练习（写入正式实验报告）。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>19</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>26</span></div>
       </section>
 
-      <!-- 20 -->
-      <section data-page="20">
+      <!-- 27 -->
+      <section data-page="27">
         <h2>课堂综合练习：完成标准与截图</h2>
         <p class="subtitle">建议保存三张清晰截图，截图下方需要文字说明</p>
         <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
@@ -829,19 +1028,19 @@ grep "INFO" app.log | wc -l</code></pre>
           </div>
           <div class="card green">
             <h3>截图2 筛选定位</h3>
-            <p>grep -i / -in / -v 结果，并解释选项</p>
+            <p>-i / -in / -v，以及 -w 或 -C 之一</p>
           </div>
           <div class="card blue">
             <h3>截图3 统计管道</h3>
-            <p><code>wc -l app.log</code> 与 <code>grep -i "error" app.log | wc -l</code></p>
+            <p><code>wc -l</code>、<code>grep -c</code> 或 <code>grep | wc -l</code></p>
           </div>
         </div>
-        <div class="band band-blue">完成标准：命令正确、输出清晰；解释 -i / -n / -v / -l 与管道；说明总行数与匹配行数为何不同。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>20</span></div>
+        <div class="band band-blue">完成标准：命令正确、输出清晰；能解释所用选项；说明总行数与匹配行数为何不同。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>27</span></div>
       </section>
 
-      <!-- 21 -->
-      <section data-page="21">
+      <!-- 28 -->
+      <section data-page="28">
         <h2>常见报错：先检查命令和文件</h2>
         <div class="card-grid">
           <div class="card blue">
@@ -850,23 +1049,23 @@ grep "INFO" app.log | wc -l</code></pre>
           </div>
           <div class="card green">
             <h3>grep 无输出</h3>
-            <p>可能未匹配，或大小写不一致</p>
+            <p>可能未匹配、大小写问题，或 -w 过严</p>
           </div>
           <div class="card blue">
             <h3>wc: invalid option</h3>
             <p>误把 <code>-l</code> 写成 <code>-1</code>（数字一）</p>
           </div>
           <div class="card green">
-            <h3>管道结果不对</h3>
-            <p>检查两侧命令、引号与关键词</p>
+            <h3>管道 / 正则不对</h3>
+            <p>检查引号、关键词；-E 模式中的 <code>|</code> 是否正确</p>
           </div>
         </div>
         <div class="band band-blue">排错顺序：检查位置 → 检查文件 → 检查关键词和选项 → 再运行验证。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>21</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>28</span></div>
       </section>
 
-      <!-- 22 -->
-      <section data-page="22">
+      <!-- 29 -->
+      <section data-page="29">
         <h2>如何保存实验截图</h2>
         <p class="subtitle">使用实验电脑 Windows 桌面上的截图工具</p>
         <div class="card-grid">
@@ -875,11 +1074,11 @@ grep "INFO" app.log | wc -l</code></pre>
           <div class="card blue"><h3>步骤 3</h3><p>存成 PNG 或 JPG，例如 <code>exp5_count.png</code></p></div>
           <div class="card green"><h3>步骤 4</h3><p>核对用户名、命令与结果是否可读</p></div>
         </div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>22</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>29</span></div>
       </section>
 
-      <!-- 23 -->
-      <section data-page="23">
+      <!-- 30 -->
+      <section data-page="30">
         <h2>实验5作业：提交实验报告</h2>
         <p class="subtitle">按课程实验报告模板完整填写；提交内容就是课堂综合练习</p>
         <div class="card-grid">
@@ -889,11 +1088,11 @@ grep "INFO" app.log | wc -l</code></pre>
           </div>
           <div class="card green">
             <h3>实验结果</h3>
-            <p>三类截图（基础搜索 / 筛选定位 / 统计管道），图下 1～2 句说明</p>
+            <p>三类截图（基础搜索 / 筛选定位 / 统计），图下 1～2 句说明</p>
           </div>
           <div class="card blue">
             <h3>问题汇总</h3>
-            <p>如大小写导致找不到 error 等及解决办法</p>
+            <p>如大小写、整词、-E 模式写错等及解决办法</p>
           </div>
           <div class="card green">
             <h3>实验总结</h3>
@@ -901,7 +1100,7 @@ grep "INFO" app.log | wc -l</code></pre>
           </div>
         </div>
         <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；不要求单独提交前面的分步练习。</div>
-        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>23</span></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>30</span></div>
       </section>
 
     </div>
