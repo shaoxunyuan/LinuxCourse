@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本搜索与统计 · Linux 实验教程</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100%;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.6em 0.85em !important;
+      margin: 0.35em 0 0.55em;
+      border-radius: 0;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85em;
+      margin-top: 0.35em;
+    }
+    .two-col.uneven { grid-template-columns: 0.9fr 1.2fr; }
+    .two-col.uneven-left { grid-template-columns: 1.15fr 0.95fr; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: n;
+    }
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+    }
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验五：文本搜索与统计｜从文本中找到信息，并统计结果</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ol class="num-list">
+              <li>理解文本搜索与统计的用途</li>
+              <li>掌握 grep 基础与常用选项</li>
+              <li>学会用 wc -l 统计行数</li>
+              <li>组合 grep 与 wc 的管道用法</li>
+            </ol>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ol class="num-list">
+              <li>使用 grep 及 -i / -n / -v</li>
+              <li>使用 wc -l 统计行数</li>
+              <li>使用管道符 |</li>
+              <li>完成综合练习并提交报告</li>
+            </ol>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验五</h1>
+        <p class="subtitle">文本搜索与统计：从大量文本中找出需要的信息</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">搜索内容</span><code>grep</code></div>
+          <div class="node"><span class="label">忽略大小写</span><code>grep -i</code></div>
+          <div class="node"><span class="label">显示行号</span><code>grep -n</code></div>
+          <div class="node"><span class="label">排除内容</span><code>grep -v</code></div>
+          <div class="node"><span class="label">统计结果</span><code>wc -l</code></div>
+        </div>
+        <div class="band band-blue">核心问题：哪些行符合条件？符合条件的行有多少？</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>认识搜索</div>
+          <div class="step"><span>02</span>掌握 grep</div>
+          <div class="step"><span>03</span>学习 wc</div>
+          <div class="step"><span>04</span>理解管道</div>
+          <div class="step"><span>05</span>综合任务</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>理解 grep 的输出含义</li>
+              <li>会使用 -i / -n / -v</li>
+              <li>区分 <code>wc -l</code> 与 <code>grep | wc -l</code></li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先观察原始内容</li>
+              <li>再搜索与统计</li>
+              <li>解释结果含义</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要搜索与统计？</h2>
+        <p class="subtitle">当一个文件有很多行时，逐行查看效率较低</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>找什么？</h3><p>哪些行包含 ERROR</p></div>
+          <div class="card green"><h3>忽略大小写吗？</h3><p>ERROR / Error / error</p></div>
+          <div class="card blue"><h3>出现在哪里？</h3><p>行号定位</p></div>
+          <div class="card green"><h3>一共有多少？</h3><p>错误记录总数</p></div>
+        </div>
+        <div class="band band-blue">结论：grep 负责选择符合条件的行，wc -l 负责计算输入中有多少行。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>grep：在文件中搜索符合条件的行</h2>
+        <p class="subtitle">默认按照区分大小写的规则搜索</p>
+        <pre><code class="language-bash">grep "ERROR" app.log</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>grep</h3><p>搜索命令</p></div>
+          <div class="card green"><h3>"ERROR"</h3><p>关键词或模式</p></div>
+          <div class="card blue"><h3>app.log</h3><p>要搜索的文件名</p></div>
+          <div class="card green"><h3>默认输出</h3><p>匹配的整行内容</p></div>
+        </div>
+        <div class="band band-blue">grep 不修改原始文件，只读取并显示匹配结果。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>准备练习文件：导入 app.log</h2>
+        <p class="subtitle">本实验只需一个文件：app.log（与 PPT 一起提供）</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+mkdir -p LogLab
+cd LogLab
+pwd</code></pre>
+            <pre><code class="language-bash">ls -l app.log
+cat app.log
+wc -l app.log</code></pre>
+          </div>
+          <div>
+            <div class="card blue" style="margin-bottom:0.55em;">
+              <h3>准备目录</h3>
+              <ol class="num-list">
+                <li>进入桌面目录</li>
+                <li>创建 LogLab</li>
+                <li>进入并确认路径</li>
+              </ol>
+            </div>
+            <div class="card green">
+              <h3>导入文件</h3>
+              <p>由 Windows 拖到 CentOS 桌面，再移入 LogLab；用 <code>ls</code> / <code>cat</code> / <code>wc -l</code> 核查。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>配套练习文件说明：app.log</h2>
+        <ol class="num-list" style="margin-top:0.6em;">
+          <li>生成 UTF-8 纯文本 <code>app.log</code>，不少于 100 行。</li>
+          <li>模拟 Linux 程序日志，含时间戳 / 级别 / 信息；INFO、WARN、ERROR、Error、error 均多次出现。</li>
+          <li>内容多样化，避免大量重复行。</li>
+          <li>每行一条记录，行末有换行符。</li>
+        </ol>
+        <div class="band band-orange" style="margin-top:0.9em;">教师准备并发放；学生不自行编写生成脚本。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>认识唯一练习文件：app.log</h2>
+        <p class="subtitle">文件已提供；先确认成功导入，再开始搜索</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>执行</h3>
+            <div class="cmd">cat app.log</div>
+            <div class="cmd">wc -l app.log</div>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ul>
+              <li>总行数是多少？</li>
+              <li>error 有哪些写法？</li>
+              <li>哪些行不含错误关键词？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">注意：ERROR、Error、error 在默认搜索下是不同的。</div>
+        <div class="band band-blue">实际日志不少于 100 行；统计结果以你手上的文件为准。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>grep -i：忽略大小写</h2>
+        <p class="subtitle">搜索时不区分 ERROR、Error、error</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>区分大小写</h3>
+            <div class="cmd">grep "error" app.log</div>
+            <p>仅匹配小写 error</p>
+          </div>
+          <div class="card green">
+            <h3>忽略大小写</h3>
+            <div class="cmd">grep -i "error" app.log</div>
+            <p>匹配 ERROR / Error / error</p>
+          </div>
+          <div class="card blue">
+            <h3>观察</h3>
+            <p>比较两次输出行数与内容差异</p>
+          </div>
+          <div class="card green">
+            <h3>尝试</h3>
+            <p>把关键词换成 INFO，再对比一次</p>
+          </div>
+        </div>
+        <div class="band band-blue">-i 只影响匹配规则，不修改原文件。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>grep -n：显示行号</h2>
+        <p class="subtitle">搜索结果前增加原文件中的行号</p>
+        <pre><code class="language-bash">grep -n "ERROR" app.log
+grep -in "error" app.log</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>阅读结果</h3>
+            <p>例如 <code>2:ERROR Disk full</code> 中，<code>2</code> 表示原文件第 2 行。</p>
+          </div>
+          <div class="card green">
+            <h3>组合选项</h3>
+            <p><code>-i</code> 与 <code>-n</code> 可合用；<code>-in</code> 等价于 <code>-i -n</code>。</p>
+          </div>
+        </div>
+        <div class="band band-blue">行号便于在日志与配置文件中快速定位。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>grep -v：反向筛选</h2>
+        <p class="subtitle">显示不匹配指定模式的行</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>正向搜索</h3>
+            <div class="cmd">grep "INFO" app.log</div>
+            <p>保留匹配的行</p>
+          </div>
+          <div class="card green">
+            <h3>反向筛选</h3>
+            <div class="cmd">grep -v "INFO" app.log</div>
+            <p>保留不匹配的行</p>
+          </div>
+          <div class="card blue">
+            <h3>组合选项</h3>
+            <div class="cmd">grep -iv "error" app.log</div>
+            <p>先忽略大小写，再排除</p>
+          </div>
+          <div class="card green">
+            <h3>思考</h3>
+            <p>上述命令各输出多少行？为何保留这些行？</p>
+          </div>
+        </div>
+        <div class="band band-blue">结论：-v 表示反向选择。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>wc -l：统计行数</h2>
+        <p class="subtitle">wc 是统计命令，-l 表示统计换行符的数量</p>
+        <pre><code class="language-bash">wc -l app.log
+cat app.log | wc -l</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>直接统计文件</h3>
+            <p>显示计数，并附带文件名。</p>
+          </div>
+          <div class="card green">
+            <h3>管道统计</h3>
+            <p>统计管道收到的行，通常只显示数字。</p>
+          </div>
+        </div>
+        <div class="band band-blue">文件末尾应有换行；具体结果以实际文件为准。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>认识管道符 |</h2>
+        <p class="subtitle">把左边命令的标准输出交给右边命令继续处理</p>
+        <div class="flow-h">
+          <div class="box">grep 命令<br><code>grep -i "error" app.log</code></div>
+          <div class="arrow">|</div>
+          <div class="box">wc -l<br><code>统计行数</code></div>
+          <div class="arrow">=</div>
+          <div class="box">匹配行数</div>
+        </div>
+        <div class="card" style="margin-top:0.4em;">
+          <p>grep 先输出匹配的日志行，wc -l 接收这些行并统计数量。管道不修改文件。</p>
+        </div>
+        <div class="band band-blue">常用组合：<code>grep … | wc -l</code> → 符合条件的行有多少。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习1：执行基本搜索</h2>
+        <p class="subtitle">把两个 grep 命令分别运行，观察差别</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop/LogLab
+grep "ERROR" app.log
+grep "INFO" app.log</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ol class="num-list">
+              <li>分别匹配了哪些行？</li>
+              <li>哪个关键词出现更多？</li>
+              <li>输出的是整行还是关键词？</li>
+            </ol>
+          </div>
+        </div>
+        <div class="band band-blue">练习要求：能解释关键词与文件名在命令中的位置。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>练习2：忽略大小写与显示行号</h2>
+        <p class="subtitle">把 -i、-n 单独和组合使用</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">grep -i "error" app.log
+grep -n "ERROR" app.log
+grep -in "error" app.log</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ol class="num-list">
+              <li>匹配数量有何不同？</li>
+              <li>哪条命令显示了行号？</li>
+              <li>行号对应原文件哪一行？</li>
+            </ol>
+          </div>
+        </div>
+        <div class="band band-blue">练习要求：解释组合选项如何便于定位。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习3：排除记录</h2>
+        <p class="subtitle">利用 -v 去掉不需要的文本行</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">grep -v "INFO" app.log
+grep -iv "error" app.log</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <p>想一想：为什么这些行被保留？两条命令分别排除了哪些记录？</p>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">尝试解释：筛选前后对照原文件，理解“保留 / 排除”。</div>
+        <div class="band band-blue">筛选前后对照原文件，确认理解。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习4：统计文件与匹配结果</h2>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">wc -l app.log
+grep -i "error" app.log | wc -l
+grep "INFO" app.log | wc -l</code></pre>
+          </div>
+          <div class="card green">
+            <h3>结果核对（自行填写）</h3>
+            <ul>
+              <li>文件总行数：______</li>
+              <li>error 相关行数：______</li>
+              <li>INFO 相关行数：______</li>
+            </ul>
+            <p style="margin-top:0.4em;">均以实际输出为准。</p>
+          </div>
+        </div>
+        <div class="band band-blue">思考：为什么文件总行数与匹配行数不同？</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习5：综合使用命令</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>任务 A</h3><p>不区分大小写，找出全部 error</p></div>
+          <div class="card green"><h3>任务 B</h3><p>显示 error 在原文件中的行号</p></div>
+          <div class="card blue"><h3>任务 C</h3><p>排除全部 INFO 记录</p></div>
+          <div class="card green"><h3>任务 D</h3><p>统计 error 记录行数</p></div>
+        </div>
+        <div class="band band-blue">独立完成后与上一页核对；不仅记数字，还要能解释命令。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>课堂综合练习：分析一个日志文件</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>环境与目标</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop/LogLab</code></li>
+              <li>文件：<code>app.log</code></li>
+              <li>不得修改原始日志</li>
+              <li>最终给出：错误行号 / 总行数 / 错误记录数</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>八步任务</h3>
+            <ol class="num-list">
+              <li>pwd / ls / cat 确认环境</li>
+              <li>grep 找 ERROR</li>
+              <li>grep -i 找全部错误</li>
+              <li>grep -in 显示行号</li>
+              <li>grep -v 排除 INFO</li>
+              <li>wc -l 总行数</li>
+              <li>grep -i | wc -l 错误数</li>
+              <li>解释两个数字的区别</li>
+            </ol>
+          </div>
+        </div>
+        <div class="band band-blue">只需提交这一整套综合练习（写入正式实验报告）。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>课堂综合练习：完成标准与截图</h2>
+        <p class="subtitle">建议保存三张清晰截图，截图下方需要文字说明</p>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue">
+            <h3>截图1 基础搜索</h3>
+            <p>当前目录、原始日志、grep 搜索 ERROR</p>
+          </div>
+          <div class="card green">
+            <h3>截图2 筛选定位</h3>
+            <p>grep -i / -in / -v 结果，并解释选项</p>
+          </div>
+          <div class="card blue">
+            <h3>截图3 统计管道</h3>
+            <p><code>wc -l app.log</code> 与 <code>grep -i "error" app.log | wc -l</code></p>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：命令正确、输出清晰；解释 -i / -n / -v / -l 与管道；说明总行数与匹配行数为何不同。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>常见报错：先检查命令和文件</h2>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>grep: 找不到 app.log</h3>
+            <p>用 pwd / ls 确认当前目录与文件是否存在</p>
+          </div>
+          <div class="card green">
+            <h3>grep 无输出</h3>
+            <p>可能未匹配，或大小写不一致</p>
+          </div>
+          <div class="card blue">
+            <h3>wc: invalid option</h3>
+            <p>误把 <code>-l</code> 写成 <code>-1</code>（数字一）</p>
+          </div>
+          <div class="card green">
+            <h3>管道结果不对</h3>
+            <p>检查两侧命令、引号与关键词</p>
+          </div>
+        </div>
+        <div class="band band-blue">排错顺序：检查位置 → 检查文件 → 检查关键词和选项 → 再运行验证。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的截图工具</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1</h3><p>打开截图工具</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端命令、输出与提示符</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>存成 PNG 或 JPG，例如 <code>exp5_count.png</code></p></div>
+          <div class="card green"><h3>步骤 4</h3><p>核对用户名、命令与结果是否可读</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>实验5作业：提交实验报告</h2>
+        <p class="subtitle">按课程实验报告模板完整填写；提交内容就是课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>报告内容</h3>
+            <p>基本信息、目的、要求、结果、问题、总结</p>
+          </div>
+          <div class="card green">
+            <h3>实验结果</h3>
+            <p>三类截图（基础搜索 / 筛选定位 / 统计管道），图下 1～2 句说明</p>
+          </div>
+          <div class="card blue">
+            <h3>问题汇总</h3>
+            <p>如大小写导致找不到 error 等及解决办法</p>
+          </div>
+          <div class="card green">
+            <h3>实验总结</h3>
+            <p>写 3～5 句收获与体会</p>
+          </div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；不要求单独提交前面的分步练习。</div>
+        <div class="slide-footer"><span>Linux 实验5｜文本搜索与统计</span><span>23</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>
