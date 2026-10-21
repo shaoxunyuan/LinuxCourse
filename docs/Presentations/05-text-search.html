@@ -120,14 +120,17 @@
     }
 
     .reveal pre {
-      width: 100%;
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
       box-shadow: none !important;
       border: none !important;
       border-left: 3px solid var(--accent) !important;
       background: var(--code-bg) !important;
-      padding: 0.6em 0.85em !important;
-      margin: 0.35em 0 0.55em;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
       border-radius: 0;
+      overflow-x: auto;
     }
     .reveal pre code {
       background: transparent !important;
@@ -163,14 +166,36 @@
     .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
     .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
 
-    .two-col {
+    .two-col,
+    .split-panel {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.85em;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
       margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .two-col.uneven { grid-template-columns: 0.9fr 1.2fr; }
-    .two-col.uneven-left { grid-template-columns: 1.15fr 0.95fr; }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
     .card {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -514,9 +539,9 @@
       <!-- 06 -->
       <section data-page="06">
         <h2>准备练习文件：导入 app.log</h2>
-        <p class="subtitle">本实验只需一个文件：app.log（与 PPT 一起提供）</p>
-        <div class="two-col">
-          <div>
+        <p class="subtitle">按配套说明准备好 app.log 后，拖入 CentOS 并移入 LogLab</p>
+        <div class="split-panel">
+          <div class="stack">
             <pre><code class="language-bash">cd /home/njucm/Desktop
 mkdir -p LogLab
 cd LogLab
@@ -525,8 +550,8 @@ pwd</code></pre>
 cat app.log
 wc -l app.log</code></pre>
           </div>
-          <div>
-            <div class="card blue" style="margin-bottom:0.55em;">
+          <div class="stack">
+            <div class="card blue">
               <h3>准备目录</h3>
               <ul class="num-list">
                 <li>进入桌面目录</li>
@@ -558,7 +583,7 @@ wc -l app.log</code></pre>
       <!-- 08 -->
       <section data-page="08">
         <h2>认识唯一练习文件：app.log</h2>
-        <p class="subtitle">文件已提供；先确认成功导入，再开始搜索</p>
+        <p class="subtitle">先确认成功导入，再开始搜索</p>
         <div class="two-col">
           <div class="card blue">
             <h3>执行</h3>

@@ -120,14 +120,17 @@
     }
 
     .reveal pre {
-      width: 100%;
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
       box-shadow: none !important;
       border: none !important;
       border-left: 3px solid var(--accent) !important;
       background: var(--code-bg) !important;
-      padding: 0.4em 0.7em !important;
-      margin: 0.25em 0 0.4em;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
       border-radius: 0;
+      overflow-x: auto;
     }
     .reveal pre code {
       background: transparent !important;
@@ -163,15 +166,36 @@
     .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
     .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
 
-    .two-col {
+    .two-col,
+    .split-panel {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7em;
-      margin-top: 0.3em;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .two-col.uneven { grid-template-columns: 0.9fr 1.2fr; }
-    .two-col.uneven-left { grid-template-columns: 1.15fr 0.95fr; }
-    .two-col > div { min-width: 0; }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
     .card {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -501,39 +525,29 @@
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>练习数据文件：scores.txt</h2>
-        <p class="subtitle">成绩记录数据文件：scores.txt（与 PPT 一起提供）</p>
-        <p class="small">文件开头若干行（片段）：</p>
+        <h2>配套练习文件说明：scores.txt</h2>
+        <ul class="num-list" style="margin-top:0.55em;">
+          <li>生成 UTF-8 纯文本 <code>scores.txt</code>，建议不少于 50 行。</li>
+          <li>每行一条成绩记录：第一列分数（0–100 整数），空格分隔，第二列英文姓名代号（无空格）。</li>
+          <li>应包含若干完全相同的重复行；部分相邻、部分不相邻，便于体会 uniq 通常要先 sort。</li>
+          <li>分数与姓名多样化；每行末尾有换行符。</li>
+        </ul>
+        <p class="small" style="margin-top:0.55em;">格式示例（片段，非固定答案）：</p>
         <pre><code class="language-bash">27 LiMing
 60 HanXue
 0 DengYu
 0 DengYu
 0 DengYu
 85 WuTong</code></pre>
-        <div class="two-col">
-          <div class="card blue">
-            <h3>字段含义</h3>
-            <ul class="num-list">
-              <li>每行一条模拟学生成绩记录</li>
-              <li>第一列：分数（0–100 整数）</li>
-              <li>第二列：姓名代号（无空格英文）</li>
-              <li>同一记录可能重复，部分重复不相邻</li>
-            </ul>
-          </div>
-          <div class="card green">
-            <h3>说明</h3>
-            <p>上面仅为格式示例，实际以发放的 <code>scores.txt</code> 为准。示例中 <code>0 DengYu</code> 连续出现三次，正是相邻重复记录。</p>
-          </div>
-        </div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>将 scores.txt 导入 CentOS</h2>
-        <p class="subtitle">由 Windows 拖到 CentOS 桌面，再移入 SortLab</p>
-        <div class="two-col">
-          <div>
+        <h2>准备练习文件：导入 scores.txt</h2>
+        <p class="subtitle">按配套说明准备好 scores.txt 后，拖入 CentOS 并移入 SortLab</p>
+        <div class="split-panel">
+          <div class="stack">
             <pre><code class="language-bash">cd /home/njucm/Desktop
 mkdir -p SortLab
 cd SortLab
@@ -542,18 +556,18 @@ pwd</code></pre>
 head scores.txt
 wc -l scores.txt</code></pre>
           </div>
-          <div>
-            <div class="card blue" style="margin-bottom:0.55em;">
-              <h3>操作说明</h3>
+          <div class="stack">
+            <div class="card blue">
+              <h3>准备目录</h3>
               <ul class="num-list">
-                <li>在 Windows 找到教师发放的 scores.txt</li>
-                <li>拖到 CentOS 桌面</li>
-                <li>再移动到桌面的 SortLab 文件夹</li>
+                <li>进入桌面目录</li>
+                <li>创建 SortLab</li>
+                <li>进入并确认路径</li>
               </ul>
             </div>
             <div class="card green">
-              <h3>检查结果</h3>
-              <p>用 <code>ls</code> / <code>head</code> / <code>wc -l</code> 核查。若 <code>ls</code> 报找不到文件，先确认已拖动并移入 SortLab。本实验不提供生成文件的命令。</p>
+              <h3>导入文件</h3>
+              <p>由 Windows 拖到 CentOS 桌面，再移入 SortLab；用 <code>ls</code> / <code>head</code> / <code>wc -l</code> 核查。若报找不到文件，先确认已拖入并移入 SortLab。</p>
             </div>
           </div>
         </div>
