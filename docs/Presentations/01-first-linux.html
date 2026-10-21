@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第一次进入 Linux · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 24px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 26px 44px 58px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.4em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.22em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.78em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.58em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.35em 0.65em;
+      margin: 0.3em 0;
+      font-size: 0.7em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.45em 0.6em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.64em;
+      color: var(--ink-soft);
+      line-height: 1.42;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.2em 0;
+      padding-left: 1.55em;
+      position: relative;
+      font-size: 0.68em;
+      line-height: 1.38;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验一：初识 Linux 与 VMware Workstation｜熟悉课程虚拟机，完成第一次终端操作</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>熟悉 VMware Workstation 与 CentOS 实验环境</li>
+              <li>掌握终端、目录查看与切换等基础命令</li>
+              <li>能创建目录、查看帮助并保存实验结果</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>启动并登录 CentOS，完成基础命令练习</li>
+              <li>练习 ls、cd、pwd、man、--help 等命令</li>
+              <li>创建 LinuxLab 目录结构并检查结果</li>
+              <li>保存关键步骤截图，完成实验报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：VMware Workstation + CentOS · 用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验一</h1>
+        <p class="subtitle">初识 Linux 与 VMware Workstation：先会启动、登录，再开始敲命令</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">认识环境</span><code>VMware</code></div>
+          <div class="node"><span class="label">启动登录</span><code>njucm</code></div>
+          <div class="node"><span class="label">认识终端</span><code>whoami</code></div>
+          <div class="node"><span class="label">目录操作</span><code>ls / cd</code></div>
+          <div class="node"><span class="label">创建结构</span><code>mkdir</code></div>
+        </div>
+        <div class="band band-blue">宿主机 → VMware Workstation → CentOS 课程虚拟机</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>认识环境</div>
+          <div class="step"><span>02</span>启动登录</div>
+          <div class="step"><span>03</span>终端练习</div>
+          <div class="step"><span>04</span>目录任务</div>
+          <div class="step"><span>05</span>截图保存</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>能启动并登录 CentOS</li>
+              <li>会用 whoami、hostname、pwd、date、uname -a</li>
+              <li>会用 ls / ls -l / ls -a 与 cd 切换目录</li>
+              <li>能创建 LinuxLab 并用 ls -la 检查</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先照着做一遍，再自己重做一遍</li>
+              <li>报错时先看提示、看路径、查帮助</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>什么是 VMware Workstation？</h2>
+        <p class="subtitle">在一台真实电脑中，再运行一台“虚拟电脑”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>宿主机</h3><p>实验室里的真实 Windows 电脑</p></div>
+          <div class="card green"><h3>虚拟机软件</h3><p>VMware Workstation</p></div>
+          <div class="card blue"><h3>客户机系统</h3><p>本课程提供的 CentOS</p></div>
+          <div class="card green"><h3>为什么用它</h3><p>不重装真实电脑；环境统一；出错后更容易恢复</p></div>
+        </div>
+        <div class="band band-blue">真实电脑 → VMware Workstation → CentOS 虚拟机</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>先认识 VMware Workstation</h2>
+        <p class="subtitle">第一次实验只会用到“打开、启动、关机”</p>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue"><h3>1 打开软件</h3><p>打开 VMware Workstation</p></div>
+          <div class="card green"><h3>2 选择虚拟机</h3><p>找到已准备好的 CentOS 虚拟机</p></div>
+          <div class="card blue"><h3>3 启动</h3><p>点击 Power on / 启动，等待开机</p></div>
+        </div>
+        <div class="band band-orange">不要随意修改 CPU、内存、网络或虚拟磁盘；不要移动或删除虚拟机文件。</div>
+        <div class="band band-blue">若启动失败：确认选中的是课程虚拟机，再说明报错信息。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>启动并登录 CentOS</h2>
+        <p class="subtitle">账号固定，密码按实验电脑提示获取</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>1 启动</h3><p>在 VMware 中点击 Power on / 启动</p></div>
+          <div class="card green"><h3>2 等待登录界面</h3><p>启动过程中不要反复点击或强制关闭</p></div>
+          <div class="card blue"><h3>3 用户名</h3><p>统一为 <code>njucm</code></p></div>
+          <div class="card green"><h3>4 密码</h3><p>查看 Windows 桌面上的 TXT 文档</p></div>
+        </div>
+        <div class="band band-blue">密码区分大小写；登录成功后打开 Terminal / 终端。实验结束时用系统关机，不要只关 VMware 窗口。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>认识终端：Linux 的“对话框”</h2>
+        <p class="subtitle">看得懂提示符，敢敲命令，知道看输出</p>
+        <pre><code class="language-bash">[njucm@centos ~]$ whoami
+njucm
+[njucm@centos ~]$ pwd
+/home/njucm</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>njucm</h3><p>当前登录用户名</p></div>
+          <div class="card green"><h3>centos</h3><p>主机名（以实验环境为准）</p></div>
+          <div class="card blue"><h3>~</h3><p>当前在自己的主目录</p></div>
+          <div class="card green"><h3>$</h3><p>普通用户提示符；其后输入命令</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>练习1：认识“我”和“这台机器”</h2>
+        <p class="subtitle">逐条输入，执行一条就看一次结果</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>whoami</h3><p>我是谁？记录用户名</p></div>
+          <div class="card green"><h3>hostname</h3><p>这是哪台机器？记录主机名</p></div>
+          <div class="card blue"><h3>pwd</h3><p>我现在在哪里？记录当前目录</p></div>
+          <div class="card green"><h3>date</h3><p>系统现在几点？</p></div>
+        </div>
+        <div class="band band-blue">再执行 <code>uname -a</code> 观察内核信息。这几条命令请亲手敲一遍，不要复制粘贴。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>练习2：用 ls 看“这里有什么”</h2>
+        <pre><code class="language-bash">pwd
+ls
+ls -l
+ls -a
+ls -la</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>含义</h3>
+            <ul>
+              <li><code>ls</code>：列出文件和目录</li>
+              <li><code>ls -l</code>：长格式详细显示</li>
+              <li><code>ls -a</code>：包含隐藏文件（以 . 开头）</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ul class="num-list">
+              <li>哪条命令信息最多？</li>
+              <li>ls -a 是否多出以 . 开头的项？</li>
+              <li>主目录里有哪些文件夹？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">Linux 区分大小写：<code>ls</code> 与 <code>LS</code> 不是同一条命令。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>练习3：在 Linux 目录中“走一圈”</h2>
+        <p class="subtitle">每切换一次目录，都用 pwd 确认当前位置</p>
+        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card blue"><h3>1–3</h3><p><code>cd /</code> → <code>pwd</code> → <code>ls</code></p></div>
+          <div class="card green"><h3>4–5</h3><p><code>cd /home</code> → <code>pwd</code></p></div>
+          <div class="card blue"><h3>6–7</h3><p><code>cd /tmp</code> → <code>pwd</code></p></div>
+        </div>
+        <div class="band band-blue">最后执行 <code>cd ~</code> 与 <code>pwd</code>，应回到 <code>/home/njucm</code>。再自己完成：/ → /home → /tmp → ~。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>练习4：不会命令时，先学会自己查</h2>
+        <pre><code class="language-bash">man ls
+# 按 q 退出 man
+ls --help
+mkdir --help</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>man 命令</h3><p>查看较完整的手册</p></div>
+          <div class="card green"><h3>命令 --help</h3><p>快速查看常用选项</p></div>
+          <div class="card blue"><h3>Tab 补全</h3><p>输入一部分后按 Tab，减少拼写错误</p></div>
+          <div class="card green"><h3>自己查</h3><p>查出 ls -a / -l 含义；用 Tab 补全 /ho</p></div>
+        </div>
+        <div class="band band-blue">规则：先查帮助；先读报错；再改命令。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>练习5：创建你的第一个 LinuxLab</h2>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd ~
+mkdir LinuxLab
+cd LinuxLab
+mkdir data script result
+touch README.txt
+pwd
+ls -la</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>目标结构</h3>
+              <pre><code class="language-bash">LinuxLab/
+├── data/
+├── script/
+├── result/
+└── README.txt</code></pre>
+            </div>
+            <div class="card green">
+              <h3>要点</h3>
+              <p><code>mkdir</code> 创建目录；<code>touch</code> 创建空文件；用 <code>ls -la</code> 检查是否成功。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>练习6：同样的任务，再做一遍</h2>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>回到主目录：<code>cd ~</code>，用 <code>pwd</code> 确认</li>
+          <li>创建 PracticeLab 并进入</li>
+          <li>尝试用一条 <code>mkdir</code> 创建 data、script、result</li>
+          <li>用 <code>touch</code> 创建 README.txt</li>
+          <li>执行 <code>pwd</code>、<code>ls -l</code>、<code>ls -a</code> 检查</li>
+          <li>再进入 <code>~/LinuxLab</code>，用 <code>ls -la</code> 复查</li>
+        </ul>
+        <div class="band band-blue">若忘记如何一次创建多个目录，先执行 <code>mkdir --help</code>。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>课堂综合练习</h2>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>确认当前用户、主机名、位置、系统时间和内核信息</li>
+          <li>依次进入 /、/home、/tmp，每到一处执行 pwd，并用 ls 查看</li>
+          <li>回到主目录，分别执行 ls、ls -l、ls -a、ls -la</li>
+          <li>进入 ~/LinuxLab，用 ls -la 检查 data、script、result 和 README.txt</li>
+          <li>用 man ls 或 ls --help，再确认 -a 与 -l 的含义</li>
+        </ul>
+        <div class="band band-blue">完成标准：以上操作连续完成；出错时能用 pwd、ls 和帮助系统自查。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>常见报错：先看它在说什么</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>No such file or directory</h3><p>路径或名字写错 → pwd / ls 检查</p></div>
+          <div class="card green"><h3>command not found</h3><p>命令写错 → 检查大小写和拼写</p></div>
+          <div class="card blue"><h3>Permission denied</h3><p>当前用户没有权限 → 先确认操作</p></div>
+          <div class="card green"><h3>Is a directory</h3><p>把目录当普通文件操作 → ls -l 查看对象</p></div>
+        </div>
+        <div class="band band-blue">排错：看报错 → pwd 看位置 → ls 看内容 → 检查大小写 → 查帮助。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的截图工具</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1</h3><p>打开截图工具</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端中的命令与输出</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG/JPG，命名清楚</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确认命令、输出、用户名清晰可读</p></div>
+        </div>
+        <div class="band band-blue">建议保留：启动成功、系统信息、目录切换、LinuxLab 结构。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>实验1作业：提交实验报告</h2>
+        <p class="subtitle">按课程实验报告模板完整填写</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
+          <div class="card green"><h3>实验结果</h3><p>关键截图，图下 1～2 句说明</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>问题、原因与解决方法</p></div>
+          <div class="card green"><h3>实验总结</h3><p>写 3～5 句收获</p></div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；截图放入报告中。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>17</span></div>
+      </section>
+
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

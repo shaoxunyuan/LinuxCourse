@@ -532,7 +532,7 @@
           <li>应包含若干完全相同的重复行；部分相邻、部分不相邻，便于体会 uniq 通常要先 sort。</li>
           <li>分数与姓名多样化；每行末尾有换行符。</li>
         </ul>
-        <p class="small" style="margin-top:0.55em;">格式示例（片段，非固定答案）：</p>
+        <p class="small" style="margin-top:0.55em;">格式示例：</p>
         <pre><code class="language-bash">27 LiMing
 60 HanXue
 0 DengYu
@@ -739,7 +739,7 @@ sort scores.txt | uniq</code></pre>
           </div>
           <div class="card blue">
             <h3>输出结构</h3>
-            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 ZhangWei</code> 表示原文件中 <code>85 ZhangWei</code> 这条整行记录共出现 3 次（此为解释样例，不代表配套文件固定结果）。</p>
+            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 ZhangWei</code> 表示原文件中 <code>85 ZhangWei</code> 这条整行记录共出现 3 次。</p>
           </div>
         </div>
         <div class="band band-blue">注意：-c 统计的是相邻完全相同整行的次数，不是仅统计某个姓名出现几次。</div>
@@ -859,7 +859,7 @@ sort scores.txt | uniq -u
 sort scores.txt | uniq | wc -l</code></pre>
           </div>
           <div class="card green">
-            <h3>请记录（自行填写）</h3>
+            <h3>请记录</h3>
             <ul>
               <li>不同记录种数：______</li>
               <li>至少重复一次的记录：______</li>
@@ -923,7 +923,7 @@ sort scores.txt | uniq | wc -l</code></pre>
             <p>包含 sort | uniq -d、sort | uniq | wc -l 的输出。</p>
           </div>
         </div>
-        <div class="band band-blue">每张图片下用 1 至 2 句解释命令做了什么、结果表示什么。不要给出未经核实的固定数字作为学生答案。</div>
+        <div class="band band-blue">每张图片下用 1 至 2 句解释命令做了什么、结果表示什么。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>22</span></div>
       </section>
 

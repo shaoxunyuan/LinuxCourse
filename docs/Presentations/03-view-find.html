@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本查看和查找 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 24px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 26px 44px 58px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.4em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.22em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.78em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.58em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.35em 0.65em;
+      margin: 0.3em 0;
+      font-size: 0.7em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.45em 0.6em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.64em;
+      color: var(--ink-soft);
+      line-height: 1.42;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.2em 0;
+      padding-left: 1.55em;
+      position: relative;
+      font-size: 0.68em;
+      line-height: 1.38;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验三：文件查看与查找｜掌握查看命令，并用 find 按条件定位文件</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>掌握 cat、more、less、head、tail、nl</li>
+              <li>能根据文件长度选择合适查看方式</li>
+              <li>掌握 find 的 -name、-type、-size、-mtime</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>在 ~/Desktop/LinuxProject 中完成查看练习</li>
+              <li>用 find 按名称、类型、大小、时间查找</li>
+              <li>完成课堂综合练习并写报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code> · 练习目录 <code>~/Desktop/LinuxProject</code></div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验三</h1>
+        <p class="subtitle">文件查看与查找：从“看内容”到“按条件快速找到文件”</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">全文查看</span><code>cat / nl</code></div>
+          <div class="node"><span class="label">分页浏览</span><code>more / less</code></div>
+          <div class="node"><span class="label">首尾定位</span><code>head / tail</code></div>
+          <div class="node"><span class="label">按名查找</span><code>find -name</code></div>
+          <div class="node"><span class="label">属性查找</span><code>-size / -mtime</code></div>
+        </div>
+        <div class="band band-blue">长文件优先 more / less，不要让 cat 刷满终端。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps six">
+          <div class="step"><span>01</span>认识数据</div>
+          <div class="step"><span>02</span>短文本</div>
+          <div class="step"><span>03</span>长文本</div>
+          <div class="step"><span>04</span>首尾行号</div>
+          <div class="step"><span>05</span>find 条件</div>
+          <div class="step"><span>06</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>会用 cat / nl / more / less / head / tail</li>
+              <li>会用 find 组合多个条件</li>
+              <li>能解释命令返回结果</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先进入 LinuxProject</li>
+              <li>find 先定起点，再加条件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>配套练习文件说明：LinuxProject</h2>
+        <ul class="num-list" style="margin-top:0.45em;">
+          <li>在桌面准备目录 <code>LinuxProject</code>，含 data、logs、reports、docs、archive、config、mixed 等子目录。</li>
+          <li>放入短文本（如 README.txt）、长报告、患者/检验 CSV、系统与应用日志等模拟教学数据。</li>
+          <li>准备不同大小文件（如约 2K / 16K / 128K / 1M）以及不同修改时间的报告样例，便于练习 -size / -mtime。</li>
+          <li>UTF-8 纯文本为主；路径相对 <code>~/Desktop/LinuxProject</code>。</li>
+        </ul>
+        <div class="band band-blue">后面命令默认已执行 <code>cd ~/Desktop/LinuxProject</code>。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>文件查看命令怎么选？</h2>
+        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card blue"><h3>cat</h3><p>一次显示全部 · 短文本</p></div>
+          <div class="card green"><h3>more</h3><p>向下分页 · 长报告</p></div>
+          <div class="card blue"><h3>less</h3><p>前后翻页并搜索 · 日志</p></div>
+          <div class="card green"><h3>head</h3><p>查看开头 · CSV 表头</p></div>
+          <div class="card blue"><h3>tail</h3><p>查看结尾 · 日志末尾</p></div>
+          <div class="card green"><h3>nl</h3><p>带行号查看</p></div>
+        </div>
+        <div class="band band-blue">短文件用 cat；长文件用 more/less；只看首尾用 head/tail；需要行号用 nl。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>练习1：用 cat 查看较短文本</h2>
+        <pre><code class="language-bash">cd ~/Desktop/LinuxProject
+cat README.txt
+cat data/patients/patient_demo_small.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>cat</h3><p>把文件内容一次输出到终端</p></div>
+          <div class="card green"><h3>观察</h3><p>短文本直观；较长 CSV、报告和日志不要直接 cat</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>练习2：用 more 和 less 分页浏览</h2>
+        <pre><code class="language-bash">more reports/2026/annual_medical_report.txt
+# 空格下一页 · Enter下一行 · q退出
+less logs/system/system_runtime.log
+# 空格下一页 · b上一页 · /ERROR 搜索 · n下一个 · q退出</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>more</h3><p>从前向后分页，适合顺序阅读长报告</p></div>
+          <div class="card green"><h3>less</h3><p>可前后翻页，还能搜索 ERROR 等关键词</p></div>
+        </div>
+        <div class="band band-blue">两个文件都至少翻 2 页；在 less 中搜索一次 ERROR 再退出。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>练习3：用 head 和 tail 看首尾</h2>
+        <pre><code class="language-bash">head data/patients/patient_records.csv
+head -n 5 data/patients/patient_records.csv
+tail logs/application/hospital_app.log
+tail -n 10 logs/application/hospital_app.log</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>head</h3><p>默认前 10 行；适合看 CSV 表头</p></div>
+          <div class="card green"><h3>tail</h3><p>默认后 10 行；适合看日志末尾</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>练习4：用 nl 给文本加行号</h2>
+        <pre><code class="language-bash">nl docs/notes/shift_notes.txt
+nl -ba docs/notes/shift_notes.txt
+nl README.txt</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>nl</h3><p>给非空行编号</p></div>
+          <div class="card green"><h3>nl -ba</h3><p>给所有行编号，包括空白行</p></div>
+        </div>
+        <div class="band band-blue">行号不是文件原有内容，只是显示时临时加上的。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>练习5：面对不同需求，自己选择命令</h2>
+        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="card blue"><h3>A</h3><p>完整查看 README.txt → cat</p></div>
+          <div class="card green"><h3>B</h3><p>分页读年度报告 → more/less</p></div>
+          <div class="card blue"><h3>C</h3><p>CSV 前 5 行 → head -n 5</p></div>
+          <div class="card green"><h3>D</h3><p>日志最后 10 行 → tail -n 10</p></div>
+          <div class="card blue"><h3>E</h3><p>全部行号 → nl -ba</p></div>
+          <div class="card green"><h3>F</h3><p>日志中搜索 ERROR → less</p></div>
+        </div>
+        <div class="band band-blue">文件越长，为什么越不应该直接 cat？</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>find：从“路径”到“条件”</h2>
+        <pre><code class="language-bash">find 查找起点 查找条件
+find . -type f -name "*.csv"
+find . -type f -size +100k
+find . -type f -mtime -30</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>-name</h3><p>按名称，如 <code>"*.csv"</code></p></div>
+          <div class="card green"><h3>-type</h3><p>f 普通文件 · d 目录</p></div>
+          <div class="card blue"><h3>-size</h3><p>+100k / -20k</p></div>
+          <div class="card green"><h3>-mtime</h3><p>+365 / -30</p></div>
+        </div>
+        <div class="band band-blue">通配符模式请放在引号中。多个条件默认同时满足。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>练习6：用 find 按名称查找</h2>
+        <pre><code class="language-bash">find . -name "README.txt"
+find . -name "*.txt"
+find . -name "*.csv"
+find reports -name "result*"</code></pre>
+        <div class="band band-blue">观察：从 <code>.</code> 开始和从 <code>reports</code> 开始，结果范围有什么不同？</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>练习7：用 find 区分文件和目录</h2>
+        <pre><code class="language-bash">find . -type f
+find . -type d
+find . -type f -name "*.txt"
+find . -type d -name "data*"</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>-type f</h3><p>只匹配普通文件</p></div>
+          <div class="card green"><h3>-type d</h3><p>只匹配目录</p></div>
+        </div>
+        <div class="band band-blue">能解释查找起点、-type、-name 各自控制什么吗？</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习8：用 find -size 按大小查找</h2>
+        <pre><code class="language-bash">ls -lh archive/backup
+find archive/backup -type f -size +100k
+find archive/backup -type f -size -20k
+find . -type f -size +100k</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>+100k</h3><p>大于 100 KiB</p></div>
+          <div class="card green"><h3>-20k</h3><p>小于 20 KiB</p></div>
+        </div>
+        <div class="band band-blue">单位：k 表示 KiB，M 表示 MiB；+ 表示大于，- 表示小于。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>练习9：用 find -mtime 按修改时间查找</h2>
+        <pre><code class="language-bash">ls -l reports/2024/old_report.txt
+ls -l reports/2026/recent_report.txt
+find . -type f -mtime +365
+find . -type f -mtime -30</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>-mtime +365</h3><p>约 365 天以前修改过的文件</p></div>
+          <div class="card green"><h3>-mtime -30</h3><p>最近约 30 天内修改过的文件</p></div>
+        </div>
+        <div class="band band-blue">-mtime 以当前时间为基准，按完整 24 小时周期计算。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习10：把 find 条件组合起来</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>A</h3><div class="cmd">find . -type f -name "*.csv"</div></div>
+          <div class="card green"><h3>B</h3><div class="cmd">find . -type f -size +100k</div></div>
+          <div class="card blue"><h3>C</h3><div class="cmd">find logs -type f -name "*.log" -mtime -30</div></div>
+          <div class="card green"><h3>D</h3><div class="cmd">find reports -type f -name "*.txt" -mtime +365</div></div>
+        </div>
+        <div class="band band-blue">结果太多时，先想还能增加哪个条件：-type / -name / -size / -mtime。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>课堂综合练习</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>环境</h3>
+            <ul>
+              <li>目录：<code>~/Desktop/LinuxProject</code></li>
+              <li>查看：README、CSV、报告、日志</li>
+              <li>查找：. / reports / logs / archive/backup</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务</h3>
+            <ul class="num-list">
+              <li>短文本、长报告、CSV 开头、日志结尾、带行号查看</li>
+              <li>按名称与类型查找</li>
+              <li>按大小与时间查找，并至少一次条件组合</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>课堂综合练习：操作清单</h2>
+        <ul class="num-list" style="margin-top:0.3em;">
+          <li>完整查看 README.txt</li>
+          <li>给 shift_notes.txt 全部行编号（含空行）</li>
+          <li>显示 patient_records.csv 前 5 行</li>
+          <li>显示 hospital_app.log 最后 10 行</li>
+          <li>用 more 浏览年度报告；用 less 浏览系统日志并搜索 ERROR</li>
+          <li>按名称、类型、大小、时间完成查找</li>
+        </ul>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>常见报错</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>No such file or directory</h3><p>先 pwd / ls 确认位置</p></div>
+          <div class="card green"><h3>paths must precede expression</h3><p>把 <code>*.txt</code> 写成 <code>"*.txt"</code></p></div>
+          <div class="card blue"><h3>invalid -size</h3><p>检查单位写法，如 +100k</p></div>
+          <div class="card green"><h3>结果与预期不同</h3><p>先 ls -l 看时间，再解释 -mtime</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>如何保存实验截图</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>截图 A</h3><p>cat / nl / head / tail</p></div>
+          <div class="card green"><h3>截图 B</h3><p>more / less 分页或搜索</p></div>
+          <div class="card blue"><h3>截图 C</h3><p>-name / -type 查找</p></div>
+          <div class="card green"><h3>截图 D</h3><p>-size / -mtime 查找</p></div>
+        </div>
+        <div class="band band-blue">截取命令、输出和提示符；确保 njucm 清晰可读。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>实验3作业：提交实验报告</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
+          <div class="card green"><h3>实验结果</h3><p>四类截图 + 说明</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>报错与解决方法</p></div>
+          <div class="card green"><h3>实验总结</h3><p>3～5 句收获</p></div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。作业内容就是课堂综合练习。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>21</span></div>
+      </section>
+
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

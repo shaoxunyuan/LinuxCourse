@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户、用户组与权限 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 24px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 26px 44px 58px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.4em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.22em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.78em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.58em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.35em 0.65em;
+      margin: 0.3em 0;
+      font-size: 0.7em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.45em 0.6em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.64em;
+      color: var(--ink-soft);
+      line-height: 1.42;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.2em 0;
+      padding-left: 1.55em;
+      position: relative;
+      font-size: 0.68em;
+      line-height: 1.38;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验四：用户、用户组与权限｜理解“谁可以对什么做什么”</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>认识当前用户、用户组与文件所有者</li>
+              <li>理解 r、w、x 与 owner、group、others</li>
+              <li>掌握 chmod 符号法与数字法</li>
+              <li>能根据报错判断是否属于权限问题</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>用 whoami、id、groups 确认身份</li>
+              <li>用 ls -l 读取权限并用 chmod 设置</li>
+              <li>完成课堂综合练习并写报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验四</h1>
+        <p class="subtitle">用户、用户组与权限：为什么允许你，也为什么有时拒绝你</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">识别身份</span><code>whoami</code></div>
+          <div class="node"><span class="label">读懂权限</span><code>ls -l</code></div>
+          <div class="node"><span class="label">修改权限</span><code>chmod</code></div>
+          <div class="node"><span class="label">验证行为</span><code>./run.sh</code></div>
+          <div class="node"><span class="label">综合任务</span><code>PermissionLab</code></div>
+        </div>
+        <div class="band band-blue">权限问题先回答：我是谁？文件属于谁？权限给了谁？</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>识别身份</div>
+          <div class="step"><span>02</span>看懂权限</div>
+          <div class="step"><span>03</span>修改权限</div>
+          <div class="step"><span>04</span>验证行为</div>
+          <div class="step"><span>05</span>综合任务</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>解释 owner / group / others</li>
+              <li>区分文件与目录上的 r、w、x</li>
+              <li>会用符号法与数字法设置权限</li>
+              <li>遇到 Permission denied 能按步骤定位</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先观察，再修改，再 ls -l 验证</li>
+              <li>不把 sudo 或 chmod 777 当万能答案</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>权限到底在判断什么？</h2>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue"><h3>① 当前用户是谁？</h3><p>whoami / id / groups</p></div>
+          <div class="card green"><h3>② 对象属于谁？</h3><p>ls -l 看 owner 与 group</p></div>
+          <div class="card blue"><h3>③ 权限允许什么？</h3><p>r / w / x</p></div>
+        </div>
+        <pre><code class="language-bash">-rwxr-xr-- 1 njucm njucm 128 Oct 12  run.sh</code></pre>
+        <div class="band band-blue">判断权限不要只看 rwx，还要结合当前用户、所有者和所属组。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>先认清自己：whoami、id、groups</h2>
+        <pre><code class="language-bash">whoami
+id
+groups
+pwd</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>whoami</h3><p>当前登录用户名</p></div>
+          <div class="card green"><h3>id</h3><p>UID、GID 和所属组</p></div>
+          <div class="card blue"><h3>groups</h3><p>当前用户所在的组</p></div>
+          <div class="card green"><h3>ls -l</h3><p>对象所有者、组和权限</p></div>
+        </div>
+        <div class="band band-blue">权限排错的第一步经常不是 chmod，而是先确认当前身份。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>读懂 ls -l：权限字符串</h2>
+        <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 24 demo.txt
+# 类型 | owner | group | others</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>第 1 位</h3><p><code>-</code> 普通文件 · <code>d</code> 目录</p></div>
+          <div class="card green"><h3>第 2～4 位</h3><p>owner 权限，如 rw-</p></div>
+          <div class="card blue"><h3>第 5～7 位</h3><p>group 权限，如 r--</p></div>
+          <div class="card green"><h3>第 8～10 位</h3><p>others 权限，如 r--</p></div>
+        </div>
+        <div class="band band-blue">先分成三组三位：owner｜group｜others，再分别读 r、w、x。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>r、w、x：对文件和目录含义不同</h2>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue">
+            <h3>r 读取</h3>
+            <p>文件：可读内容<br>目录：可列出名称</p>
+          </div>
+          <div class="card green">
+            <h3>w 写入</h3>
+            <p>文件：可修改内容<br>目录：可创建/删除/改名条目</p>
+          </div>
+          <div class="card blue">
+            <h3>x 执行/进入</h3>
+            <p>文件：可作为程序执行<br>目录：可进入并访问其中对象</p>
+          </div>
+        </div>
+        <div class="band band-orange">对目录来说，x 表示“可进入/可穿越”，最容易混淆。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>chmod 符号法</h2>
+        <pre><code class="language-bash">chmod u+x run.sh
+chmod g-w report.txt
+chmod o-r secret.txt
+chmod a+r README.txt
+chmod u=rw file.txt</code></pre>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue"><h3>对象</h3><p>u / g / o / a</p></div>
+          <div class="card green"><h3>动作</h3><p>+ 增加 · - 删除 · = 设置</p></div>
+          <div class="card blue"><h3>例</h3><p>u+x：给所有者增加执行权限</p></div>
+        </div>
+        <div class="band band-blue">修改后立即用 <code>ls -l</code> 验证。符号法适合只改一小部分权限。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>chmod 数字法：r=4，w=2，x=1</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>644</h3><p>自己读写，其他只读</p></div>
+          <div class="card green"><h3>600</h3><p>只有自己可读写</p></div>
+          <div class="card blue"><h3>755</h3><p>自己可写并执行，其他可读执行</p></div>
+          <div class="card green"><h3>700</h3><p>只有自己拥有全部权限</p></div>
+        </div>
+        <pre><code class="language-bash">chmod 644 file.txt
+chmod 600 secret.txt
+chmod 755 run.sh
+chmod 700 private_dir</code></pre>
+        <div class="band band-orange">不要把 chmod 777 当成“修复权限”的默认做法。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>所有者、用户组与 sudo</h2>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue"><h3>chown</h3><p>修改所有者，通常需管理员权限</p></div>
+          <div class="card green"><h3>chgrp</h3><p>修改所属组</p></div>
+          <div class="card blue"><h3>sudo</h3><p>临时以管理员权限执行；明确需要时才用</p></div>
+        </div>
+        <div class="band band-blue">最小权限原则：能用当前用户解决就不要先加 sudo；能只加 u+x 就不要改成 777。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>练习1：确认当前身份和用户组</h2>
+        <pre><code class="language-bash">whoami
+id
+groups
+pwd</code></pre>
+        <div class="card green">
+          <h3>观察</h3>
+          <ul class="num-list">
+            <li>当前用户名是否为 njucm？</li>
+            <li>UID 和 GID 是什么？</li>
+            <li>groups 中有哪些组？</li>
+            <li>当前目录是否在 /home/njucm？</li>
+          </ul>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>练习2：创建对象并观察初始权限</h2>
+        <pre><code class="language-bash">cd ~
+mkdir -p PermissionLab
+cd PermissionLab
+touch public.txt secret.txt run.sh
+mkdir data
+ls -l
+ls -ld data</code></pre>
+        <div class="band band-blue">观察：普通文件与目录第 1 位有何不同？owner/group 是否都是 njucm？</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>练习3：用符号法修改权限</h2>
+        <pre><code class="language-bash">chmod u+x run.sh
+ls -l run.sh
+chmod o-r secret.txt
+ls -l secret.txt
+chmod g-w public.txt
+ls -l public.txt</code></pre>
+        <div class="band band-blue">每一步都先看修改前权限，再 chmod，再用 ls -l 对比。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习4：用数字法设置常见权限</h2>
+        <pre><code class="language-bash">chmod 644 public.txt
+chmod 600 secret.txt
+chmod 755 run.sh
+chmod 700 data
+ls -l public.txt secret.txt run.sh
+ls -ld data</code></pre>
+        <div class="band band-blue">执行前先写出各数字对应的 rwx；执行后与 ls -l 核对。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>练习5：制造并解决 Permission denied</h2>
+        <pre><code class="language-bash">printf '#!/bin/bash\necho Hello Permission\n' > run.sh
+chmod 644 run.sh
+./run.sh
+ls -l run.sh
+chmod u+x run.sh
+./run.sh</code></pre>
+        <div class="two-col">
+          <div class="card blue"><h3>第一次</h3><p>预期 Permission denied（缺少 x）</p></div>
+          <div class="card green"><h3>修复</h3><p>只增加 owner 的执行权限，再运行验证</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习6：目录的 x 权限为什么重要？</h2>
+        <pre><code class="language-bash">mkdir -p testdir
+touch testdir/a.txt
+chmod 600 testdir
+ls -ld testdir
+cd testdir
+chmod 700 testdir
+cd testdir
+pwd</code></pre>
+        <div class="band band-blue">目录缺少 x 时可能无法进入。改为 700 后再进入并用 pwd 确认。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>课堂综合练习：配置 PermissionLab</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标</h3>
+            <pre><code class="language-bash">PermissionLab/
+├── public.txt   → 644
+├── secret.txt   → 600
+├── run.sh       → 755
+└── data/        → 700
+    └── note.txt</code></pre>
+          </div>
+          <div class="card green">
+            <h3>步骤</h3>
+            <ul class="num-list">
+              <li>创建目录与文件，写入可执行脚本</li>
+              <li>按目标设置权限并 ls 检查</li>
+              <li>运行 ./run.sh 验证</li>
+              <li>临时去掉 x，记录报错后再恢复</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>完成标准与截图</h2>
+        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="card blue"><h3>截图1 最终权限</h3><p>ls -l / ls -ld 与各对象权限</p></div>
+          <div class="card green"><h3>截图2 报错定位</h3><p>Permission denied + ls -l 判断</p></div>
+          <div class="card blue"><h3>截图3 修复成功</h3><p>chmod 后再次运行成功</p></div>
+        </div>
+        <div class="band band-blue">权限设置正确、报错原因解释清楚、修复后能够再次验证。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>常见报错</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>Permission denied</h3><p>先用 id、ls -l 判断，不要立刻 sudo</p></div>
+          <div class="card green"><h3>Operation not permitted</h3><p>可能不是所有者</p></div>
+          <div class="card blue"><h3>chmod: cannot access</h3><p>路径或文件名写错</p></div>
+          <div class="card green"><h3>chmod 777 后虽能用</h3><p>权限过大，应按需求改回</p></div>
+        </div>
+        <div class="band band-blue">排错：读报错 → pwd/ls → id/ls -l → 最小修改 → 再验证。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>如何保存实验截图</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1</h3><p>打开截图工具</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端命令与输出</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存 PNG/JPG</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确认权限字符串清晰可读</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>实验4作业：提交实验报告</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
+          <div class="card green"><h3>实验结果</h3><p>最终权限、报错定位、修复成功三类截图</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>原因 + 解决方法</p></div>
+          <div class="card green"><h3>实验总结</h3><p>3～5 句收获</p></div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>21</span></div>
+      </section>
+
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>
