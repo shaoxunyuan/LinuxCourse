@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本排序与去重 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100%;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.6em 0.85em !important;
+      margin: 0.35em 0 0.55em;
+      border-radius: 0;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85em;
+      margin-top: 0.35em;
+    }
+    .two-col.uneven { grid-template-columns: 0.9fr 1.2fr; }
+    .two-col.uneven-left { grid-template-columns: 1.15fr 0.95fr; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验六：文本排序与去重｜把杂乱记录整理成有序结果</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解文本排序与相邻去重的含义</li>
+              <li>掌握 sort 的常用选项</li>
+              <li>掌握 uniq 的去重和计数方式</li>
+              <li>能组合命令完成成绩记录整理</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>使用 sort、sort -r、sort -n、sort -k 排序</li>
+              <li>使用 uniq、uniq -c、uniq -d、uniq -u</li>
+              <li>掌握管道 sort | uniq</li>
+              <li>完成课堂综合练习并填写实验报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 登录用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验六</h1>
+        <p class="subtitle">文本排序与去重：让杂乱记录变得有序</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">查看文件</span><code>cat scores.txt</code></div>
+          <div class="node"><span class="label">文本排序</span><code>sort scores.txt</code></div>
+          <div class="node"><span class="label">数值排序</span><code>sort -n scores.txt</code></div>
+          <div class="node"><span class="label">去重统计</span><code>sort | uniq -c</code></div>
+          <div class="node"><span class="label">综合任务</span><code>sort | uniq | wc -l</code></div>
+        </div>
+        <div class="band band-blue">核心问题：记录顺序乱了怎么办？哪些记录重复出现？</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps six">
+          <div class="step"><span>01</span>导入文件</div>
+          <div class="step"><span>02</span>理解排序</div>
+          <div class="step"><span>03</span>学习 sort</div>
+          <div class="step"><span>04</span>学习 uniq</div>
+          <div class="step"><span>05</span>使用管道</div>
+          <div class="step"><span>06</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>能说出默认排序和数值排序区别</li>
+              <li>会用 <code>sort -k2,2</code> 按成绩列排序</li>
+              <li>理解为什么 uniq 前常要 sort</li>
+              <li>能统计不同记录出现次数</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先观察文件内容，再排序与去重</li>
+              <li>最后解释结果含义</li>
+              <li>命令输出不等于修改了原文件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要排序与去重？</h2>
+        <p class="subtitle">当一个文件有很多行记录时，顺序杂乱、重复难辨</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>顺序杂乱？</h3><p>成绩记录顺序杂乱，如何排成有序列表？</p></div>
+          <div class="card green"><h3>字符 vs 数值</h3><p>字符串“100”和“85”排序，为何不能只按字母表规则？</p></div>
+          <div class="card blue"><h3>找重复</h3><p>同一条成绩记录出现多次，怎么找出它？</p></div>
+          <div class="card green"><h3>计数</h3><p>如何统计每条完全相同的记录出现次数？</p></div>
+        </div>
+        <div class="band band-blue">结论：sort 负责排列记录，uniq 负责检查相邻重复记录。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>唯一练习文件：scores.txt</h2>
+        <p class="subtitle">本实验只需一个文件：scores.txt（与 PPT 一起提供）</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">16 Qin
+94 Zhou
+71 Huang
+51 Zhang
+59 Sun
+23 Liu
+23 Liu
+23 Liu</code></pre>
+          </div>
+          <div>
+            <div class="card blue" style="margin-bottom:0.55em;">
+              <h3>字段含义</h3>
+              <ul class="num-list">
+                <li>每行一条模拟学生成绩记录</li>
+                <li>第一列：分数（0–100 整数）</li>
+                <li>第二列：姓名代号（无空格英文）</li>
+                <li>同一记录可能重复，部分重复不相邻</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>说明</h3>
+              <p>上面仅为格式示例，实际文件以发放的 <code>scores.txt</code> 为准，行数更多、内容更丰富。注意示例中 <code>23 Liu</code> 连续出现三次，正是相邻重复记录。</p>
+            </div>
+          </div>
+        </div>
+        <div class="band band-blue">本实验只用这一个文件完成所有练习。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>将 scores.txt 导入 CentOS</h2>
+        <p class="subtitle">本实验只需一个文件：由 Windows 拖到 CentOS 桌面，再移入 SortLab</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+mkdir -p SortLab
+cd SortLab
+pwd</code></pre>
+            <pre><code class="language-bash">ls -l scores.txt
+head scores.txt
+wc -l scores.txt</code></pre>
+          </div>
+          <div>
+            <div class="card blue" style="margin-bottom:0.55em;">
+              <h3>操作说明</h3>
+              <ul class="num-list">
+                <li>在 Windows 找到教师发放的 scores.txt</li>
+                <li>拖到 CentOS 桌面</li>
+                <li>再移动到桌面的 SortLab 文件夹</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>检查结果</h3>
+              <p>用 <code>ls</code> / <code>head</code> / <code>wc -l</code> 核查。若 <code>ls</code> 报找不到文件，先确认已拖动并移入 SortLab。本实验不提供生成文件的命令。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>sort：把文本行排成有序</h2>
+        <p class="subtitle">默认按照当前区域排序规则比较整行内容</p>
+        <pre><code class="language-bash">sort [选项] 文件
+sort scores.txt</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>sort</h3><p>排列文本行。</p></div>
+          <div class="card green"><h3>scores.txt</h3><p>要读取的文件。</p></div>
+          <div class="card blue"><h3>默认行为</h3><p>按区域规则比较整行内容。</p></div>
+          <div class="card green"><h3>不修改原文件</h3><p>只读取并显示排序结果。</p></div>
+        </div>
+        <div class="band band-blue">sort 不修改原始文件，只读取并显示排序结果。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>sort 默认排序与 sort -r 逆序</h2>
+        <p class="subtitle">-r 反转排序顺序，但不保证就是分数从高到低</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>默认排序</h3>
+            <div class="cmd">sort scores.txt</div>
+            <p>按区域规则正序排列。</p>
+          </div>
+          <div class="card green">
+            <h3>逆序排序</h3>
+            <div class="cmd">sort -r scores.txt</div>
+            <p>反转上述排序顺序。</p>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">观察：两次输出的第一行和最后一行有什么不同？-r 反转的是排序顺序，并不保证分数从高到低。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>sort -n：按数值大小排序</h2>
+        <p class="subtitle">默认按字符规则排序，"100" 会排在 "85" 前面</p>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>字符排序（默认）</h3>
+            <div class="cmd">9 → 10 → 100 → 85</div>
+            <p>先比首字符 '1' 在前，'9' 在后。</p>
+          </div>
+          <div class="card green">
+            <h3>数值排序（-n）</h3>
+            <div class="cmd">9 → 10 → 85 → 100</div>
+            <p>按整数大小从小到大。</p>
+          </div>
+        </div>
+        <pre><code class="language-bash">sort scores.txt
+sort -n scores.txt</code></pre>
+        <div class="band band-blue">本实验第一列是分数，因此 <code>sort -n</code> 可以按第一列的数字从小到大排序。当想按数值大小排序时，使用 -n。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>sort -k：按指定字段排序</h2>
+        <p class="subtitle">-k 指定以第几列为排序键，便于按姓名或按成绩排序</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">sort -k2,2 scores.txt
+sort -k2,2r scores.txt</code></pre>
+          </div>
+          <div class="card blue">
+            <h3>列号示意</h3>
+            <ul class="num-list">
+              <li>第一列：成绩（如 85）</li>
+              <li>第二列：姓名代号（如 Zhang）</li>
+              <li>-k2,2：主要按第二列作为排序键</li>
+              <li>末尾 r：在该键上逆序</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">此处只学习按字段排序，不讨论复杂多关键字规则。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>sort 常用选项速览</h2>
+        <p class="subtitle">记住四个最常用的排序方式</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>默认 sort</h3>
+            <div class="cmd">sort scores.txt</div>
+            <p>按文本排序。</p>
+          </div>
+          <div class="card green">
+            <h3>-r 逆序</h3>
+            <div class="cmd">sort -r scores.txt</div>
+            <p>逆序排序。</p>
+          </div>
+          <div class="card blue">
+            <h3>-n 数值</h3>
+            <div class="cmd">sort -n scores.txt</div>
+            <p>按数字大小排序。</p>
+          </div>
+          <div class="card green">
+            <h3>-k 按字段</h3>
+            <div class="cmd">sort -k2,2 scores.txt</div>
+            <p>指定排序字段。</p>
+          </div>
+        </div>
+        <pre><code class="language-bash">sort -k1,1nr scores.txt</code></pre>
+        <div class="band band-blue">解释：以第一列的数值为排序键，按从大到小排列。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>uniq：检查相邻重复行</h2>
+        <p class="subtitle">uniq 只合并连续相邻、内容完全相同的行</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">uniq [选项] 文件
+uniq scores.txt</code></pre>
+          </div>
+          <div class="card blue">
+            <h3>必须强调</h3>
+            <ul class="num-list">
+              <li>只合并连续相邻、内容完全相同的行</li>
+              <li>若两条相同记录被其他行隔开，不会合并</li>
+              <li>比较的是整行内容，不是某一列</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">uniq 只处理相邻的整行重复；被隔开的重複记录它“看不见”。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>为什么 uniq 前经常先 sort？</h2>
+        <p class="subtitle">先把相同记录排在一起，uniq 才能正确去重</p>
+        <div class="flow-h">
+          <div class="box">原始文本<br><code>相同记录分散</code></div>
+          <div class="arrow">→</div>
+          <div class="box">sort<br><code>相同记录相邻</code></div>
+          <div class="arrow">→</div>
+          <div class="box">uniq<br><code>只留一条</code></div>
+        </div>
+        <pre><code class="language-bash">uniq scores.txt
+sort scores.txt | uniq</code></pre>
+        <div class="band band-blue">观察问题：为什么两个命令的输出行数可能不同？这里只比较“整行记录”；姓名相同但成绩不同不算同一条记录。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>uniq -c：统计每条记录出现次数</h2>
+        <p class="subtitle">在每条记录前显示该整行记录出现的次数</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">sort scores.txt | uniq -c</code></pre>
+          </div>
+          <div class="card blue">
+            <h3>输出结构</h3>
+            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 Zhang</code> 表示原文件中 <code>85 Zhang</code> 这条整行记录共出现 3 次（此为解释样例，不代表配套文件固定结果）。</p>
+          </div>
+        </div>
+        <div class="band band-blue">注意：-c 统计的是相邻完全相同整行的次数，不是仅统计某个姓名出现几次。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>uniq -d 与 uniq -u</h2>
+        <p class="subtitle">一个只看重复记录，一个只看唯一记录</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-d 只输出重复记录</h3>
+            <div class="cmd">sort scores.txt | uniq -d</div>
+            <p>只输出出现至少两次的记录，每种记录输出一次。</p>
+          </div>
+          <div class="card green">
+            <h3>-u 只输出唯一记录</h3>
+            <div class="cmd">sort scores.txt | uniq -u</div>
+            <p>只输出恰好出现一次的记录。</p>
+          </div>
+        </div>
+        <div class="band band-blue">思考：-d 和 -u 是否可以互相代替？它们分别回答“哪些重复”和“哪些没重复”。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>排序、去重与统计的组合</h2>
+        <p class="subtitle">把 sort、uniq、wc 串起来，回答不同层面的问题</p>
+        <pre><code class="language-bash">sort scores.txt | uniq
+sort scores.txt | uniq -c
+sort scores.txt | uniq | wc -l</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>查看不同记录</h3><p>第一条：去掉相邻重复，列出所有不同整行记录。</p></div>
+          <div class="card green"><h3>统计每种次数</h3><p>第二条：显示每种记录各出现多少次。</p></div>
+          <div class="card blue"><h3>统计记录种数</h3><p>第三条：不同整行记录一共有多少种。</p></div>
+          <div class="card green"><h3>区别</h3><p><code>wc -l scores.txt</code> 是总行数；<code>sort | uniq | wc -l</code> 是不同记录种数，通常不同。</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习1：观察文件与基础排序</h2>
+        <p class="subtitle">先看清原始内容，再做一次默认排序</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop/SortLab
+head scores.txt
+wc -l scores.txt
+sort scores.txt</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ul class="num-list">
+              <li>文件共有多少行？</li>
+              <li>排序前后内容是否相同？</li>
+              <li>原文件是否被修改？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">练习要求：能解释 head / wc -l / sort 各自的作用。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习2：数值排序与逆序</h2>
+        <p class="subtitle">体会字符逆序与数值降序的区别</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">sort -n scores.txt
+sort -nr scores.txt
+sort -k2,2 scores.txt</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ul class="num-list">
+              <li>前两条分别怎样排列分数？</li>
+              <li>第三条主要按哪一列排序？</li>
+              <li>不要把字符逆序和数值降序混为一谈。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">练习要求：能说出 -n 与 -r 各自改变了什么。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>练习3：验证相邻去重</h2>
+        <p class="subtitle">对比直接 uniq 与先 sort 再 uniq</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">uniq scores.txt
+sort scores.txt | uniq</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <p>想一想：哪条命令更适合对整个文件的相同记录去重？为什么？对照原文件解释“保留 / 合并”。</p>
+          </div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">尝试解释：直接 uniq 漏掉了哪些被隔开的重复记录？</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>练习4：统计、重复与唯一记录</h2>
+        <p class="subtitle">先用 sort 归并，再分别用 -c / -d / -u 观察</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">sort scores.txt | uniq -c
+sort scores.txt | uniq -d
+sort scores.txt | uniq -u
+sort scores.txt | uniq | wc -l</code></pre>
+          </div>
+          <div class="card green">
+            <h3>请记录（自行填写）</h3>
+            <ul>
+              <li>不同记录种数：______</li>
+              <li>至少重复一次的记录：______</li>
+              <li>恰好出现一次的记录：______</li>
+              <li>均以实际输出为准。</li>
+            </ul>
+            <p style="margin-top:0.4em;">强调：计数对象是“整行记录”，不是仅姓名。</p>
+          </div>
+        </div>
+        <div class="band band-blue">思考：为什么 -u 列出的记录和 -d 列出的记录加起来，不等于所有不同记录？</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>课堂综合练习：整理成绩记录</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>环境与目标</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop/SortLab</code></li>
+              <li>文件：<code>scores.txt</code></li>
+              <li>不得修改原始数据</li>
+              <li>给出：排序结果、重复情况与记录种数</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>请独立完成</h3>
+            <ul class="num-list">
+              <li>用 pwd / ls / head 确认实验环境和文件</li>
+              <li>使用 sort -n 将分数从低到高排列</li>
+              <li>使用 sort -nr 将分数从高到低排列</li>
+              <li>使用 sort -k2,2 按姓名代号排序</li>
+              <li>使用 sort scores.txt | uniq 对完全相同的记录去重</li>
+              <li>使用 sort scores.txt | uniq -c 统计每种记录出现次数</li>
+              <li>使用 sort scores.txt | uniq -d 列出重复记录</li>
+              <li>使用 sort scores.txt | uniq | wc -l 统计不同记录种数</li>
+              <li>用简短文字解释：为什么 uniq 前需要 sort？“记录总行数”和“不同记录种数”有什么区别？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">只需提交这一整套课堂综合练习（写入正式实验报告）。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>课堂综合练习：完成标准与截图</h2>
+        <p class="subtitle">建议保存三张清晰截图，截图下方需要文字说明</p>
+        <div class="card-grid three">
+          <div class="card blue">
+            <h3>截图1 环境与排序</h3>
+            <p>包含提示符、pwd、文件确认以及 sort -n / sort -nr 结果。</p>
+          </div>
+          <div class="card green">
+            <h3>截图2 去重与统计</h3>
+            <p>包含 sort | uniq 和 sort | uniq -c 结果。</p>
+          </div>
+          <div class="card blue">
+            <h3>截图3 重复与种数</h3>
+            <p>包含 sort | uniq -d、sort | uniq | wc -l 的输出。</p>
+          </div>
+        </div>
+        <div class="band band-blue">每张图片下用 1 至 2 句解释命令做了什么、结果表示什么。不要给出未经核实的固定数字作为学生答案。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>常见报错与截图保存</h2>
+        <p class="subtitle">先检查命令和文件，再重新运行验证</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>sort: cannot read: scores.txt</h3>
+            <p>先检查 pwd、ls 和文件放置目录，确认已移入 SortLab。</p>
+          </div>
+          <div class="card green">
+            <h3>uniq 后仍有看起来一样的记录</h3>
+            <p>检查是否已先执行 sort，以及空格、大小写是否一致。</p>
+          </div>
+          <div class="card blue">
+            <h3>数字排序顺序不符合预期</h3>
+            <p>是否误用普通 sort 而没有加 -n？</p>
+          </div>
+          <div class="card green">
+            <h3>sort -k 排序不符合预期</h3>
+            <p>检查目标列数以及文件的空白分隔格式。</p>
+          </div>
+        </div>
+        <div class="flow-steps" style="grid-template-columns:repeat(4,1fr);margin-top:0.6em;">
+          <div class="step"><span>①</span>打开截图工具</div>
+          <div class="step"><span>②</span>框选提示符与结果</div>
+          <div class="step"><span>③</span>保存 PNG/JPG</div>
+          <div class="step"><span>④</span>检查清晰可读</div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>实验6作业：提交实验报告</h2>
+        <p class="subtitle">按课程实验报告模板完整填写；提交内容就是课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>报告内容</h3>
+            <p>基本信息、实验目的、内容和要求、实验结果、实验中出现的问题、实验总结。</p>
+          </div>
+          <div class="card green">
+            <h3>实验结果</h3>
+            <p>放入课堂综合练习的三类截图，每张图下写 1 至 2 句说明。</p>
+          </div>
+          <div class="card blue">
+            <h3>问题汇总</h3>
+            <p>例如未排序就使用 uniq，发现分散的重复行仍存在；补充 sort 后重新验证。</p>
+          </div>
+          <div class="card green">
+            <h3>实验总结</h3>
+            <p>用 3 至 5 句话说明排序、数值排序、相邻去重、重复统计之间的区别。</p>
+          </div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；不要求单独提交前面的分步练习。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>24</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>
