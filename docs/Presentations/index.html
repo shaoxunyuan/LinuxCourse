@@ -89,10 +89,10 @@
 
     .demos-list a {
       display: grid;
-      grid-template-columns: 3.2rem 1fr 22px;
+      grid-template-columns: 3.6rem 1fr 22px;
       align-items: center;
       gap: 1rem;
-      padding: 14px 14px 14px 4px;
+      padding: 18px 14px 18px 4px;
       text-decoration: none !important;
       color: inherit;
       position: relative;
@@ -128,7 +128,7 @@
 
     .pl-idx {
       font-family: var(--mono);
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 600;
       letter-spacing: 0.04em;
       color: var(--muted);
@@ -141,21 +141,11 @@
     }
 
     .pl-tit {
-      font-size: clamp(16px, 2.2vw, 18px);
+      font-size: clamp(20px, 2.8vw, 24px);
       font-weight: 600;
       letter-spacing: -0.01em;
       color: var(--ink);
       line-height: 1.35;
-    }
-
-    .pl-meta {
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-      justify-self: end;
     }
 
     .pl-arrow {
@@ -182,14 +172,9 @@
 
     @media (max-width: 560px) {
       .demos-list a {
-        grid-template-columns: 2.6rem 1fr;
-        grid-template-rows: auto auto;
+        grid-template-columns: 2.8rem 1fr;
         gap: 6px 12px;
-        padding: 18px 8px 18px 2px;
-      }
-      .pl-meta {
-        grid-column: 2;
-        justify-self: start;
+        padding: 16px 8px 16px 2px;
       }
       .pl-arrow { display: none; }
     }
@@ -216,7 +201,6 @@
         <a href="01-first-linux.html">
           <span class="pl-idx">01</span>
           <span class="pl-tit">第一次进入 Linux</span>
-          <span class="pl-meta">17 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -226,7 +210,6 @@
         <a href="02-file-dir.html">
           <span class="pl-idx">02</span>
           <span class="pl-tit">文件与目录管理</span>
-          <span class="pl-meta">17 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -236,7 +219,6 @@
         <a href="03-view-find.html">
           <span class="pl-idx">03</span>
           <span class="pl-tit">文本查看和查找</span>
-          <span class="pl-meta">21 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -246,7 +228,6 @@
         <a href="04-permission.html">
           <span class="pl-idx">04</span>
           <span class="pl-tit">用户、用户组与权限</span>
-          <span class="pl-meta">21 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -256,7 +237,6 @@
         <a href="05-text-search.html">
           <span class="pl-idx">05</span>
           <span class="pl-tit">文本搜索与统计</span>
-          <span class="pl-meta">30 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -266,7 +246,6 @@
         <a href="06-text-sort.html">
           <span class="pl-idx">06</span>
           <span class="pl-tit">文本排序与去重</span>
-          <span class="pl-meta">24 页</span>
           <svg class="pl-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4 10h11M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
