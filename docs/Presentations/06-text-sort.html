@@ -171,6 +171,7 @@
     }
     .two-col.uneven { grid-template-columns: 0.9fr 1.2fr; }
     .two-col.uneven-left { grid-template-columns: 1.15fr 0.95fr; }
+    .two-col > div { min-width: 0; }
     .card {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -500,41 +501,37 @@
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>唯一练习文件：scores.txt</h2>
-        <p class="subtitle">本实验只需一个文件：scores.txt（与 PPT 一起提供）</p>
-        <div class="two-col uneven-left">
-          <div>
-            <pre><code class="language-bash">27 LiMing
+        <h2>练习数据文件：scores.txt</h2>
+        <p class="subtitle">成绩记录数据文件：scores.txt（与 PPT 一起提供）</p>
+        <p class="small">文件开头若干行（片段）：</p>
+        <pre><code class="language-bash">27 LiMing
 60 HanXue
 0 DengYu
 0 DengYu
 0 DengYu
 85 WuTong</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>字段含义</h3>
+            <ul class="num-list">
+              <li>每行一条模拟学生成绩记录</li>
+              <li>第一列：分数（0–100 整数）</li>
+              <li>第二列：姓名代号（无空格英文）</li>
+              <li>同一记录可能重复，部分重复不相邻</li>
+            </ul>
           </div>
-          <div>
-            <div class="card blue" style="margin-bottom:0.55em;">
-              <h3>字段含义</h3>
-              <ul class="num-list">
-                <li>每行一条模拟学生成绩记录</li>
-                <li>第一列：分数（0–100 整数）</li>
-                <li>第二列：姓名代号（无空格英文）</li>
-                <li>同一记录可能重复，部分重复不相邻</li>
-              </ul>
-            </div>
-            <div class="card green">
-              <h3>说明</h3>
-              <p>上面仅为格式示例，实际以发放的 <code>scores.txt</code> 为准。示例中 <code>0 DengYu</code> 连续出现三次，正是相邻重复记录。</p>
-            </div>
+          <div class="card green">
+            <h3>说明</h3>
+            <p>上面仅为格式示例，实际以发放的 <code>scores.txt</code> 为准。示例中 <code>0 DengYu</code> 连续出现三次，正是相邻重复记录。</p>
           </div>
         </div>
-        <div class="band band-blue">本实验只用这一个文件完成所有练习。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
         <h2>将 scores.txt 导入 CentOS</h2>
-        <p class="subtitle">本实验只需一个文件：由 Windows 拖到 CentOS 桌面，再移入 SortLab</p>
+        <p class="subtitle">由 Windows 拖到 CentOS 桌面，再移入 SortLab</p>
         <div class="two-col">
           <div>
             <pre><code class="language-bash">cd /home/njucm/Desktop
