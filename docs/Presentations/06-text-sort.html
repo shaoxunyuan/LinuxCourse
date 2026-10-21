@@ -395,6 +395,9 @@
     .card-grid.three {
       grid-template-columns: 1fr 1fr 1fr;
     }
+    .card-grid.four {
+      grid-template-columns: repeat(4, 1fr);
+    }
     @media (prefers-reduced-motion: reduce) {
       .reveal .slides section { transition: none !important; }
     }
@@ -485,7 +488,7 @@
       <section data-page="04">
         <h2>为什么需要排序与去重？</h2>
         <p class="subtitle">当一个文件有很多行记录时，顺序杂乱、重复难辨</p>
-        <div class="card-grid">
+        <div class="card-grid four">
           <div class="card blue"><h3>顺序杂乱？</h3><p>成绩记录顺序杂乱，如何排成有序列表？</p></div>
           <div class="card green"><h3>字符 vs 数值</h3><p>字符串“100”和“85”排序，为何不能只按字母表规则？</p></div>
           <div class="card blue"><h3>找重复</h3><p>同一条成绩记录出现多次，怎么找出它？</p></div>
@@ -501,14 +504,14 @@
         <p class="subtitle">本实验只需一个文件：scores.txt（与 PPT 一起提供）</p>
         <div class="two-col uneven-left">
           <div>
-            <pre><code class="language-bash">16 Qin
-94 Zhou
-71 Huang
-51 Zhang
-59 Sun
-23 Liu
-23 Liu
-23 Liu</code></pre>
+            <pre><code class="language-bash">27 LiMing
+60 HanXue
+0 DengYu
+0 DengYu
+0 DengYu
+85 WuTong
+37 ChenJing
+37 ChenJing</code></pre>
           </div>
           <div>
             <div class="card blue" style="margin-bottom:0.55em;">
@@ -522,7 +525,7 @@
             </div>
             <div class="card green">
               <h3>说明</h3>
-              <p>上面仅为格式示例，实际文件以发放的 <code>scores.txt</code> 为准，行数更多、内容更丰富。注意示例中 <code>23 Liu</code> 连续出现三次，正是相邻重复记录。</p>
+              <p>上面仅为格式示例，实际文件以发放的 <code>scores.txt</code> 为准，共 200 行、记录更丰富。注意示例中 <code>0 DengYu</code> 连续出现三次、<code>37 ChenJing</code> 连续出现两次，正是相邻重复记录。</p>
             </div>
           </div>
         </div>
@@ -603,15 +606,19 @@ sort scores.txt</code></pre>
         <h2>sort -n：按数值大小排序</h2>
         <p class="subtitle">默认按字符规则排序，"100" 会排在 "85" 前面</p>
         <div class="two-col uneven">
-          <div class="card blue">
-            <h3>字符排序（默认）</h3>
-            <div class="cmd">9 → 10 → 100 → 85</div>
-            <p>先比首字符 '1' 在前，'9' 在后。</p>
+          <div>
+            <p class="small">字符排序（默认 sort）：按字典序比较每行开头</p>
+            <pre><code class="language-bash">9
+10
+100
+85</code></pre>
           </div>
-          <div class="card green">
-            <h3>数值排序（-n）</h3>
-            <div class="cmd">9 → 10 → 85 → 100</div>
-            <p>按整数大小从小到大。</p>
+          <div>
+            <p class="small">数值排序（sort -n）：按第一列整数大小</p>
+            <pre><code class="language-bash">9
+10
+85
+100</code></pre>
           </div>
         </div>
         <pre><code class="language-bash">sort scores.txt
@@ -633,7 +640,7 @@ sort -k2,2r scores.txt</code></pre>
             <h3>列号示意</h3>
             <ul class="num-list">
               <li>第一列：成绩（如 85）</li>
-              <li>第二列：姓名代号（如 Zhang）</li>
+              <li>第二列：姓名代号（如 ZhangWei）</li>
               <li>-k2,2：主要按第二列作为排序键</li>
               <li>末尾 r：在该键上逆序</li>
             </ul>
@@ -647,7 +654,7 @@ sort -k2,2r scores.txt</code></pre>
       <section data-page="11">
         <h2>sort 常用选项速览</h2>
         <p class="subtitle">记住四个最常用的排序方式</p>
-        <div class="card-grid">
+        <div class="card-grid four">
           <div class="card blue">
             <h3>默认 sort</h3>
             <div class="cmd">sort scores.txt</div>
@@ -723,7 +730,7 @@ sort scores.txt | uniq</code></pre>
           </div>
           <div class="card blue">
             <h3>输出结构</h3>
-            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 Zhang</code> 表示原文件中 <code>85 Zhang</code> 这条整行记录共出现 3 次（此为解释样例，不代表配套文件固定结果）。</p>
+            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 ZhangWei</code> 表示原文件中 <code>85 ZhangWei</code> 这条整行记录共出现 3 次（此为解释样例，不代表配套文件固定结果）。</p>
           </div>
         </div>
         <div class="band band-blue">注意：-c 统计的是相邻完全相同整行的次数，不是仅统计某个姓名出现几次。</div>
@@ -757,7 +764,7 @@ sort scores.txt | uniq</code></pre>
         <pre><code class="language-bash">sort scores.txt | uniq
 sort scores.txt | uniq -c
 sort scores.txt | uniq | wc -l</code></pre>
-        <div class="card-grid">
+        <div class="card-grid four">
           <div class="card blue"><h3>查看不同记录</h3><p>第一条：去掉相邻重复，列出所有不同整行记录。</p></div>
           <div class="card green"><h3>统计每种次数</h3><p>第二条：显示每种记录各出现多少次。</p></div>
           <div class="card blue"><h3>统计记录种数</h3><p>第三条：不同整行记录一共有多少种。</p></div>
