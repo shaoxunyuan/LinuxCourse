@@ -1,0 +1,633 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+/* Practice 工业级视觉层：覆盖本目录页，不改 HTML 文案 */
+
+.practice-page,
+.practice-index {
+  --ink: #12141a;
+  --ink-light: #3d4450;
+  --ink-muted: #7a8290;
+  --paper: #f3f4f6;
+  --paper-elevated: #ffffff;
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --border: #d8dde6;
+  --code-bg: #e7edf4;
+  --sidebar-bg: #eceef2;
+  --font-sans: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+}
+
+body:has(.practice-page),
+body.practice-index {
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(1000px 520px at 0% -8%, rgba(13, 148, 136, 0.07), transparent 55%),
+    linear-gradient(180deg, #f7f8fa 0%, var(--paper) 45%, #eef0f3 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Shell ---- */
+.book-shell.practice-page,
+body.practice-index .book-shell {
+  grid-template-columns: var(--sidebar-width, 300px) 6px 1fr;
+}
+
+body:has(.practice-page) .book-sidebar,
+body.practice-index .book-sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  padding: 0;
+}
+
+body:has(.practice-page) .book-resizer,
+body.practice-index .book-resizer {
+  background: var(--border);
+}
+
+body:has(.practice-page) .book-resizer:hover,
+body:has(.practice-page) .book-resizer.is-dragging,
+body.practice-index .book-resizer:hover,
+body.practice-index .book-resizer.is-dragging {
+  background: var(--accent);
+}
+
+body:has(.practice-page) .book-brand,
+body.practice-index .book-brand {
+  padding: 16px 18px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+body:has(.practice-page) .book-brand a,
+body.practice-index .book-brand a {
+  color: var(--ink) !important;
+}
+
+body:has(.practice-page) .book-nav a,
+body.practice-index .book-nav a {
+  padding: 9px 18px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-light);
+  border-left: 3px solid transparent;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+body:has(.practice-page) .book-nav a:hover,
+body.practice-index .book-nav a:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+body:has(.practice-page) .book-nav a.is-active,
+body.practice-index .book-nav a.is-active {
+  color: var(--accent-hover);
+  font-weight: 700;
+  border-left-color: var(--accent);
+  padding-left: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+body:has(.practice-page) .book-main,
+body.practice-index .book-main {
+  padding: 32px 36px 56px;
+  background: transparent;
+}
+
+body:has(.practice-page) .book-main h1,
+body.practice-index .book-main h1 {
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  color: var(--ink);
+  position: relative;
+  padding-bottom: 12px;
+}
+
+body:has(.practice-page) .book-main h1::after,
+body.practice-index .book-main h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 32px;
+  height: 3px;
+  background: var(--accent);
+}
+
+/* ---- Index list ---- */
+body.practice-index .practice-list {
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  max-width: 44em;
+  border-top: 1px solid var(--border);
+}
+
+body.practice-index .practice-list li {
+  border-bottom: 1px solid var(--border);
+}
+
+body.practice-index .practice-list a {
+  display: grid;
+  gap: 6px;
+  padding: 18px 12px 18px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-decoration: none !important;
+  color: inherit;
+  position: relative;
+  transition: background 0.18s ease, padding-left 0.18s ease;
+}
+
+body.practice-index .practice-list a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.18s ease;
+}
+
+body.practice-index .practice-list a:hover,
+body.practice-index .practice-list a:focus-visible {
+  background: rgba(255, 255, 255, 0.7);
+  padding-left: 14px;
+  outline: none;
+}
+
+body.practice-index .practice-list a:hover::before,
+body.practice-index .practice-list a:focus-visible::before {
+  width: 3px;
+}
+
+body.practice-index .practice-list .pl-tit {
+  font-weight: 650;
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+body.practice-index .practice-list .pl-desc {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+/* ---- TOC (lab pages) ---- */
+.practice-page .toc-scroll {
+  padding: 14px 16px 24px;
+  overflow: visible;
+  max-height: none;
+}
+
+.practice-page .toc__title {
+  font-weight: 700;
+  color: var(--ink-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 2px 10px;
+  margin: 0 0 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.practice-page .toc a {
+  color: var(--ink);
+  text-decoration: none !important;
+}
+.practice-page .toc a:hover { color: var(--accent-hover); }
+.practice-page .toc ul { list-style: none; margin: 0; padding: 0; }
+
+.practice-page .toc .lv1 {
+  display: block;
+  padding: 8px 4px 4px;
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.practice-page .toc .lv2 {
+  margin: 2px 0 12px 6px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+  display: grid;
+  gap: 1px;
+}
+
+.practice-page .toc .lv2 a {
+  display: flex;
+  gap: 8px;
+  padding: 5px 4px;
+  color: var(--ink-light);
+  font-size: 12px;
+  border-radius: 0;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.practice-page .toc .lv2 a:hover {
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+}
+
+.practice-page .toc .lv2 .n {
+  color: var(--ink-muted);
+  font-weight: 650;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  min-width: 26px;
+  letter-spacing: 0.02em;
+}
+
+.practice-page .toc a.is-active {
+  color: var(--accent-hover) !important;
+  font-weight: 700;
+}
+
+/* ---- Article chrome ---- */
+.practice-page .article {
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: break-word;
+  max-width: 52em;
+}
+
+.practice-breadcrumb {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  margin-bottom: 14px;
+}
+.practice-breadcrumb a { color: var(--accent-hover); font-weight: 500; }
+.practice-breadcrumb .sep { margin: 0 8px; color: var(--border); }
+
+.practice-lead {
+  color: var(--ink-light);
+  max-width: 52em;
+  margin-bottom: 22px;
+  line-height: 1.75;
+  font-size: 15px;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: break-word;
+}
+
+.nobr { white-space: nowrap; }
+
+.meta-row {
+  display: grid;
+  gap: 0;
+  margin: 0 0 28px;
+  max-width: 52em;
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.65;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: break-word;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.meta-row > div {
+  display: grid;
+  grid-template-columns: 5.5em 1fr;
+  gap: 0.75em;
+  align-items: baseline;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.meta-row > div:last-child { border-bottom: 0; }
+
+.meta-row strong {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  min-width: 0;
+  display: block;
+  white-space: nowrap;
+}
+
+.meta-row code { white-space: nowrap; }
+
+/* ---- Exercise blocks ---- */
+.exercise {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 34px 0 22px;
+  background: transparent;
+  scroll-margin-top: 20px;
+}
+
+.exercise .ex-kicker { display: none; }
+
+.exercise h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.exercise h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 26px 0 10px;
+  color: var(--ink);
+  scroll-margin-top: 20px;
+  letter-spacing: -0.015em;
+}
+
+.exercise .goal {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+.exercise ol.tasks,
+.exercise ul.tasks {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-light);
+  line-height: 1.65;
+}
+
+.exercise ol.tasks li,
+.exercise ul.tasks li {
+  margin: 8px 0;
+  padding-left: 1em;
+  position: relative;
+}
+
+.exercise ul.tasks li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 0.4em;
+  height: 2px;
+  background: var(--accent);
+}
+
+.exercise ol.tasks {
+  counter-reset: practice-task;
+}
+.exercise ol.tasks li { counter-increment: practice-task; }
+.exercise ol.tasks li::before {
+  content: counter(practice-task, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  width: 1.6em;
+}
+.exercise ol.tasks li { padding-left: 2em; }
+
+.exercise .starter-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin: 14px 0 6px;
+}
+
+.step-label {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--accent-hover);
+  margin: 16px 0 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.check-point {
+  margin: 14px 0 18px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  background: rgba(13, 148, 136, 0.06);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.practice-page .book-callout {
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px;
+  margin: 14px 0 18px;
+  background: rgba(13, 148, 136, 0.06);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+details.ex-answer {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+details.ex-answer summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-hover);
+  font-size: 13px;
+  list-style-position: outside;
+}
+details.ex-answer summary::-webkit-details-marker { color: var(--accent); }
+details.ex-answer[open] summary { margin-bottom: 10px; }
+
+/* ---- Code ---- */
+.practice-page .book-main code,
+body.practice-index .book-main code {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  border: 0;
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+  color: var(--ink);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.practice-page .book-main pre,
+body.practice-index .book-main pre {
+  border: 0;
+  border-left: 3px solid var(--accent);
+  background: var(--code-bg);
+  padding: 14px 16px;
+  overflow: auto;
+  margin: 12px 0 18px;
+  position: relative;
+  border-radius: 0;
+}
+
+.practice-page .book-main pre code,
+body.practice-index .book-main pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 450;
+}
+
+.practice-page .book-main kbd {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.12em 0.4em;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-light);
+  border-radius: 2px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.copy-btn:hover {
+  background: #fff;
+  color: var(--accent-hover);
+  border-color: var(--accent);
+}
+.copy-btn[data-state="ok"] {
+  border-color: rgba(13, 148, 136, 0.45);
+  color: var(--accent-hover);
+}
+
+/* ---- Tables ---- */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  margin: 12px 0 18px;
+  background: #fff;
+}
+.table-scroll table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.table-scroll th,
+.table-scroll td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid #eef0f3;
+  padding: 9px 12px;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--ink-light);
+}
+.table-scroll th {
+  background: #f0f2f5;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+}
+.table-scroll tr:last-child td { border-bottom: 0; }
+.table-scroll tbody tr:hover td { background: rgba(13, 148, 136, 0.04); }
+.table-caption {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  margin: 0 0 8px;
+  letter-spacing: 0.01em;
+}
+
+.practice-footer-note {
+  margin-top: 36px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
+/* highlight.js soft override inside practice */
+.practice-page .hljs {
+  background: transparent !important;
+  color: var(--ink);
+}
+.practice-page .hljs-keyword,
+.practice-page .hljs-selector-tag,
+.practice-page .hljs-built_in {
+  color: #0b6e99;
+  font-weight: 600;
+}
+.practice-page .hljs-string { color: var(--accent-hover); }
+.practice-page .hljs-number { color: #b45309; }
+.practice-page .hljs-comment { color: #64748b; font-style: italic; }
+.practice-page .hljs-title,
+.practice-page .hljs-title.class_,
+.practice-page .hljs-title.function_ { color: #1d4ed8; }
+
+@media (max-width: 1280px) {
+  .book-shell.practice-page,
+  body.practice-index .book-shell {
+    grid-template-columns: 1fr;
+  }
+  .book-shell.practice-page .book-resizer,
+  body.practice-index .book-resizer {
+    display: none;
+  }
+  body:has(.practice-page) .book-main,
+  body.practice-index .book-main {
+    padding: 20px 16px 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.practice-index .practice-list a,
+  body:has(.practice-page) .book-nav a,
+  .practice-page .toc .lv2 a,
+  .copy-btn {
+    transition: none !important;
+  }
+}

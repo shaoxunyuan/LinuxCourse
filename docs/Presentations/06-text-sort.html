@@ -34,14 +34,14 @@
 
     .reveal {
       font-family: var(--font);
-      font-size: 24px;
+      font-size: 28px;
       color: var(--ink);
       background: var(--paper);
       -webkit-font-smoothing: antialiased;
     }
     .reveal .slides { text-align: left; }
     .reveal .slides section {
-      padding: 26px 44px 58px;
+      padding: 36px 48px 64px;
       box-sizing: border-box;
       background:
         linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
@@ -61,7 +61,7 @@
       font-weight: 700;
       text-transform: none;
       letter-spacing: -0.025em;
-      margin: 0 0 0.4em;
+      margin: 0 0 0.55em;
       font-size: 1.18em;
       line-height: 1.25;
       position: relative;
@@ -84,10 +84,10 @@
       list-style: none;
     }
     .reveal ul > li {
-      margin: 0.22em 0;
+      margin: 0.32em 0;
       padding-left: 1em;
       position: relative;
-      font-size: 0.78em;
+      font-size: 0.82em;
     }
     .reveal ul > li::before {
       content: "";
@@ -136,7 +136,7 @@
       background: transparent !important;
       color: var(--ink) !important;
       font-family: var(--mono);
-      font-size: 0.58em;
+      font-size: 0.62em;
       font-weight: 450;
       line-height: 1.45;
       max-height: none;
@@ -154,9 +154,9 @@
     }
 
     .band {
-      padding: 0.35em 0.65em;
-      margin: 0.3em 0;
-      font-size: 0.7em;
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
       line-height: 1.4;
       font-weight: 500;
       border-left: 3px solid transparent;
@@ -200,7 +200,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-left: 3px solid var(--accent);
-      padding: 0.45em 0.6em;
+      padding: 0.55em 0.7em;
     }
     .card.blue { border-left-color: #3b82f6; }
     .card.green { border-left-color: #22c55e; }
@@ -214,9 +214,9 @@
     .card ul { margin-top: 0.15em; }
     .card p, .card .body {
       margin: 0;
-      font-size: 0.64em;
+      font-size: 0.68em;
       color: var(--ink-soft);
-      line-height: 1.42;
+      line-height: 1.45;
     }
     .card .cmd {
       font-family: var(--mono);
@@ -331,11 +331,11 @@
     .reveal .num-list > li,
     .num-list > li {
       counter-increment: n;
-      margin: 0.2em 0;
-      padding-left: 1.55em;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
       position: relative;
-      font-size: 0.68em;
-      line-height: 1.38;
+      font-size: 0.72em;
+      line-height: 1.4;
       list-style: none !important;
       list-style-type: none !important;
     }
@@ -364,8 +364,8 @@
 
     .slide-footer {
       position: absolute;
-      left: 44px;
-      right: 44px;
+      left: 48px;
+      right: 48px;
       bottom: 16px;
       display: flex;
       justify-content: space-between;
@@ -414,6 +414,7 @@
       border-color: var(--accent);
     }
 
+
     .flow-steps.six {
       grid-template-columns: repeat(6, 1fr);
     }
@@ -421,7 +422,7 @@
       grid-template-columns: 1fr 1fr 1fr;
     }
     .card-grid.four {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr 1fr 1fr;
     }
     @media (prefers-reduced-motion: reduce) {
       .reveal .slides section { transition: none !important; }
@@ -436,72 +437,72 @@
       <!-- 01 -->
       <section data-page="01">
         <h1>实验基本信息</h1>
-        <p class="exp-name">实验六：文本排序与去重｜把杂乱记录整理成有序结果</p>
+        <p class="exp-name">实验六：文本排序与去重｜让文本记录更有条理</p>
         <div class="two-col">
           <div class="card blue">
             <h3>实验目的</h3>
             <ul class="num-list">
-              <li>理解文本排序与相邻去重的含义</li>
-              <li>掌握 sort 的常用选项</li>
-              <li>掌握 uniq 的去重和计数方式</li>
-              <li>能组合命令完成成绩记录整理</li>
+              <li>理解排序与去重的用途</li>
+              <li>掌握 sort 的常见选项</li>
+              <li>掌握 uniq 的去重与计数功能</li>
+              <li>能通过管道组合 sort 与 uniq</li>
             </ul>
           </div>
           <div class="card green">
             <h3>实验内容和要求</h3>
             <ul class="num-list">
-              <li>使用 sort、sort -r、sort -n、sort -k 排序</li>
-              <li>使用 uniq、uniq -c、uniq -d、uniq -u</li>
-              <li>掌握管道 sort | uniq</li>
-              <li>完成课堂综合练习并填写实验报告</li>
+              <li>使用 sort、sort -r、sort -n 和 sort -k</li>
+              <li>使用 uniq、uniq -c、uniq -d 和 uniq -u</li>
+              <li>使用 sort | uniq 处理重复记录</li>
+              <li>完成课堂综合练习并提交实验报告</li>
             </ul>
           </div>
         </div>
-        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 登录用户名 <code>njucm</code></div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 登录用户名统一为 <code>njucm</code></div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>01</span></div>
       </section>
 
       <!-- 02 -->
       <section data-page="02">
         <h1>Linux 实验六</h1>
-        <p class="subtitle">文本排序与去重：让杂乱记录变得有序</p>
+        <p class="subtitle">文本排序与去重：让文本记录更有条理</p>
         <div class="five-nodes">
-          <div class="node"><span class="label">查看文件</span><code>cat scores.txt</code></div>
-          <div class="node"><span class="label">文本排序</span><code>sort scores.txt</code></div>
-          <div class="node"><span class="label">数值排序</span><code>sort -n scores.txt</code></div>
-          <div class="node"><span class="label">去重统计</span><code>sort | uniq -c</code></div>
-          <div class="node"><span class="label">综合任务</span><code>sort | uniq | wc -l</code></div>
+          <div class="node"><span class="label">普通排序</span><code>sort</code></div>
+          <div class="node"><span class="label">逆序排列</span><code>sort -r</code></div>
+          <div class="node"><span class="label">数值排序</span><code>sort -n / -k</code></div>
+          <div class="node"><span class="label">重复记录</span><code>uniq</code></div>
+          <div class="node"><span class="label">重复计数</span><code>uniq -c</code></div>
         </div>
-        <div class="band band-blue">核心问题：记录顺序乱了怎么办？哪些记录重复出现？</div>
+        <div class="band band-blue">本次实验的核心问题：如何把文本排好顺序，并准确统计重复记录？</div>
+        <div class="band band-green">核心组合：<code>sort 文件 | uniq -c</code> 先排好序，再统计每种记录出现几次。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>02</span></div>
       </section>
 
       <!-- 03 -->
       <section data-page="03">
         <h2>实验流程与学习目标</h2>
-        <div class="flow-steps six">
-          <div class="step"><span>01</span>导入文件</div>
-          <div class="step"><span>02</span>理解排序</div>
-          <div class="step"><span>03</span>学习 sort</div>
-          <div class="step"><span>04</span>学习 uniq</div>
-          <div class="step"><span>05</span>使用管道</div>
-          <div class="step"><span>06</span>综合练习</div>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>观察文件</div>
+          <div class="step"><span>02</span>认识 sort</div>
+          <div class="step"><span>03</span>认识 uniq</div>
+          <div class="step"><span>04</span>组合管道</div>
+          <div class="step"><span>05</span>综合练习</div>
         </div>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>学习目标</h3>
+            <h3>本次实验结束时，你应该能做到</h3>
             <ul>
-              <li>能说出默认排序和数值排序区别</li>
-              <li>会用 <code>sort -k2,2</code> 按成绩列排序</li>
-              <li>理解为什么 uniq 前常要 sort</li>
-              <li>能统计不同记录出现次数</li>
+              <li>解释普通排序与数值排序的区别</li>
+              <li>判断 uniq 为什么只处理相邻重复行</li>
+              <li>使用 sort | uniq -c 统计重复记录</li>
+              <li>区分钟数不同记录与总行数</li>
             </ul>
           </div>
           <div class="card green">
             <h3>课堂原则</h3>
             <ul>
-              <li>先观察文件内容，再排序与去重</li>
-              <li>最后解释结果含义</li>
+              <li>先观察原始内容，再逐步尝试</li>
+              <li>排序、去重和计数后比较结果</li>
               <li>命令输出不等于修改了原文件</li>
             </ul>
           </div>
@@ -511,41 +512,113 @@
 
       <!-- 04 -->
       <section data-page="04">
-        <h2>为什么需要排序与去重？</h2>
-        <p class="subtitle">当一个文件有很多行记录时，顺序杂乱、重复难辨</p>
-        <div class="card-grid four">
-          <div class="card blue"><h3>顺序杂乱？</h3><p>成绩记录顺序杂乱，如何排成有序列表？</p></div>
-          <div class="card green"><h3>字符 vs 数值</h3><p>字符串“100”和“85”排序，为何不能只按字母表规则？</p></div>
-          <div class="card blue"><h3>找重复</h3><p>同一条成绩记录出现多次，怎么找出它？</p></div>
-          <div class="card green"><h3>计数</h3><p>如何统计每条完全相同的记录出现次数？</p></div>
+        <h2>场景问题：为什么需要排序与去重？</h2>
+        <p class="subtitle">一份名单中，可能存在顺序混乱和重复记录</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>问题一：顺序混乱</h3><p>如何把姓名相同的记录排到一起？</p></div>
+          <div class="card green"><h3>问题二：数值排序</h3><p>成绩 9、18、100 应按什么顺序排列？</p></div>
+          <div class="card blue"><h3>问题三：记录重复</h3><p>哪些内容在文件中出现了不止一次？</p></div>
+          <div class="card green"><h3>问题四：次数统计</h3><p>每一种完整记录分别出现了几次？</p></div>
         </div>
-        <div class="band band-blue">结论：sort 负责排列记录，uniq 负责检查相邻重复记录。</div>
+        <div class="band band-blue">sort 负责调整顺序；uniq 处理相邻重复行。两者经常配合使用。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>04</span></div>
       </section>
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>配套练习文件说明：scores.txt</h2>
-        <ul class="num-list" style="margin-top:0.55em;">
-          <li>生成 UTF-8 纯文本 <code>scores.txt</code>，建议不少于 50 行。</li>
-          <li>每行一条成绩记录：第一列分数（0–100 整数），空格分隔，第二列英文姓名代号（无空格）。</li>
-          <li>应包含若干完全相同的重复行；部分相邻、部分不相邻，便于体会 uniq 通常要先 sort。</li>
-          <li>分数与姓名多样化；每行末尾有换行符。</li>
-        </ul>
-        <p class="small" style="margin-top:0.55em;">格式示例：</p>
-        <pre><code class="language-bash">27 LiMing
-60 HanXue
-0 DengYu
-0 DengYu
-0 DengYu
-85 WuTong</code></pre>
+        <h2>概念讲解：sort 将文本行按顺序排列</h2>
+        <p class="subtitle">默认按文本比较规则排序</p>
+        <pre><code class="language-bash">sort scores.txt</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>sort</h3><p>读取文本记录并输出排序结果</p></div>
+          <div class="card green"><h3>scores.txt</h3><p>要读取的成绩记录文件</p></div>
+          <div class="card blue"><h3>默认行为</h3><p>按文本比较规则比较整行内容</p></div>
+          <div class="card green"><h3>原文件</h3><p>默认不会修改原始文件</p></div>
+        </div>
+        <div class="band band-blue">sort 默认对整行进行文本排序，不等于按成绩大小排序。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>准备练习文件：导入 scores.txt</h2>
-        <p class="subtitle">按配套说明准备好 scores.txt 后，拖入 CentOS 并移入 SortLab</p>
+        <h2>概念讲解：sort -r 与 sort -n</h2>
+        <p class="subtitle">一个反转顺序，一个按数值大小比较</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>逆序排序</h3>
+            <div class="cmd">sort -r scores.txt</div>
+            <p>在相同比较规则下，将排序结果反向输出。</p>
+          </div>
+          <div class="card green">
+            <h3>数值排序</h3>
+            <div class="cmd">sort -n scores.txt</div>
+            <p>按数字大小比较，而不是按字符逐个比较。</p>
+          </div>
+        </div>
+        <pre><code class="language-bash">printf "9\n18\n100\n" | sort
+printf "9\n18\n100\n" | sort -n</code></pre>
+        <div class="band band-blue">普通 sort 得到 100、18、9；sort -n 得到 9、18、100。数字的文本顺序与数值大小可能不同。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>概念讲解：sort -k 指定排序字段</h2>
+        <p class="subtitle">scores.txt 每行是“姓名 成绩”两列，按成绩排序要用第 2 列</p>
+        <pre><code class="language-bash">sort -k2,2n scores.txt
+sort -k2,2nr scores.txt</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>第 1 列</h3><p>姓名，例如 Alice</p></div>
+          <div class="card green"><h3>第 2 列</h3><p>成绩，例如 88</p></div>
+          <div class="card blue"><h3>选项组合</h3><p><code>-k2,2</code> 以第 2 列为排序键<br><code>n</code> 按数值<br><code>r</code> 反向</p></div>
+        </div>
+        <div class="band band-blue">按成绩升序用 <code>sort -k2,2n</code>；按成绩降序用 <code>sort -k2,2nr</code>。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>概念讲解：uniq 处理相邻重复行</h2>
+        <p class="subtitle">uniq 默认只合并相邻且完全相同的记录</p>
+        <div class="two-col">
+          <div>
+            <pre><code class="language-bash">uniq scores.txt
+sort scores.txt | uniq</code></pre>
+          </div>
+          <div class="card blue">
+            <h3>重点区别</h3>
+            <ul>
+              <li>sort：调整记录顺序</li>
+              <li>uniq：把连续出现的相同完整记录合并为一条</li>
+              <li>分散在文件不同位置的相同记录可能仍被保留</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">uniq 不是“全文件自动去重”；处理无序数据时先排序更稳妥。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>概念讲解：uniq 常用选项与管道</h2>
+        <p class="subtitle">在去重基础上统计和筛选重复记录</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>uniq</h3><p>相邻相同记录只保留一条</p></div>
+          <div class="card green"><h3>uniq -c</h3><p>显示每组相邻相同记录的次数</p></div>
+          <div class="card blue"><h3>uniq -d</h3><p>只显示重复出现的记录</p></div>
+          <div class="card green"><h3>uniq -u</h3><p>只显示只出现一次的记录</p></div>
+        </div>
+        <pre><code class="language-bash">sort scores.txt | uniq
+sort scores.txt | uniq -c
+sort scores.txt | uniq -d
+sort scores.txt | uniq -u</code></pre>
+        <div class="band band-blue">管道符 | 将左侧 sort 的输出传递给右侧 uniq。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>命令演示：准备目录并导入 scores.txt</h2>
         <div class="split-panel">
           <div class="stack">
             <pre><code class="language-bash">cd /home/njucm/Desktop
@@ -560,297 +633,175 @@ wc -l scores.txt</code></pre>
             <div class="card blue">
               <h3>准备目录</h3>
               <ul class="num-list">
-                <li>进入桌面目录</li>
-                <li>创建 SortLab</li>
-                <li>进入并确认路径</li>
+                <li>进入 CentOS 桌面目录</li>
+                <li>创建 SortLab 并进入</li>
+                <li>使用 pwd 确认当前位置</li>
               </ul>
             </div>
             <div class="card green">
-              <h3>导入文件</h3>
-              <p>由 Windows 拖到 CentOS 桌面，再移入 SortLab；用 <code>ls</code> / <code>head</code> / <code>wc -l</code> 核查。若报找不到文件，先确认已拖入并移入 SortLab。</p>
+              <h3>导入练习文件</h3>
+              <p>将 scores.txt 拖入 CentOS 桌面，移动到 SortLab 目录，再用左侧命令检查文件。</p>
             </div>
           </div>
         </div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>06</span></div>
-      </section>
-
-      <!-- 07 -->
-      <section data-page="07">
-        <h2>sort：把文本行排成有序</h2>
-        <p class="subtitle">默认按照当前区域排序规则比较整行内容</p>
-        <pre><code class="language-bash">sort [选项] 文件
-sort scores.txt</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>sort</h3><p>排列文本行。</p></div>
-          <div class="card green"><h3>scores.txt</h3><p>要读取的文件。</p></div>
-          <div class="card blue"><h3>默认行为</h3><p>按区域规则比较整行内容。</p></div>
-          <div class="card green"><h3>不修改原文件</h3><p>只读取并显示排序结果。</p></div>
-        </div>
-        <div class="band band-blue">sort 不修改原始文件，只读取并显示排序结果。</div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>07</span></div>
-      </section>
-
-      <!-- 08 -->
-      <section data-page="08">
-        <h2>sort 默认排序与 sort -r 逆序</h2>
-        <p class="subtitle">-r 反转排序顺序，但不保证就是分数从高到低</p>
-        <div class="two-col">
-          <div class="card blue">
-            <h3>默认排序</h3>
-            <div class="cmd">sort scores.txt</div>
-            <p>按区域规则正序排列。</p>
-          </div>
-          <div class="card green">
-            <h3>逆序排序</h3>
-            <div class="cmd">sort -r scores.txt</div>
-            <p>反转上述排序顺序。</p>
-          </div>
-        </div>
-        <div class="band band-orange" style="margin-top:0.55em;">观察：两次输出的第一行和最后一行有什么不同？-r 反转的是排序顺序，并不保证分数从高到低。</div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>08</span></div>
-      </section>
-
-      <!-- 09 -->
-      <section data-page="09">
-        <h2>sort -n：按数值大小排序</h2>
-        <p class="subtitle">默认按字符规则排序，"100" 会排在 "85" 前面</p>
-        <div class="two-col uneven">
-          <div>
-            <p class="small">字符排序（默认 sort）：按字典序比较每行开头</p>
-            <pre><code class="language-bash">9
-10
-100
-85</code></pre>
-          </div>
-          <div>
-            <p class="small">数值排序（sort -n）：按第一列整数大小</p>
-            <pre><code class="language-bash">9
-10
-85
-100</code></pre>
-          </div>
-        </div>
-        <pre><code class="language-bash">sort scores.txt
-sort -n scores.txt</code></pre>
-        <div class="band band-blue">本实验第一列是分数，因此 <code>sort -n</code> 可以按第一列的数字从小到大排序。当想按数值大小排序时，使用 -n。</div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>09</span></div>
-      </section>
-
-      <!-- 10 -->
-      <section data-page="10">
-        <h2>sort -k：按指定字段排序</h2>
-        <p class="subtitle">-k 指定以第几列为排序键，便于按姓名或按成绩排序</p>
-        <div class="two-col">
-          <div>
-            <pre><code class="language-bash">sort -k2,2 scores.txt
-sort -k2,2r scores.txt</code></pre>
-          </div>
-          <div class="card blue">
-            <h3>列号示意</h3>
-            <ul class="num-list">
-              <li>第一列：成绩（如 85）</li>
-              <li>第二列：姓名代号（如 ZhangWei）</li>
-              <li>-k2,2：主要按第二列作为排序键</li>
-              <li>末尾 r：在该键上逆序</li>
-            </ul>
-          </div>
-        </div>
-        <div class="band band-blue">此处只学习按字段排序，不讨论复杂多关键字规则。</div>
+        <div class="band band-blue">核对结果：<code>scores.txt</code> 共 <strong>40 行</strong>，每行一条“姓名 成绩”记录。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>10</span></div>
       </section>
 
       <!-- 11 -->
       <section data-page="11">
-        <h2>sort 常用选项速览</h2>
-        <p class="subtitle">记住四个最常用的排序方式</p>
-        <div class="card-grid four">
-          <div class="card blue">
-            <h3>默认 sort</h3>
-            <div class="cmd">sort scores.txt</div>
-            <p>按文本排序。</p>
+        <h2>命令演示：先观察练习文件</h2>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">head scores.txt
+tail scores.txt
+wc -l scores.txt</code></pre>
           </div>
           <div class="card green">
-            <h3>-r 逆序</h3>
-            <div class="cmd">sort -r scores.txt</div>
-            <p>逆序排序。</p>
-          </div>
-          <div class="card blue">
-            <h3>-n 数值</h3>
-            <div class="cmd">sort -n scores.txt</div>
-            <p>按数字大小排序。</p>
-          </div>
-          <div class="card green">
-            <h3>-k 按字段</h3>
-            <div class="cmd">sort -k2,2 scores.txt</div>
-            <p>指定排序字段。</p>
+            <h3>观察任务</h3>
+            <ul>
+              <li>文件中的每行包含几部分？</li>
+              <li>第一列和第二列分别表示什么？</li>
+              <li>是否能发现相同的完整记录？</li>
+            </ul>
           </div>
         </div>
-        <pre><code class="language-bash">sort -k1,1nr scores.txt</code></pre>
-        <div class="band band-blue">解释：以第一列的数值为排序键，按从大到小排列。</div>
+        <div class="band band-orange">注意区分：“姓名相同”与“整行完全相同”不是一回事。uniq 默认比较整行内容。</div>
+        <div class="band band-blue">后续练习中不需要修改 scores.txt 原始数据。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>11</span></div>
       </section>
 
       <!-- 12 -->
       <section data-page="12">
-        <h2>uniq：检查相邻重复行</h2>
-        <p class="subtitle">uniq 只合并连续相邻、内容完全相同的行</p>
-        <div class="two-col">
-          <div>
-            <pre><code class="language-bash">uniq [选项] 文件
-uniq scores.txt</code></pre>
-          </div>
-          <div class="card blue">
-            <h3>必须强调</h3>
-            <ul class="num-list">
-              <li>只合并连续相邻、内容完全相同的行</li>
-              <li>若两条相同记录被其他行隔开，不会合并</li>
-              <li>比较的是整行内容，不是某一列</li>
-            </ul>
-          </div>
+        <h2>命令演示：sort 普通排序与逆序</h2>
+        <pre><code class="language-bash">sort scores.txt
+sort -r scores.txt</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>sort</h3><p>按文本顺序输出，共 40 行，重复记录仍然存在。</p></div>
+          <div class="card green"><h3>sort -r</h3><p>把同一排序结果反向输出。</p></div>
+          <div class="card blue"><h3>观察第一条记录</h3><p>正序与逆序的第一条记录不同。</p></div>
+          <div class="card green"><h3>观察原文件</h3><p>排序只改变显示顺序，scores.txt 没有被修改。</p></div>
         </div>
-        <div class="band band-orange" style="margin-top:0.55em;">uniq 只处理相邻的整行重复；被隔开的重複记录它“看不见”。</div>
+        <div class="band band-blue">-r 是 reverse；它只改变输出顺序，不负责去除重复记录。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>12</span></div>
       </section>
 
       <!-- 13 -->
       <section data-page="13">
-        <h2>为什么 uniq 前经常先 sort？</h2>
-        <p class="subtitle">先把相同记录排在一起，uniq 才能正确去重</p>
-        <div class="flow-h">
-          <div class="box">原始文本<br><code>相同记录分散</code></div>
-          <div class="arrow">→</div>
-          <div class="box">sort<br><code>相同记录相邻</code></div>
-          <div class="arrow">→</div>
-          <div class="box">uniq<br><code>只留一条</code></div>
+        <h2>命令演示：数值排序与字段排序</h2>
+        <pre><code class="language-bash">printf "9\n18\n100\n" | sort
+printf "9\n18\n100\n" | sort -n
+sort -k2,2n scores.txt
+sort -k2,2nr scores.txt</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>普通 sort</h3><p>100、18、9，按字符比较</p></div>
+          <div class="card green"><h3>sort -n</h3><p>9、18、100，按数值比较</p></div>
+          <div class="card blue"><h3>按成绩升序</h3><p>最低 9 Henry，最高 100 Eva / Peter</p></div>
+          <div class="card green"><h3>按成绩降序</h3><p>100 Eva / Peter 排在最前</p></div>
         </div>
-        <pre><code class="language-bash">uniq scores.txt
-sort scores.txt | uniq</code></pre>
-        <div class="band band-blue">观察问题：为什么两个命令的输出行数可能不同？这里只比较“整行记录”；姓名相同但成绩不同不算同一条记录。</div>
+        <div class="band band-blue">成绩位于第 2 列，因此按成绩排序要用 <code>-k2,2n</code>，不能只写 <code>sort -n</code>。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>13</span></div>
       </section>
 
       <!-- 14 -->
       <section data-page="14">
-        <h2>uniq -c：统计每条记录出现次数</h2>
-        <p class="subtitle">在每条记录前显示该整行记录出现的次数</p>
-        <div class="two-col">
-          <div>
-            <pre><code class="language-bash">sort scores.txt | uniq -c</code></pre>
-          </div>
-          <div class="card blue">
-            <h3>输出结构</h3>
-            <p>每行前面显示该条完全相同记录出现的次数；例如 <code>3 85 ZhangWei</code> 表示原文件中 <code>85 ZhangWei</code> 这条整行记录共出现 3 次。</p>
-          </div>
+        <h2>命令演示：uniq 与 sort | uniq</h2>
+        <pre><code class="language-bash">uniq scores.txt
+sort scores.txt | uniq</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>直接 uniq</h3><p>只合并相邻的完全相同记录；被其他行隔开的重复记录仍保留。</p></div>
+          <div class="card green"><h3>sort | uniq</h3><p>先把相同记录排到一起，再去重，得到 <strong>26 种</strong>不同记录。</p></div>
+          <div class="card blue"><h3>原文件行数</h3><p><code>scores.txt</code> 共 40 行</p></div>
+          <div class="card green"><h3>去重后行数</h3><p>40 → 26，说明有 14 行是重复记录</p></div>
         </div>
-        <div class="band band-blue">注意：-c 统计的是相邻完全相同整行的次数，不是仅统计某个姓名出现几次。</div>
+        <div class="band band-blue">为什么先 sort 会改变结果？因为 uniq 只能合并相邻的完全相同行。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>14</span></div>
       </section>
 
       <!-- 15 -->
       <section data-page="15">
-        <h2>uniq -d 与 uniq -u</h2>
-        <p class="subtitle">一个只看重复记录，一个只看唯一记录</p>
-        <div class="two-col">
-          <div class="card blue">
-            <h3>-d 只输出重复记录</h3>
-            <div class="cmd">sort scores.txt | uniq -d</div>
-            <p>只输出出现至少两次的记录，每种记录输出一次。</p>
-          </div>
-          <div class="card green">
-            <h3>-u 只输出唯一记录</h3>
-            <div class="cmd">sort scores.txt | uniq -u</div>
-            <p>只输出恰好出现一次的记录。</p>
-          </div>
+        <h2>命令演示：uniq -c / -d / -u</h2>
+        <pre><code class="language-bash">sort scores.txt | uniq -c
+sort scores.txt | uniq -d
+sort scores.txt | uniq -u</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>uniq -c</h3><p>共 26 组；例如 <strong>5 Bob 72</strong>、<strong>4 Alice 88</strong>，数字表示该整行记录出现次数。</p></div>
+          <div class="card green"><h3>uniq -d</h3><p>输出出现至少两次的记录，每种一次，共 <strong>9 种</strong>。</p></div>
+          <div class="card blue"><h3>uniq -u</h3><p>输出只出现一次的记录，共 <strong>17 种</strong>。</p></div>
         </div>
-        <div class="band band-blue">思考：-d 和 -u 是否可以互相代替？它们分别回答“哪些重复”和“哪些没重复”。</div>
+        <div class="band band-orange">uniq -c 统计的是每种完整记录出现的次数，不是仅统计某个姓名出现几次。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>15</span></div>
       </section>
 
       <!-- 16 -->
       <section data-page="16">
-        <h2>排序、去重与统计的组合</h2>
-        <p class="subtitle">把 sort、uniq、wc 串起来，回答不同层面的问题</p>
-        <pre><code class="language-bash">sort scores.txt | uniq
-sort scores.txt | uniq -c
-sort scores.txt | uniq | wc -l</code></pre>
-        <div class="card-grid four">
-          <div class="card blue"><h3>查看不同记录</h3><p>第一条：去掉相邻重复，列出所有不同整行记录。</p></div>
-          <div class="card green"><h3>统计每种次数</h3><p>第二条：显示每种记录各出现多少次。</p></div>
-          <div class="card blue"><h3>统计记录种数</h3><p>第三条：不同整行记录一共有多少种。</p></div>
-          <div class="card green"><h3>区别</h3><p><code>wc -l scores.txt</code> 是总行数；<code>sort | uniq | wc -l</code> 是不同记录种数，通常不同。</p></div>
+        <h2>练习1：普通排序与逆序</h2>
+        <p class="subtitle">分别执行两条命令，比较输出顺序</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop/SortLab
+sort scores.txt
+sort -r scores.txt</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>哪条命令是普通排序？</li>
+              <li>两次输出的第一条记录有何不同？</li>
+              <li>原文件是否被修改？</li>
+            </ul>
+          </div>
         </div>
+        <div class="band band-blue">练习要求：能区分 sort 与 sort -r 的效果。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>16</span></div>
       </section>
 
       <!-- 17 -->
       <section data-page="17">
-        <h2>练习1：观察文件与基础排序</h2>
-        <p class="subtitle">先看清原始内容，再做一次默认排序</p>
+        <h2>练习2：数值排序与字段排序</h2>
+        <p class="subtitle">使用 -n、-k 指定正确的比较方式</p>
         <div class="two-col uneven-left">
           <div>
-            <pre><code class="language-bash">cd /home/njucm/Desktop/SortLab
-head scores.txt
-wc -l scores.txt
-sort scores.txt</code></pre>
+            <pre><code class="language-bash">sort -k2,2 scores.txt
+sort -k2,2n scores.txt
+sort -k2,2nr scores.txt</code></pre>
           </div>
           <div class="card green">
-            <h3>观察</h3>
+            <h3>观察与思考</h3>
             <ul class="num-list">
-              <li>文件共有多少行？</li>
-              <li>排序前后内容是否相同？</li>
-              <li>原文件是否被修改？</li>
+              <li>为什么文本排序与数值排序可能不同？</li>
+              <li>哪条命令按成绩从小到大排列？</li>
+              <li>哪条命令按成绩从大到小排列？</li>
             </ul>
           </div>
         </div>
-        <div class="band band-blue">练习要求：能解释 head / wc -l / sort 各自的作用。</div>
+        <div class="band band-blue">参考：升序第一条为 <code>9 Henry</code>，降序最前为 <code>100 Eva</code> 和 <code>100 Peter</code>。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>17</span></div>
       </section>
 
       <!-- 18 -->
       <section data-page="18">
-        <h2>练习2：数值排序与逆序</h2>
-        <p class="subtitle">体会字符逆序与数值降序的区别</p>
-        <div class="two-col uneven-left">
-          <div>
-            <pre><code class="language-bash">sort -n scores.txt
-sort -nr scores.txt
-sort -k2,2 scores.txt</code></pre>
-          </div>
-          <div class="card green">
-            <h3>观察</h3>
-            <ul class="num-list">
-              <li>前两条分别怎样排列分数？</li>
-              <li>第三条主要按哪一列排序？</li>
-              <li>不要把字符逆序和数值降序混为一谈。</li>
-            </ul>
-          </div>
-        </div>
-        <div class="band band-blue">练习要求：能说出 -n 与 -r 各自改变了什么。</div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>18</span></div>
-      </section>
-
-      <!-- 19 -->
-      <section data-page="19">
-        <h2>练习3：验证相邻去重</h2>
-        <p class="subtitle">对比直接 uniq 与先 sort 再 uniq</p>
+        <h2>练习3：观察 uniq 的去重行为</h2>
+        <p class="subtitle">比较直接去重与先排序后去重</p>
         <div class="two-col uneven-left">
           <div>
             <pre><code class="language-bash">uniq scores.txt
 sort scores.txt | uniq</code></pre>
           </div>
           <div class="card green">
-            <h3>观察</h3>
-            <p>想一想：哪条命令更适合对整个文件的相同记录去重？为什么？对照原文件解释“保留 / 合并”。</p>
+            <h3>观察与思考</h3>
+            <p>两次输出的内容是否一样？哪些重复记录在直接 uniq 时没有合并？为什么先 sort 会改变结果？</p>
+            <p style="margin-top:0.45em;">参考：<code>sort | uniq</code> 从 40 行减少到 26 行。</p>
           </div>
         </div>
-        <div class="band band-orange" style="margin-top:0.55em;">尝试解释：直接 uniq 漏掉了哪些被隔开的重复记录？</div>
-        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>19</span></div>
+        <div class="band band-orange">uniq 只能合并相邻的完全相同的行。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>18</span></div>
       </section>
 
-      <!-- 20 -->
-      <section data-page="20">
-        <h2>练习4：统计、重复与唯一记录</h2>
-        <p class="subtitle">先用 sort 归并，再分别用 -c / -d / -u 观察</p>
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>练习4：统计重复记录</h2>
+        <p class="subtitle">用 uniq -c、-d、-u 比较不同结果</p>
         <div class="two-col uneven-left">
           <div>
             <pre><code class="language-bash">sort scores.txt | uniq -c
@@ -861,126 +812,99 @@ sort scores.txt | uniq | wc -l</code></pre>
           <div class="card green">
             <h3>请记录</h3>
             <ul>
-              <li>不同记录种数：______</li>
-              <li>至少重复一次的记录：______</li>
-              <li>恰好出现一次的记录：______</li>
-              <li>均以实际输出为准。</li>
+              <li>不同记录种数：<strong>26</strong></li>
+              <li>至少重复一次的记录：<strong>9 种</strong></li>
+              <li>恰好出现一次的记录：<strong>17 种</strong></li>
+              <li>重复最多的记录：<strong>Bob 72</strong>，出现 5 次</li>
             </ul>
-            <p style="margin-top:0.4em;">强调：计数对象是“整行记录”，不是仅姓名。</p>
           </div>
         </div>
-        <div class="band band-blue">思考：为什么 -u 列出的记录和 -d 列出的记录加起来，不等于所有不同记录？</div>
+        <div class="band band-blue">注意：计数对象是“整行记录”，不是仅姓名。</div>
+        <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>课堂综合练习：整理一份成绩记录</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标文件与环境</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop/SortLab</code></li>
+              <li>文件：<code>scores.txt</code></li>
+              <li>不得修改原始数据</li>
+              <li>最终完成普通排序、成绩排序、去重和重复次数统计</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>使用 pwd、ls 和 wc -l 确认文件</li>
+              <li>使用 sort 进行普通排序</li>
+              <li>使用 sort -k2,2n 按成绩升序排序</li>
+              <li>使用 sort -k2,2nr 按成绩降序排序</li>
+              <li>使用 sort | uniq 去除重复记录</li>
+              <li>使用 sort | uniq -c 统计各记录次数</li>
+              <li>使用 uniq -d 查看重复记录</li>
+              <li>解释为什么去重前要先排序</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">实验报告的实验结果部分展示这套课堂综合练习。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>20</span></div>
       </section>
 
       <!-- 21 -->
       <section data-page="21">
-        <h2>课堂综合练习：整理成绩记录</h2>
-        <div class="two-col uneven">
-          <div class="card blue">
-            <h3>环境与目标</h3>
-            <ul>
-              <li>目录：<code>/home/njucm/Desktop/SortLab</code></li>
-              <li>文件：<code>scores.txt</code></li>
-              <li>不得修改原始数据</li>
-              <li>给出：排序结果、重复情况与记录种数</li>
-            </ul>
-          </div>
-          <div class="card green">
-            <h3>请独立完成</h3>
-            <ul class="num-list">
-              <li>用 pwd / ls / head 确认实验环境和文件</li>
-              <li>使用 sort -n 将分数从低到高排列</li>
-              <li>使用 sort -nr 将分数从高到低排列</li>
-              <li>使用 sort -k2,2 按姓名代号排序</li>
-              <li>使用 sort scores.txt | uniq 对完全相同的记录去重</li>
-              <li>使用 sort scores.txt | uniq -c 统计每种记录出现次数</li>
-              <li>使用 sort scores.txt | uniq -d 列出重复记录</li>
-              <li>使用 sort scores.txt | uniq | wc -l 统计不同记录种数</li>
-              <li>用简短文字解释：为什么 uniq 前需要 sort？“记录总行数”和“不同记录种数”有什么区别？</li>
-            </ul>
-          </div>
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">保存三组关键结果，每张截图下方写简要说明</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>截图1｜文件与排序</h3><p>显示文件所在目录、行数，以及普通排序和按成绩排序的关键输出。</p></div>
+          <div class="card green"><h3>截图2｜去重结果</h3><p>显示 sort scores.txt | uniq 的运行结果，并说明为什么先排序。</p></div>
+          <div class="card blue"><h3>截图3｜重复次数统计</h3><p>显示 sort scores.txt | uniq -c 与 uniq -d 的输出，并说明数字的含义。</p></div>
         </div>
-        <div class="band band-blue">只需提交这一整套课堂综合练习（写入正式实验报告）。</div>
+        <div class="band band-blue">完成标准：命令正确，截图清晰，能解释排序依据、去重规则和次数含义。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>21</span></div>
       </section>
 
       <!-- 22 -->
       <section data-page="22">
-        <h2>课堂综合练习：完成标准与截图</h2>
-        <p class="subtitle">建议保存三张清晰截图，截图下方需要文字说明</p>
-        <div class="card-grid three">
-          <div class="card blue">
-            <h3>截图1 环境与排序</h3>
-            <p>包含提示符、pwd、文件确认以及 sort -n / sort -nr 结果。</p>
-          </div>
-          <div class="card green">
-            <h3>截图2 去重与统计</h3>
-            <p>包含 sort | uniq 和 sort | uniq -c 结果。</p>
-          </div>
-          <div class="card blue">
-            <h3>截图3 重复与种数</h3>
-            <p>包含 sort | uniq -d、sort | uniq | wc -l 的输出。</p>
-          </div>
+        <h2>常见问题：先检查文件与命令</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>sort: cannot read ...</h3><p>检查当前目录和文件名，使用 pwd、ls 确认 scores.txt 是否存在。</p></div>
+          <div class="card green"><h3>成绩排序结果不对</h3><p>检查是否使用 -k2,2n；普通 sort 的默认文本排序不等于数值排序。</p></div>
+          <div class="card blue"><h3>uniq 后仍存在重复行</h3><p>检查相同记录是否相邻；尝试先 sort，再使用 uniq。</p></div>
+          <div class="card green"><h3>uniq -c 统计不符合预期</h3><p>检查是否统计了完整记录，以及文件中空格或字符是否有差异。</p></div>
         </div>
-        <div class="band band-blue">每张图片下用 1 至 2 句解释命令做了什么、结果表示什么。</div>
+        <div class="band band-blue">排错顺序：检查路径与文件 → 检查选项 → 查看输出 → 再次验证。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>22</span></div>
       </section>
 
       <!-- 23 -->
       <section data-page="23">
-        <h2>常见报错与截图保存</h2>
-        <p class="subtitle">先检查命令和文件，再重新运行验证</p>
-        <div class="card-grid">
-          <div class="card blue">
-            <h3>sort: cannot read: scores.txt</h3>
-            <p>先检查 pwd、ls 和文件放置目录，确认已移入 SortLab。</p>
-          </div>
-          <div class="card green">
-            <h3>uniq 后仍有看起来一样的记录</h3>
-            <p>检查是否已先执行 sort，以及空格、大小写是否一致。</p>
-          </div>
-          <div class="card blue">
-            <h3>数字排序顺序不符合预期</h3>
-            <p>是否误用普通 sort 而没有加 -n？</p>
-          </div>
-          <div class="card green">
-            <h3>sort -k 排序不符合预期</h3>
-            <p>检查目标列数以及文件的空白分隔格式。</p>
-          </div>
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>步骤 1</h3><p>从 Windows 桌面或开始菜单打开截图工具。</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端区域，保留完整的命令、输出结果以及当前提示符。</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG 或 JPG，例如 <code>exp6_sort.png</code>。</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确保用户名、命令和结果清晰可读，关键内容没有被裁切。</p></div>
         </div>
-        <div class="flow-steps" style="grid-template-columns:repeat(4,1fr);margin-top:0.6em;">
-          <div class="step"><span>①</span>打开截图工具</div>
-          <div class="step"><span>②</span>框选提示符与结果</div>
-          <div class="step"><span>③</span>保存 PNG/JPG</div>
-          <div class="step"><span>④</span>检查清晰可读</div>
-        </div>
+        <div class="band band-blue">推荐截图范围：当前提示符 + 执行命令 + 输出结果。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>23</span></div>
       </section>
 
       <!-- 24 -->
       <section data-page="24">
         <h2>实验6作业：提交实验报告</h2>
-        <p class="subtitle">按课程实验报告模板完整填写；提交内容就是课堂综合练习</p>
+        <p class="subtitle">按课程实验报告模板填写，提交课堂综合练习</p>
         <div class="card-grid">
-          <div class="card blue">
-            <h3>报告内容</h3>
-            <p>基本信息、实验目的、内容和要求、实验结果、实验中出现的问题、实验总结。</p>
-          </div>
-          <div class="card green">
-            <h3>实验结果</h3>
-            <p>放入课堂综合练习的三类截图，每张图下写 1 至 2 句说明。</p>
-          </div>
-          <div class="card blue">
-            <h3>问题汇总</h3>
-            <p>例如未排序就使用 uniq，发现分散的重复行仍存在；补充 sort 后重新验证。</p>
-          </div>
-          <div class="card green">
-            <h3>实验总结</h3>
-            <p>用 3 至 5 句话说明排序、数值排序、相邻去重、重复统计之间的区别。</p>
-          </div>
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、实验目的、实验内容和要求、实验结果、实验中出现的问题、实验总结。</p></div>
+          <div class="card green"><h3>实验结果</h3><p>包含排序、去重和重复次数统计三类截图；每张图下写 1～2 句说明。</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>例如：uniq 未合并分散的重复行；先排序再去重后得到预期结果。</p></div>
+          <div class="card green"><h3>实验总结</h3><p>用 3～5 句说明排序方式、相邻重复行的含义，以及管道在组合命令中的作用。</p></div>
         </div>
-        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；不要求单独提交前面的分步练习。</div>
+        <div class="band band-blue">回顾：sort 排序 → -k2,2n 按成绩 → sort | uniq 去重 → uniq -c 计数。提交平台：雨课堂。</div>
         <div class="slide-footer"><span>Linux 实验6｜文本排序与去重</span><span>24</span></div>
       </section>
 

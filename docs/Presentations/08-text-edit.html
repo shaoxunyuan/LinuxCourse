@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本编辑与替换 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验八：文本编辑与替换｜让文本内容按需要发生变化</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解文本替换、筛选和删除的用途</li>
+              <li>掌握 sed 的基本语法</li>
+              <li>掌握 s、p、d 三类常见操作</li>
+              <li>能根据任务选择合适的 sed 命令</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>使用 s/旧/新/ 替换文本</li>
+              <li>使用 g 替换每行中的全部匹配</li>
+              <li>使用 -n、p 查看指定行或匹配行</li>
+              <li>使用 d 排除符合条件的行</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code> · 数据文件 <code>scores.csv</code>（31 行含表头）</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验八</h1>
+        <p class="subtitle">文本编辑与替换：让文本内容按需要发生变化</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">查找并替换</span><code>s///</code></div>
+          <div class="node"><span class="label">全部替换</span><code>g</code></div>
+          <div class="node"><span class="label">显示指定行</span><code>-n / p</code></div>
+          <div class="node"><span class="label">删除指定行</span><code>d</code></div>
+          <div class="node"><span class="label">原地修改</span><code>-i</code></div>
+        </div>
+        <div class="band band-green">核心工具：<code>sed 's/旧/新/'</code>　<code>sed -n '1,5p'</code>　<code>sed '/模式/d'</code></div>
+        <div class="band band-blue">本次实验的核心问题：如何批量替换、筛选或排除文本内容？</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>观察文件</div>
+          <div class="step"><span>02</span>认识 sed</div>
+          <div class="step"><span>03</span>替换文本</div>
+          <div class="step"><span>04</span>筛选与删除</div>
+          <div class="step"><span>05</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>能读懂 sed 的基本命令结构</li>
+              <li>能替换一处或一行中的全部匹配</li>
+              <li>能按行号或关键词筛选文本</li>
+              <li>能解释默认输出与 -n 的区别</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先查看原始文件</li>
+              <li>优先观察输出，不覆盖原文件</li>
+              <li>确认无误再用 -i 并做好备份</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要文本编辑与替换？</h2>
+        <p class="subtitle">文本中可能存在需要统一修改或筛选的内容</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>问题一：统一名称</h3><p>如何把文件中的旧名称替换为新名称？</p></div>
+          <div class="card green"><h3>问题二：全部替换</h3><p>同一行出现多次的关键词，如何一次处理？</p></div>
+          <div class="card blue"><h3>问题三：筛选内容</h3><p>如何只查看包含指定关键词的行？</p></div>
+          <div class="card green"><h3>问题四：排除记录</h3><p>如何从输出中排除不需要的行？</p></div>
+        </div>
+        <div class="band band-blue">结论：sed 可以按规则处理文本行，适合批量替换、筛选和删除。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>sed：按规则处理文本行</h2>
+        <p class="subtitle">默认将处理结果输出到终端，不直接修改原文件</p>
+        <pre><code class="language-bash">sed 's/Class/Group/' scores.csv</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>sed</h3><p>逐行读取文本，按规则处理后再输出</p></div>
+          <div class="card green"><h3>s/旧/新/</h3><p>把每行第一次出现的旧内容替换为新内容</p></div>
+          <div class="card blue"><h3>先观察输出</h3><p>比较执行前后，默认原文件不会被改写</p></div>
+        </div>
+        <div class="band band-blue">未使用 <code>-i</code> 时，sed 只输出修改后的结果，不会直接改写原文件。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>配套练习文件说明：scores.csv</h2>
+        <p class="subtitle">与实验7 使用同一份模拟学生成绩表</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>文件名称</h3><p><code>scores.csv</code>，共 31 行（含表头）</p></div>
+          <div class="card green"><h3>文件格式</h3><p>UTF-8 纯文本，逗号分隔，每行一条记录</p></div>
+          <div class="card blue"><h3>替换内容</h3><p><code>Class1</code>、<code>Class2</code>、<code>Class3</code> 适合统一替换</p></div>
+          <div class="card green"><h3>筛选特点</h3><p>可按行号查看，也适合按关键词筛选或排除整行</p></div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">实验统一在 <code>/home/njucm/Desktop/SedLab</code> 中操作，先观察输出，不覆盖原文件。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>准备练习文件：导入 scores.csv</h2>
+        <p class="subtitle">把仓库 <code>data/scores.csv</code> 放入 SedLab 后逐项确认</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+mkdir -p SedLab
+cd SedLab
+pwd</code></pre>
+            <pre><code class="language-bash">ls -l scores.csv
+head scores.csv
+wc -l scores.csv</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>准备目录</h3>
+              <ul class="num-list">
+                <li>进入桌面目录</li>
+                <li>创建并进入 SedLab</li>
+                <li>用 pwd 确认当前位置</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>观察结果</h3>
+              <p><code>wc -l</code> 输出 <code>31 scores.csv</code>；表头为 <code>Name,Score,Class</code>；第 2 行是 <code>Alice,88,Class1</code>。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>sed -n 与 p：显示指定行</h2>
+        <p class="subtitle">使用 -n 关闭默认输出，再用 p 指定要显示的行</p>
+        <pre><code class="language-bash">sed -n '1,5p' scores.csv
+sed -n '8p' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>按行号范围显示</h3>
+            <p><code>'1,5p'</code> 输出前 5 行：<code>Name,Score,Class</code>、<code>Alice,88,Class1</code>、<code>Bob,72,Class1</code>、<code>Cindy,95,Class2</code>、<code>David,60,Class2</code></p>
+          </div>
+          <div class="card green">
+            <h3>只显示第 8 行</h3>
+            <p>输出 <code>Grace,45,Class2</code></p>
+          </div>
+        </div>
+        <div class="band band-blue">-n 与 p 常配合使用，避免默认输出导致内容重复显示。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>sed -n 与 p：按关键词筛选</h2>
+        <p class="subtitle">把模式写在斜杠之间，只打印匹配行</p>
+        <pre><code class="language-bash">sed -n '/Class3/p' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>输出结果：共 8 行</h3>
+            <p><code>Eva,100,Class3</code>、<code>Henry,9,Class3</code>、<code>Kevin,83,Class3</code>、<code>Nina,67,Class3</code>、<code>Queen,42,Class3</code>、<code>Tina,65,Class3</code>、<code>Wendy,77,Class3</code>、<code>Zoe,96,Class3</code></p>
+          </div>
+          <div class="card green">
+            <h3>读法</h3>
+            <p><code>/Class3/</code> 是匹配模式，<code>p</code> 表示打印；配合 <code>-n</code> 只输出匹配行。</p>
+          </div>
+        </div>
+        <div class="band band-blue">可把关键词换成 <code>Class2</code> 再试一次，观察匹配行数变化。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>sed 's/Class/Group/'：替换文本</h2>
+        <p class="subtitle">默认只替换每行中第一次出现的匹配内容</p>
+        <pre><code class="language-bash">sed 's/Class/Group/' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>输出开头几行</h3>
+            <p><code>Name,Score,Group</code><br><code>Alice,88,Group1</code><br><code>Bob,72,Group1</code><br><code>Cindy,95,Group2</code></p>
+          </div>
+          <div class="card green">
+            <h3>观察任务</h3>
+            <ul>
+              <li>Class 变成了什么？</li>
+              <li>原始文件是否改变？</li>
+              <li>一行有两个 Class 时会全部替换吗？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">s 表示替换；第一个斜杠后是查找内容，第二个斜杠后是替换内容。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>sed 's/旧/新/g'：替换全部匹配</h2>
+        <p class="subtitle">g 表示对每一行中的所有匹配位置进行替换</p>
+        <pre><code class="language-bash">sed -n '26p' scores.csv | sed 's/a/A/'
+sed -n '26p' scores.csv | sed 's/a/A/g'</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>不加 g</h3>
+            <p>只替换第一个 a：<br><code>YAra,69,Class2</code></p>
+          </div>
+          <div class="card green">
+            <h3>加上 g</h3>
+            <p>替换所有 a：<br><code>YArA,69,ClAss2</code></p>
+          </div>
+        </div>
+        <div class="band band-orange">g 是 global；一行中有多个匹配时，差别最明显。原文件仍不会被修改。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>sed 的 d：删除与排除匹配行</h2>
+        <p class="subtitle">删除的是输出结果中的行，不会自动修改原文件</p>
+        <pre><code class="language-bash">sed '/Class3/d' scores.csv
+sed '3d' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>按关键词排除</h3>
+            <p><code>/Class3/d</code> 排除 8 行 Class3 记录，剩余 23 行输出。</p>
+          </div>
+          <div class="card green">
+            <h3>按行号排除</h3>
+            <p><code>3d</code> 删除第 3 行 <code>Bob,72,Class1</code>，输出其余 30 行。</p>
+          </div>
+        </div>
+        <div class="band band-blue">未使用 -i 时，d 只作用于显示结果，原文件不会被改写。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>sed -i：真正修改文件并做好备份</h2>
+        <p class="subtitle">以配置文件 <code>~/LinuxProject/config/hospital.conf</code> 为例</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>方式一：先手动备份</h3>
+            <div class="cmd">cp hospital.conf hospital.conf.bak</div>
+            <div class="cmd">sed -i 's/log_level=INFO/log_level=DEBUG/' hospital.conf</div>
+            <p>修改后 <code>grep log_level hospital.conf</code> 输出 <code>log_level=DEBUG</code>；备份中仍是 <code>INFO</code>。</p>
+          </div>
+          <div class="card green">
+            <h3>方式二：自动生成备份</h3>
+            <pre><code class="language-bash">sed -i.bak 's/log_level=INFO/log_level=DEBUG/' hospital.conf</code></pre>
+            <p>生成 <code>hospital.conf.bak</code>，原文件被原地修改。</p>
+          </div>
+        </div>
+        <div class="band band-orange">-i 会直接改写文件：务必先备份，再用 cat 或 grep 验证结果。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>管道组合：让 sed 参与命令链</h2>
+        <p class="subtitle">管道符 | 把前一条命令的输出交给 sed 继续处理</p>
+        <pre><code class="language-bash">sed -n '/Class3/p' scores.csv | wc -l
+sed 's/Class/Group/g' scores.csv | head -n 3</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>统计匹配行</h3>
+            <p>第一条命令输出 <code>8</code>，表示 Class3 共 8 行。</p>
+          </div>
+          <div class="card green">
+            <h3>只看前 3 行</h3>
+            <p>输出 <code>Name,Score,Group</code>、<code>Alice,88,Group1</code>、<code>Bob,72,Group1</code>。</p>
+          </div>
+        </div>
+        <div class="band band-blue">常见组合：先筛选、再替换、最后统计；管道不修改原文件。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>Vim / Nano 最小操作</h2>
+        <p class="subtitle">sed 适合批量处理；交互式修改配置文件也可用编辑器</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>Nano 最小操作</h3>
+            <div class="cmd">nano hospital.conf</div>
+            <ul>
+              <li>直接输入即可编辑</li>
+              <li><code>Ctrl+O</code> 保存，回车确认</li>
+              <li><code>Ctrl+X</code> 退出</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>Vim 最小操作</h3>
+            <div class="cmd">vim hospital.conf</div>
+            <ul>
+              <li><code>i</code> 进入插入模式</li>
+              <li><code>Esc</code> 返回普通模式</li>
+              <li><code>:wq</code> 保存退出，<code>:q!</code> 放弃</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">修改配置前先备份；改完用 <code>cat</code> 或 <code>grep</code> 验证内容。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习1：替换指定文本</h2>
+        <p class="subtitle">分别执行普通替换和全局替换，比较输出</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop/SedLab
+sed 's/Class/Group/' scores.csv
+sed 's/Class/Group/g' scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>两条输出有何不同？</li>
+              <li>一行有多个匹配时结果是否相同？</li>
+              <li>原始文件是否被修改？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">能区分首次替换与每行全部替换；本例每行只有一个 Class，所以两条结果相同。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习2：按行号筛选内容</h2>
+        <p class="subtitle">使用 -n 和 p 显示指定范围</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">sed -n '1,5p' scores.csv
+sed -n '6,10p' scores.csv
+sed -n '8p' scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>第一条显示了哪些行？</li>
+              <li>两个范围是否重叠？</li>
+              <li>如何只显示第 8 行？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">-n 关闭默认打印，p 负责打印指定范围。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习3：按关键词筛选与排除</h2>
+        <p class="subtitle">比较只显示匹配行和排除匹配行</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">sed -n '/Class3/p' scores.csv
+sed '/Class3/d' scores.csv
+sed -n '/Class2/p' scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>哪条只显示 Class3？</li>
+              <li>哪条排除 Class3？</li>
+              <li>两次结果分别保留多少行？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">p 打印匹配行，d 排除匹配行后输出其余内容。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>课堂综合练习：整理成绩表文本</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标文件与环境</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop/SedLab</code></li>
+              <li>文件：<code>scores.csv</code></li>
+              <li>完成替换、指定行提取、匹配行筛选和排除</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>pwd、ls、wc -l 确认文件</li>
+              <li>sed 's/Class/Group/' 首次替换</li>
+              <li>sed 's/Class/Group/g' 全部替换</li>
+              <li>sed -n '1,5p' 提取指定行</li>
+              <li>筛选 Class3，再用 d 排除</li>
+              <li>解释 -n、p、d、g 的作用</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">实验报告的实验结果部分展示这套课堂综合练习。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">保存三组关键结果，每张截图下方写简要说明</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>截图 1｜文本替换</h3><p>原始内容、首次替换与全局替换结果</p></div>
+          <div class="card green"><h3>截图 2｜指定内容</h3><p><code>sed -n '1,5p'</code> 与按关键词筛选结果</p></div>
+          <div class="card blue"><h3>截图 3｜排除匹配行</h3><p><code>sed '/Class3/d'</code> 的结果，并说明原文件是否被修改</p></div>
+        </div>
+        <div class="band band-blue" style="margin-top:0.6em;">完成标准：命令正确、截图清晰；能解释替换范围、筛选方式和排除行为。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>常见问题：先检查命令与匹配规则</h2>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>sed: can't read ...</h3>
+            <p>检查当前目录和文件名，用 <code>pwd</code>、<code>ls</code> 确认文件存在</p>
+          </div>
+          <div class="card green">
+            <h3>替换后没有变化</h3>
+            <p>查找内容需与文件完全一致，注意大小写和空格</p>
+          </div>
+          <div class="card blue">
+            <h3>输出内容重复</h3>
+            <p>检查是否使用 <code>-n</code>；-n 关闭默认输出，需配合 p</p>
+          </div>
+          <div class="card green">
+            <h3>原文件没有变化</h3>
+            <p>未使用 -i 时只改变终端输出，不会改写原文件</p>
+          </div>
+        </div>
+        <div class="band band-blue">排错顺序：检查路径与文件 → 检查匹配内容 → 检查选项 → 再次验证。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1 打开工具</h3><p>从桌面或开始菜单打开截图工具</p></div>
+          <div class="card green"><h3>步骤 2 框选终端</h3><p>保留完整命令、输出及当前提示符</p></div>
+          <div class="card blue"><h3>步骤 3 保存图片</h3><p>存为 PNG 或 JPG，例如 <code>exp8_sed.png</code></p></div>
+          <div class="card green"><h3>步骤 4 检查截图</h3><p>确保用户名、命令和结果清晰可读</p></div>
+        </div>
+        <div class="band band-blue">推荐截图范围：当前提示符 + 执行命令 + 输出结果。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>实验8作业：提交实验报告</h2>
+        <p class="subtitle">按课程实验报告模板填写，提交课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、实验目的、实验内容和要求、实验结果、问题、总结</p></div>
+          <div class="card green"><h3>实验结果</h3><p>文本替换、指定内容筛选、排除匹配行三类截图，每图附 1～2 句说明</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>例如替换未变化：关键词大小写不一致，修正匹配内容后得到预期结果</p></div>
+          <div class="card green"><h3>实验总结</h3><p>写 3～5 句，说明替换、筛选、删除及默认输出与 -n 的区别</p></div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告，分步练习不单独提交。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>实验8 作业与回顾</h2>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>提交要求</h3>
+            <ul class="num-list">
+              <li>完整实验报告</li>
+              <li>三类结果截图与说明</li>
+              <li>问题与解决办法</li>
+              <li>3～5 句实验总结</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>回顾要点</h3>
+            <ul>
+              <li>sed 默认输出到终端，不改原文件</li>
+              <li>s/// 首次替换，g 替换每行全部匹配</li>
+              <li>-n 配合 p 显示指定行或匹配行</li>
+              <li>d 排除行；-i 改文件前先备份</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">一句话总结：先观察，再替换与筛选；确认无误后才用 -i 并保留备份。</div>
+        <div class="slide-footer"><span>Linux 实验8｜文本编辑与替换</span><span>24</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

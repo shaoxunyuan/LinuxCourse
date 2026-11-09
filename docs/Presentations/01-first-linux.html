@@ -456,13 +456,13 @@
             </ul>
           </div>
         </div>
-        <div class="band band-gray" style="margin-top:0.7em;">运行环境：VMware Workstation + CentOS · 用户名 <code>njucm</code></div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：VMware Workstation + CentOS 课程虚拟机 · 用户名 <code>njucm</code></div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>01</span></div>
       </section>
 
       <!-- 02 -->
       <section data-page="02">
-        <h1>Linux 实验一</h1>
+        <h1>第一次进入 Linux</h1>
         <p class="subtitle">初识 Linux 与 VMware Workstation：先会启动、登录，再开始敲命令</p>
         <div class="five-nodes">
           <div class="node"><span class="label">认识环境</span><code>VMware</code></div>
@@ -487,19 +487,21 @@
         </div>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>学习目标</h3>
+            <h3>本次实验结束时，你应该能做到</h3>
             <ul>
-              <li>能启动并登录 CentOS</li>
-              <li>会用 whoami、hostname、pwd、date、uname -a</li>
-              <li>会用 ls / ls -l / ls -a 与 cd 切换目录</li>
-              <li>能创建 LinuxLab 并用 ls -la 检查</li>
+              <li>正确启动并登录 CentOS 课程虚拟机</li>
+              <li>使用 whoami、hostname、pwd、date、uname -a</li>
+              <li>使用 ls、ls -l、ls -a 查看目录内容</li>
+              <li>使用 cd 在 /、/home、/tmp 与主目录之间切换</li>
+              <li>创建 LinuxLab 目录并用 ls -la 检查</li>
             </ul>
           </div>
           <div class="card green">
             <h3>课堂原则</h3>
             <ul>
-              <li>先照着做一遍，再自己重做一遍</li>
-              <li>报错时先看提示、看路径、查帮助</li>
+              <li>先照着教程做一遍，再自己重做一遍</li>
+              <li>报错时不要急着问答案：先看提示、看路径、查帮助</li>
+              <li>每执行一条命令，就看一次输出</li>
             </ul>
           </div>
         </div>
@@ -508,80 +510,135 @@
 
       <!-- 04 -->
       <section data-page="04">
-        <h2>什么是 VMware Workstation？</h2>
-        <p class="subtitle">在一台真实电脑中，再运行一台“虚拟电脑”</p>
+        <h2>场景问题：第一次坐在实验电脑前</h2>
+        <p class="subtitle">先解决四个疑问，再开始敲命令</p>
         <div class="card-grid">
-          <div class="card blue"><h3>宿主机</h3><p>实验室里的真实 Windows 电脑</p></div>
-          <div class="card green"><h3>虚拟机软件</h3><p>VMware Workstation</p></div>
-          <div class="card blue"><h3>客户机系统</h3><p>本课程提供的 CentOS</p></div>
-          <div class="card green"><h3>为什么用它</h3><p>不重装真实电脑；环境统一；出错后更容易恢复</p></div>
+          <div class="card blue"><h3>这台电脑里为什么还有一台 Linux？</h3><p>它运行在 VMware Workstation 里，不是重装你的 Windows。</p></div>
+          <div class="card green"><h3>用户名和密码是什么？</h3><p>用户名统一为 njucm；密码看实验电脑桌面上的 TXT 文档。</p></div>
+          <div class="card blue"><h3>命令在哪里输入？</h3><p>登录后打开 Terminal / 终端，在提示符后面输入。</p></div>
+          <div class="card green"><h3>怎么确认自己做对了？</h3><p>看命令输出，再用 pwd、ls 检查位置和内容。</p></div>
         </div>
-        <div class="band band-blue">真实电脑 → VMware Workstation → CentOS 虚拟机</div>
+        <pre><code class="language-bash">whoami
+hostname
+pwd</code></pre>
+        <div class="band band-blue">今天的路线：认识环境 → 启动登录 → 终端练习 → 目录任务 → 截图保存。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>04</span></div>
       </section>
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>先认识 VMware Workstation</h2>
-        <p class="subtitle">第一次实验只会用到“打开、启动、关机”</p>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>1 打开软件</h3><p>打开 VMware Workstation</p></div>
-          <div class="card green"><h3>2 选择虚拟机</h3><p>找到已准备好的 CentOS 虚拟机</p></div>
-          <div class="card blue"><h3>3 启动</h3><p>点击 Power on / 启动，等待开机</p></div>
+        <h2>什么是 VMware Workstation 虚拟机？</h2>
+        <p class="subtitle">在一台真实电脑中，再运行一台“虚拟电脑”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>宿主机</h3><p>实验室里的真实 Windows 电脑，提供 CPU、内存和磁盘。</p></div>
+          <div class="card green"><h3>虚拟机软件</h3><p>VMware Workstation，负责运行虚拟计算机。</p></div>
+          <div class="card blue"><h3>客户机系统</h3><p>本课程提供的 CentOS，独立运行在虚拟机中。</p></div>
+          <div class="card green"><h3>为什么课程用它</h3><p>不重装真实电脑；环境统一；出错后更容易恢复；适合反复练习。</p></div>
         </div>
-        <div class="band band-orange">不要随意修改 CPU、内存、网络或虚拟磁盘；不要移动或删除虚拟机文件。</div>
-        <div class="band band-blue">若启动失败：确认选中的是课程虚拟机，再说明报错信息。</div>
+        <div class="flow-h">
+          <div class="box">真实电脑<code>宿主机</code></div>
+          <div class="arrow">→</div>
+          <div class="box">虚拟机软件<code>VMware</code></div>
+          <div class="arrow">→</div>
+          <div class="box">客户机系统<code>CentOS</code></div>
+        </div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>启动并登录 CentOS</h2>
-        <p class="subtitle">账号固定，密码按实验电脑提示获取</p>
-        <div class="card-grid">
-          <div class="card blue"><h3>1 启动</h3><p>在 VMware 中点击 Power on / 启动</p></div>
-          <div class="card green"><h3>2 等待登录界面</h3><p>启动过程中不要反复点击或强制关闭</p></div>
-          <div class="card blue"><h3>3 用户名</h3><p>统一为 <code>njucm</code></p></div>
-          <div class="card green"><h3>4 密码</h3><p>查看 Windows 桌面上的 TXT 文档</p></div>
+        <h2>第一次只做四件事：打开、选择、启动、关机</h2>
+        <p class="subtitle">先不要改设置，先把虚拟机正常跑起来</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>1 打开软件</h3><p>在实验电脑中找到 VMware Workstation 并打开。</p></div>
+          <div class="card green"><h3>2 选择虚拟机</h3><p>在左侧或主页中找到老师已经准备好的 CentOS 虚拟机。</p></div>
+          <div class="card blue"><h3>3 Power on / 启动</h3><p>点击启动按钮，等待 CentOS 完成开机。</p></div>
+          <div class="card green"><h3>4 系统关机</h3><p>实验结束时在 CentOS 内关机，不要只关闭 VMware 窗口。</p></div>
         </div>
-        <div class="band band-blue">密码区分大小写；登录成功后打开 Terminal / 终端。实验结束时用系统关机，不要只关 VMware 窗口。</div>
+        <div class="band band-orange">今天不要改 CPU、内存、网络和虚拟磁盘，也不要移动或删除虚拟机文件。</div>
+        <div class="band band-blue">如果启动失败：先确认选中的是课程虚拟机，再举手说明报错信息；不要自己删除虚拟机重新建。</div>
+        <div class="band band-green">实验结束时使用 CentOS 的系统关机功能，不要把“关闭 VMware 窗口”当作关机。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>06</span></div>
       </section>
 
       <!-- 07 -->
       <section data-page="07">
-        <h2>认识终端：Linux 的“对话框”</h2>
-        <p class="subtitle">看得懂提示符，敢敲命令，知道看输出</p>
-        <pre><code class="language-bash">[njucm@centos ~]$ whoami
-njucm
-[njucm@centos ~]$ pwd
-/home/njucm</code></pre>
+        <h2>启动并登录 CentOS</h2>
+        <p class="subtitle">账号固定，密码按实验电脑提示获取</p>
         <div class="card-grid">
-          <div class="card blue"><h3>njucm</h3><p>当前登录用户名</p></div>
-          <div class="card green"><h3>centos</h3><p>主机名（以实验环境为准）</p></div>
-          <div class="card blue"><h3>~</h3><p>当前在自己的主目录</p></div>
-          <div class="card green"><h3>$</h3><p>普通用户提示符；其后输入命令</p></div>
+          <div class="card blue"><h3>1 启动虚拟机</h3><p>在 VMware Workstation 中点击 Power on / 启动。</p></div>
+          <div class="card green"><h3>2 等待登录界面</h3><p>启动过程中不要反复点击或强制关闭。</p></div>
+          <div class="card blue"><h3>3 输入用户名</h3><p>用户名统一为 <code>njucm</code>。</p></div>
+          <div class="card green"><h3>4 输入密码</h3><p>查看实验电脑 Windows 桌面上的 TXT 文档；密码区分大小写。</p></div>
         </div>
+        <div class="band band-blue">登录成功后打开 Terminal / 终端。后面的练习都在终端完成。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>07</span></div>
       </section>
 
       <!-- 08 -->
       <section data-page="08">
-        <h2>练习1：认识“我”和“这台机器”</h2>
-        <p class="subtitle">逐条输入，执行一条就看一次结果</p>
-        <div class="card-grid">
-          <div class="card blue"><h3>whoami</h3><p>我是谁？记录用户名</p></div>
-          <div class="card green"><h3>hostname</h3><p>这是哪台机器？记录主机名</p></div>
-          <div class="card blue"><h3>pwd</h3><p>我现在在哪里？记录当前目录</p></div>
-          <div class="card green"><h3>date</h3><p>系统现在几点？</p></div>
+        <h2>认识终端：先看懂提示符</h2>
+        <p class="subtitle">看得懂提示符，敢敲命令，知道看输出</p>
+        <pre><code class="language-bash">whoami
+pwd
+date</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>njucm</h3><p>当前登录用户名</p></div>
+          <div class="card green"><h3>centos</h3><p>主机名示意，实际以实验环境为准</p></div>
+          <div class="card blue"><h3>~</h3><p>当前在自己的主目录中</p></div>
+          <div class="card green"><h3>$</h3><p>普通用户提示符，其后才是输入命令的位置</p></div>
         </div>
-        <div class="band band-blue">再执行 <code>uname -a</code> 观察内核信息。这几条命令请亲手敲一遍，不要复制粘贴。</div>
+        <div class="band band-blue">从这一页开始，不要只看 PPT：打开终端，逐条敲。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>08</span></div>
       </section>
 
       <!-- 09 -->
       <section data-page="09">
-        <h2>练习2：用 ls 看“这里有什么”</h2>
+        <h2>命令演示：确认“我是谁、在哪、什么时候”</h2>
+        <p class="subtitle">五条环境命令，执行一条看一条输出</p>
+        <pre><code class="language-bash">whoami
+hostname
+pwd
+date
+uname -a</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>命令作用</h3>
+            <p><code>whoami</code> 当前用户；<code>hostname</code> 主机名；<code>pwd</code> 当前目录；<code>date</code> 日期时间；<code>uname -a</code> 内核与系统信息。</p>
+          </div>
+          <div class="card green">
+            <h3>观察要点</h3>
+            <p>用户名是否为 <code>njucm</code>？主目录是否为 <code>/home/njucm</code>？内核信息里能看到什么？</p>
+          </div>
+        </div>
+        <div class="band band-blue">输出与同学不同很正常，先想想主机名、时间和登录用户为什么可能不同。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>练习1：亲手敲一遍五条命令</h2>
+        <p class="subtitle">不要复制粘贴，逐条输入并记录输出</p>
+        <pre><code class="language-bash">whoami
+hostname
+pwd
+date
+uname -a</code></pre>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>记录当前用户名</li>
+          <li>记录主机名</li>
+          <li>记录当前目录</li>
+          <li>记录日期和时间</li>
+          <li>记录内核版本与系统信息</li>
+        </ul>
+        <div class="band band-green">完成后能不看 PPT，自己再敲一遍这五条命令。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>命令演示：用 ls 看“这里有什么”</h2>
+        <p class="subtitle">同一个目录，换参数再看一遍</p>
         <pre><code class="language-bash">pwd
 ls
 ls -l
@@ -589,157 +646,275 @@ ls -a
 ls -la</code></pre>
         <div class="two-col">
           <div class="card blue">
-            <h3>含义</h3>
+            <h3>参数含义</h3>
             <ul>
-              <li><code>ls</code>：列出文件和目录</li>
-              <li><code>ls -l</code>：长格式详细显示</li>
-              <li><code>ls -a</code>：包含隐藏文件（以 . 开头）</li>
+              <li><code>ls</code>：查看当前目录中的文件和目录</li>
+              <li><code>ls -l</code>：用较详细的长格式显示</li>
+              <li><code>ls -a</code>：把隐藏文件也显示出来</li>
+              <li><code>ls -la</code>：长格式并包含隐藏文件</li>
             </ul>
           </div>
           <div class="card green">
-            <h3>观察</h3>
+            <h3>观察任务</h3>
             <ul class="num-list">
-              <li>哪条命令信息最多？</li>
-              <li>ls -a 是否多出以 . 开头的项？</li>
-              <li>主目录里有哪些文件夹？</li>
+              <li>哪条命令显示的信息最多？</li>
+              <li>ls -a 后是否多出以 . 开头的项目？</li>
+              <li>你的主目录里有哪些文件夹？</li>
             </ul>
           </div>
         </div>
         <div class="band band-orange">Linux 区分大小写：<code>ls</code> 与 <code>LS</code> 不是同一条命令。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>09</span></div>
-      </section>
-
-      <!-- 10 -->
-      <section data-page="10">
-        <h2>练习3：在 Linux 目录中“走一圈”</h2>
-        <p class="subtitle">每切换一次目录，都用 pwd 确认当前位置</p>
-        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
-          <div class="card blue"><h3>1–3</h3><p><code>cd /</code> → <code>pwd</code> → <code>ls</code></p></div>
-          <div class="card green"><h3>4–5</h3><p><code>cd /home</code> → <code>pwd</code></p></div>
-          <div class="card blue"><h3>6–7</h3><p><code>cd /tmp</code> → <code>pwd</code></p></div>
-        </div>
-        <div class="band band-blue">最后执行 <code>cd ~</code> 与 <code>pwd</code>，应回到 <code>/home/njucm</code>。再自己完成：/ → /home → /tmp → ~。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>10</span></div>
-      </section>
-
-      <!-- 11 -->
-      <section data-page="11">
-        <h2>练习4：不会命令时，先学会自己查</h2>
-        <pre><code class="language-bash">man ls
-# 按 q 退出 man
-ls --help
-mkdir --help</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>man 命令</h3><p>查看较完整的手册</p></div>
-          <div class="card green"><h3>命令 --help</h3><p>快速查看常用选项</p></div>
-          <div class="card blue"><h3>Tab 补全</h3><p>输入一部分后按 Tab，减少拼写错误</p></div>
-          <div class="card green"><h3>自己查</h3><p>查出 ls -a / -l 含义；用 Tab 补全 /ho</p></div>
-        </div>
-        <div class="band band-blue">规则：先查帮助；先读报错；再改命令。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>11</span></div>
       </section>
 
       <!-- 12 -->
       <section data-page="12">
-        <h2>练习5：创建你的第一个 LinuxLab</h2>
+        <h2>练习2：清屏后重新敲一遍</h2>
+        <p class="subtitle">先 clear 清屏，再按顺序输入，比较每次输出</p>
+        <pre><code class="language-bash">clear
+pwd
+ls
+ls -l
+ls -a
+ls -la</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>比较</h3><p>从 ls 到 ls -l，多出了哪些列？从 ls 到 ls -a，多出了哪些项？</p></div>
+          <div class="card green"><h3>记录</h3><p>写下主目录中看到的文件夹名，为后面的目录切换做准备。</p></div>
+        </div>
+        <div class="band band-blue">这一遍不看上一页的命令，凭记忆完成。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>命令演示：用 cd 在目录之间切换</h2>
+        <p class="subtitle">每切换一次目录，都用 pwd 确认当前位置</p>
+        <pre><code class="language-bash">cd /
+pwd
+ls
+cd /home
+pwd
+cd /tmp
+pwd
+cd ~
+pwd</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>/</h3><p>根目录，整个文件系统的起点</p></div>
+          <div class="card green"><h3>/home</h3><p>普通用户主目录所在位置</p></div>
+          <div class="card blue"><h3>/tmp</h3><p>临时目录</p></div>
+          <div class="card green"><h3>~</h3><p>回到自己的主目录 /home/njucm</p></div>
+        </div>
+        <div class="band band-blue">不确定当前位置时，第一条命令永远是 <code>pwd</code>。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习3：自己走一圈 / → /home → /tmp → ~</h2>
+        <p class="subtitle">不看上一页的路线，每到一处都用 pwd 确认</p>
+        <pre><code class="language-bash">cd /
+pwd
+ls
+cd /home
+pwd
+ls
+cd /tmp
+pwd
+cd ~
+pwd</code></pre>
+        <div class="band band-green">完成标准：最后一条 pwd 的输出应为 <code>/home/njucm</code>。</div>
+        <div class="band band-blue">若某一步报错，先看路径拼写，再用 pwd 确认自己当前在哪里。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>不会命令时：man、--help 与 Tab 补全</h2>
+        <p class="subtitle">Linux 新手的“救命工具”</p>
+        <pre><code class="language-bash">man ls
+# 按 q 退出 man
+ls --help
+man mkdir
+mkdir --help</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>man 命令</h3><p>查看比较完整的手册。练习：man ls。</p></div>
+          <div class="card green"><h3>命令 --help</h3><p>快速查看常用选项。练习：ls --help。</p></div>
+          <div class="card blue"><h3>Tab 补全</h3><p>输入一部分后按 Tab，减少拼写错误。</p></div>
+          <div class="card green"><h3>自己查</h3><p>查出 -a、-l 的含义；用 Tab 补全 /ho 后面的路径。</p></div>
+        </div>
+        <div class="band band-orange">规则：先查帮助；先读报错；再改命令。不要一遇到问题就猜。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习4：把帮助系统用起来</h2>
+        <p class="subtitle">带着问题查，不要从头读到尾</p>
+        <pre><code class="language-bash">man ls
+# 找到 -a 与 -l 的说明，按 q 退出
+ls --help
+man mkdir
+mkdir --help</code></pre>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>查出 ls -a 中 -a 的含义</li>
+          <li>查出 ls -l 中 -l 的含义</li>
+          <li>用 mkdir --help 查看 mkdir 的常用参数</li>
+          <li>用 Tab 补全 /ho 后面的路径</li>
+        </ul>
+        <div class="band band-blue">查完后用自己的话说一遍，再回到命令行验证。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>命令演示：创建你的第一个 LinuxLab</h2>
+        <p class="subtitle">先完全照着教程敲，确认结构正确</p>
         <div class="split-panel">
           <div class="stack">
             <pre><code class="language-bash">cd ~
 mkdir LinuxLab
 cd LinuxLab
-mkdir data script result
+mkdir data
+mkdir script
+mkdir result
 touch README.txt
 pwd
 ls -la</code></pre>
           </div>
           <div class="stack">
             <div class="card blue">
-              <h3>目标结构</h3>
-              <pre><code class="language-bash">LinuxLab/
+              <h3>最终结构</h3>
+              <pre><code class="language-text">LinuxLab/
 ├── data/
 ├── script/
 ├── result/
 └── README.txt</code></pre>
             </div>
             <div class="card green">
-              <h3>要点</h3>
-              <p><code>mkdir</code> 创建目录；<code>touch</code> 创建空文件；用 <code>ls -la</code> 检查是否成功。</p>
+              <h3>三个要点</h3>
+              <p><code>mkdir</code> 创建目录；<code>touch</code> 创建空文件；<code>ls -la</code> 检查目录内容是否创建成功。</p>
             </div>
           </div>
         </div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>12</span></div>
-      </section>
-
-      <!-- 13 -->
-      <section data-page="13">
-        <h2>练习6：同样的任务，再做一遍</h2>
-        <ul class="num-list" style="margin-top:0.4em;">
-          <li>回到主目录：<code>cd ~</code>，用 <code>pwd</code> 确认</li>
-          <li>创建 PracticeLab 并进入</li>
-          <li>尝试用一条 <code>mkdir</code> 创建 data、script、result</li>
-          <li>用 <code>touch</code> 创建 README.txt</li>
-          <li>执行 <code>pwd</code>、<code>ls -l</code>、<code>ls -a</code> 检查</li>
-          <li>再进入 <code>~/LinuxLab</code>，用 <code>ls -la</code> 复查</li>
-        </ul>
-        <div class="band band-blue">若忘记如何一次创建多个目录，先执行 <code>mkdir --help</code>。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>13</span></div>
-      </section>
-
-      <!-- 14 -->
-      <section data-page="14">
-        <h2>课堂综合练习</h2>
-        <ul class="num-list" style="margin-top:0.4em;">
-          <li>确认当前用户、主机名、位置、系统时间和内核信息</li>
-          <li>依次进入 /、/home、/tmp，每到一处执行 pwd，并用 ls 查看</li>
-          <li>回到主目录，分别执行 ls、ls -l、ls -a、ls -la</li>
-          <li>进入 ~/LinuxLab，用 ls -la 检查 data、script、result 和 README.txt</li>
-          <li>用 man ls 或 ls --help，再确认 -a 与 -l 的含义</li>
-        </ul>
-        <div class="band band-blue">完成标准：以上操作连续完成；出错时能用 pwd、ls 和帮助系统自查。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>14</span></div>
-      </section>
-
-      <!-- 15 -->
-      <section data-page="15">
-        <h2>常见报错：先看它在说什么</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>No such file or directory</h3><p>路径或名字写错 → pwd / ls 检查</p></div>
-          <div class="card green"><h3>command not found</h3><p>命令写错 → 检查大小写和拼写</p></div>
-          <div class="card blue"><h3>Permission denied</h3><p>当前用户没有权限 → 先确认操作</p></div>
-          <div class="card green"><h3>Is a directory</h3><p>把目录当普通文件操作 → ls -l 查看对象</p></div>
-        </div>
-        <div class="band band-blue">排错：看报错 → pwd 看位置 → ls 看内容 → 检查大小写 → 查帮助。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>15</span></div>
-      </section>
-
-      <!-- 16 -->
-      <section data-page="16">
-        <h2>如何保存实验截图</h2>
-        <p class="subtitle">使用实验电脑 Windows 桌面上的截图工具</p>
-        <div class="card-grid">
-          <div class="card blue"><h3>步骤 1</h3><p>打开截图工具</p></div>
-          <div class="card green"><h3>步骤 2</h3><p>框选终端中的命令与输出</p></div>
-          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG/JPG，命名清楚</p></div>
-          <div class="card green"><h3>步骤 4</h3><p>确认命令、输出、用户名清晰可读</p></div>
-        </div>
-        <div class="band band-blue">建议保留：启动成功、系统信息、目录切换、LinuxLab 结构。</div>
-        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>16</span></div>
-      </section>
-
-      <!-- 17 -->
-      <section data-page="17">
-        <h2>实验1作业：提交实验报告</h2>
-        <p class="subtitle">按课程实验报告模板完整填写</p>
-        <div class="card-grid">
-          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
-          <div class="card green"><h3>实验结果</h3><p>关键截图，图下 1～2 句说明</p></div>
-          <div class="card blue"><h3>问题汇总</h3><p>问题、原因与解决方法</p></div>
-          <div class="card green"><h3>实验总结</h3><p>写 3～5 句收获</p></div>
-        </div>
-        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告；截图放入报告中。</div>
         <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>17</span></div>
       </section>
 
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习5：同样的任务，再做一遍</h2>
+        <p class="subtitle">第二遍减少提示，自己组合命令</p>
+        <pre><code class="language-bash">cd ~
+pwd
+mkdir PracticeLab
+cd PracticeLab
+mkdir data script result
+touch README.txt
+pwd
+ls -l
+ls -a
+cd ~/LinuxLab
+ls -la</code></pre>
+        <div class="band band-blue">忘记怎样一次创建多个目录时，先执行 <code>mkdir --help</code>，不要凭感觉试。</div>
+        <div class="band band-green">做完这一页，你已经练过最终任务需要的全部命令。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>课堂综合练习：连续完成一整套操作</h2>
+        <pre><code class="language-bash">whoami
+hostname
+pwd
+date
+uname -a</code></pre>
+        <ul class="num-list" style="margin-top:0.35em;">
+          <li>确认当前用户、主机名、当前位置、系统时间和内核信息</li>
+          <li>依次进入 /、/home、/tmp，每到一处执行 pwd，并用 ls 查看内容</li>
+          <li>回到主目录，分别执行 ls、ls -l、ls -a、ls -la</li>
+          <li>进入 ~/LinuxLab，使用 ls -la 检查 data、script、result 和 README.txt</li>
+          <li>使用 man ls 或 ls --help，再确认 -a 和 -l 的含义</li>
+        </ul>
+        <div class="band band-blue">完成标准：五组操作连续完成；出错时能用 pwd、ls 和帮助系统自查。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>常见报错：先看它在说什么</h2>
+        <p class="subtitle">排错习惯：看报错 → 看位置 → 看内容 → 再修改</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>No such file or directory</h3><p>路径或名字写错。用 pwd / ls 检查当前位置和拼写。</p></div>
+          <div class="card green"><h3>command not found</h3><p>命令写错或不存在。先检查大小写和拼写。</p></div>
+          <div class="card blue"><h3>Permission denied</h3><p>当前用户没有权限。先确认操作，不要一看到就 sudo。</p></div>
+          <div class="card green"><h3>Is a directory</h3><p>把目录当作普通文件操作。先用 ls -l 看对象是什么。</p></div>
+        </div>
+        <pre><code class="language-bash">pwd
+ls
+ls -l
+man ls</code></pre>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>保存截图与填写实验报告</h2>
+        <p class="subtitle">截图要能看见命令和对应输出</p>
+        <div class="split-panel">
+          <div class="stack">
+            <div class="card blue">
+              <h3>截图四步</h3>
+              <ul class="num-list">
+                <li>打开 Windows 桌面上的“截图工具”</li>
+                <li>框选终端中的命令与输出，不要只截空桌面</li>
+                <li>保存为 PNG/JPG，命名清楚</li>
+                <li>检查命令、输出、用户名是否清晰可读</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>报告六部分</h3>
+              <p>基本信息、实验目的、实验内容和要求、实验结果、出现的问题、实验总结。</p>
+            </div>
+          </div>
+          <div class="stack">
+            <pre><code class="language-bash">pwd
+ls -la
+whoami
+uname -a</code></pre>
+            <div class="band band-blue" style="margin:0;">保留 4 类关键截图：启动成功、系统信息、目录切换、LinuxLab 结构。每张图下写 1–2 句说明。</div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>作业与回顾：第一次进入 Linux</h2>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>作业：提交实验报告</h3>
+            <ul class="num-list">
+              <li>使用《实验报告》模板，封面信息填写完整</li>
+              <li>实验结果放关键截图，图下写 1–2 句说明</li>
+              <li>问题汇总写清报错、原因和解决方法</li>
+              <li>实验总结写 3～5 句收获</li>
+              <li>提交平台：雨课堂</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>本课回顾</h3>
+            <ul>
+              <li>宿主机、VMware Workstation、CentOS 的关系</li>
+              <li>登录、关机与终端提示符</li>
+              <li>whoami、hostname、pwd、date、uname -a</li>
+              <li>ls 与 cd 的基本用法</li>
+              <li>用 mkdir、touch 创建 LinuxLab</li>
+              <li>用 man、--help、Tab 自己解决问题</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">下一课：文件与目录管理，把散乱的文件整理成规范项目。</div>
+        <div class="slide-footer"><span>Linux 实验1｜第一次进入 Linux</span><span>22</span></div>
+      </section>
 
     </div>
   </div>

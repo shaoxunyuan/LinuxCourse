@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验9：文件压缩与解压</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>打包与压缩的区别</a>
+              <a href="#p1-2"><span class="n">1.2</span>准备 ArchiveLab 练习目录</a>
+              <a href="#p1-3"><span class="n">1.3</span>tar 打包、查看与解包</a>
+              <a href="#p1-4"><span class="n">1.4</span>tar.gz 压缩与解压</a>
+              <a href="#p1-5"><span class="n">1.5</span>gzip 与 gunzip</a>
+              <a href="#p1-6"><span class="n">1.6</span>zip、unzip 与格式对照</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：三种格式（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：备份与格式选择（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验9
+        </div>
+        <h1>实验9：文件压缩与解压</h1>
+        <p class="practice-lead">文件太多时，先把它们打包成一个归档；文件太大时，再压缩减少体积。本节从 tar 的打包与查看开始，依次加入 gzip 和 ZIP，最后对 <code>~/LinuxProject</code> 做一次可验证的备份与恢复。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能区分打包与压缩；能用 tar、gzip、zip 创建归档和压缩包；能查看归档内容、解压到指定目录并核对结果</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>数据归档与备份。用 <code>~/ArchiveLab</code> 练习三种格式，再备份 <code>~/LinuxProject</code> 并验证恢复完整</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 打包与压缩的区别</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">打包解决“文件太多、太分散”的问题，把多个文件放进一个归档文件；压缩解决“体积太大”的问题，用算法减少数据占用的空间。两件事可以分开做，也可以一次完成。</p>
+          <div class="step-label">Step 1 / 先做一次只打包、不压缩的实验</div>
+          <pre><code class="language-bash">cd ~
+mkdir -p pack_demo
+cd pack_demo
+printf 'one\n' &gt; a.txt
+printf 'two\n' &gt; b.txt
+ls -l a.txt b.txt
+tar -cvf two.tar a.txt b.txt
+ls -l a.txt b.txt two.tar
+tar -tvf two.tar</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（大小示意，具体数值以你的终端为准）：</p>
+          <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm     4 a.txt
+-rw-r--r-- 1 njucm njucm     4 b.txt
+-rw-r--r-- 1 njucm njucm 10240 two.tar
+a.txt
+b.txt</code></pre>
+          <div class="step-label">Step 2 / 再对归档文件做一次压缩</div>
+          <pre><code class="language-bash">gzip -c two.tar &gt; two.tar.gz
+ls -l two.tar two.tar.gz</code></pre>
+          <ul class="tasks">
+            <li>两个 4 字节的小文件打包后为什么变成 10240 字节？</li>
+            <li><code>.tar</code> 与 <code>.tar.gz</code> 的扩展名分别说明了什么？</li>
+            <li>打包之后，原始文件 <code>a.txt</code>、<code>b.txt</code> 是否还在？</li>
+          </ul>
+          <div class="book-callout"><code>tar</code> 只负责把文件组织到一起，不加 <code>-z</code> 时不会压缩数据。小文件打包后甚至可能变大，这是归档块大小带来的正常现象。</div>
+          <div class="check-point"><strong>检查点：</strong>能用自己的话说出“打包是合并文件，压缩是减小体积”，并能指出 <code>.tar</code> 不一定比原文件小。</div>
+
+          <h3 id="p1-2">1.2 准备 ArchiveLab 练习目录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本节所有格式都使用同一个 <code>~/ArchiveLab</code> 目录。先确认它还不存在，再创建几个文本文件；压缩包统一放在 <code>~</code> 下，方便与原始目录对比。</p>
+          <div class="step-label">Step 1 / 确认起点</div>
+          <pre><code class="language-bash">cd ~
+pwd
+ls -ld ArchiveLab 2&gt;/dev/null || echo "ArchiveLab 还不存在，可以创建"
+ls -ld LinuxProject</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>~/LinuxProject</code> 由 <a href="sop00-environment.html#p4">SOP0 第 4 节</a>的数据生成脚本创建。如果这里提示找不到，先回到 SOP0 生成练习数据。</p>
+          <div class="step-label">Step 2 / 创建目录与示例文件</div>
+          <pre><code class="language-bash">mkdir -p ~/ArchiveLab/data
+cd ~/ArchiveLab
+
+printf 'ArchiveLab practice notes\n========================\n' &gt; README.txt
+printf 'name,score\nZhang San,88\nLi Si,92\nWang Wu,75\n' &gt; students.txt
+printf 'note 01: backup checklist\nnote 02: verify restore\n' &gt; data/notes.txt
+yes "2026-08-01 08:00:00 INFO sample log line for compression practice" | head -n 2000 &gt; app.log
+
+ls -lh
+find . -type f | sort
+wc -l app.log
+du -sh .</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（大小示意）：</p>
+          <pre><code class="language-bash">total 160K
+-rw-r--r-- 1 njucm njucm    40 README.txt
+-rw-r--r-- 1 njucm njucm 148K  app.log
+drwxr-xr-x 4 njucm njucm    32 data
+-rw-r--r-- 1 njucm njucm    56 students.txt
+./README.txt
+./app.log
+./data/notes.txt
+./students.txt
+2000 app.log
+160K    .</code></pre>
+          <ul class="tasks">
+            <li>目录中一共有几个普通文件？分别位于哪一层？</li>
+            <li><code>app.log</code> 为什么比其他文件大很多？</li>
+            <li>为什么把压缩包放在 <code>~</code>，而不是放进 <code>ArchiveLab</code> 内部？</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 <code>/home/njucm/ArchiveLab</code>，<code>find . -type f</code> 能列出 4 个文件，<code>ls -ld ~/LinuxProject</code> 能看到练习数据集。</div>
+
+          <h3 id="p1-3">1.3 tar 打包、查看与解包</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">三个参数各管一件事：<code>-c</code> 创建归档，<code>-v</code> 显示处理过程，<code>-f</code> 后面紧跟归档文件名。查看归档用 <code>-t</code>，解包用 <code>-x</code>；<code>-C</code> 指定解压目标目录。</p>
+          <div class="step-label">Step 1 / 打包整个目录，并核对前后变化</div>
+          <pre><code class="language-bash">cd ~
+ls -ld ArchiveLab
+tar -cvf ArchiveLab.tar ArchiveLab/
+ls -lh ArchiveLab.tar
+ls -ld ArchiveLab</code></pre>
+          <div class="step-label">Step 2 / 不解压也能查看归档清单</div>
+          <pre><code class="language-bash">tar -tvf ArchiveLab.tar</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（权限、时间和大小以实际为准）：</p>
+          <pre><code class="language-bash">drwxr-xr-x njucm/njucm      0 2026-11-09 09:00 ArchiveLab/
+-rw-r--r-- njucm/njucm     40 2026-11-09 09:00 ArchiveLab/README.txt
+-rw-r--r-- njucm/njucm 150000 2026-11-09 09:00 ArchiveLab/app.log
+drwxr-xr-x njucm/njucm      0 2026-11-09 09:00 ArchiveLab/data/
+-rw-r--r-- njucm/njucm     70 2026-11-09 09:00 ArchiveLab/data/notes.txt
+-rw-r--r-- njucm/njucm     56 2026-11-09 09:00 ArchiveLab/students.txt</code></pre>
+          <div class="step-label">Step 3 / 解包到单独目录并核对</div>
+          <pre><code class="language-bash">mkdir -p restore_tar
+tar -xvf ArchiveLab.tar -C restore_tar
+find restore_tar -type f | sort
+diff -r ArchiveLab restore_tar/ArchiveLab &amp;&amp; echo "tar 恢复：内容一致"
+ls -lh restore_tar/ArchiveLab</code></pre>
+          <ul class="tasks">
+            <li><code>-t</code> 只列清单，会不会修改原始目录或归档？</li>
+            <li>归档中的路径为什么都以 <code>ArchiveLab/</code> 开头？</li>
+            <li>解压后为什么是 <code>restore_tar/ArchiveLab/...</code>，多了一层？</li>
+          </ul>
+          <div class="book-callout">打包前先用 <code>pwd</code> 和 <code>ls</code> 确认当前位置与源目录名。如果当前目录不是 <code>~</code>，<code>ArchiveLab/</code> 就会找不到，<code>tar</code> 会报 <code>Cannot open</code> 或 <code>No such file or directory</code>。</div>
+          <div class="check-point"><strong>检查点：</strong><code>ArchiveLab.tar</code> 创建成功，<code>tar -tvf</code> 能看到 4 个普通文件和 <code>data/</code> 目录，原始目录仍然存在，<code>diff -r</code> 无差异。</div>
+
+          <h3 id="p1-4">1.4 tar.gz 压缩与解压</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-z</code> 在打包的同时调用 gzip 压缩，产物通常写成 <code>.tar.gz</code> 或 <code>.tgz</code>。原始目录仍然保留，解压时同样要加 <code>-z</code>。</p>
+          <div class="step-label">Step 1 / 创建 tar.gz，并与 tar 比较大小</div>
+          <pre><code class="language-bash">cd ~
+tar -czvf ArchiveLab.tar.gz ArchiveLab/
+ls -lh ArchiveLab.tar ArchiveLab.tar.gz
+tar -tzvf ArchiveLab.tar.gz | head -n 5</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（数值示意）：</p>
+          <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 151K ArchiveLab.tar
+-rw-r--r-- 1 njucm njucm 6.2K ArchiveLab.tar.gz</code></pre>
+          <div class="step-label">Step 2 / 解压到 restore_gz 并核对文件数量</div>
+          <pre><code class="language-bash">mkdir -p restore_gz
+tar -xzvf ArchiveLab.tar.gz -C restore_gz
+find restore_gz -type f | wc -l
+diff -r ArchiveLab restore_gz/ArchiveLab &amp;&amp; echo "gz 恢复：内容一致"</code></pre>
+          <ul class="tasks">
+            <li><code>app.log</code> 内容高度重复，为什么压缩效果特别明显？</li>
+            <li><code>-z</code> 在创建和解压两侧分别起什么作用？</li>
+            <li>如果文件本身是随机二进制数据，还能有这么高的压缩比吗？</li>
+          </ul>
+          <div class="book-callout">压缩比取决于文件内容，不是固定值。已经压缩过的图片、视频再打包成 <code>.tar.gz</code>，体积可能几乎不减少。</div>
+          <div class="check-point"><strong>检查点：</strong><code>ArchiveLab.tar.gz</code> 明显小于 <code>ArchiveLab.tar</code>；<code>tar -tzvf</code> 能列出清单；解压后文件数量与原始目录一致，<code>diff -r</code> 无差异。</div>
+
+          <h3 id="p1-5">1.5 gzip 与 gunzip</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>gzip</code> 只处理单个文件。默认行为是生成 <code>.gz</code> 并删除原文件；想保留原文件时用 <code>-k</code>，或者用 <code>-c</code> 把压缩结果写到标准输出。</p>
+          <div class="step-label">Step 1 / 压缩单个文件，观察原文件是否消失</div>
+          <pre><code class="language-bash">cd ~/ArchiveLab
+cp README.txt README.copy.txt
+ls -l README*
+gzip README.copy.txt
+ls -l README*</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 40 README.txt
+-rw-r--r-- 1 njucm njucm 40 README.copy.txt
+-rw-r--r-- 1 njucm njucm 40 README.txt
+-rw-r--r-- 1 njucm njucm 66 README.copy.txt.gz</code></pre>
+          <div class="step-label">Step 2 / 解压 .gz 并验证内容</div>
+          <pre><code class="language-bash">gunzip README.copy.txt.gz
+ls -l README*
+diff README.txt README.copy.txt &amp;&amp; echo "gunzip 恢复：内容一致"</code></pre>
+          <div class="step-label">Step 3 / 保留原文件的两种写法</div>
+          <pre><code class="language-bash">gzip -k app.log
+ls -lh app.log app.log.gz
+
+gzip -c app.log &gt; app_copy.log.gz
+ls -lh app.log app_copy.log.gz</code></pre>
+          <div class="step-label">Step 4 / 验证 gzip 不能直接压缩目录</div>
+          <pre><code class="language-bash">gzip data
+echo $?</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（退出码通常为非 0，说明命令没有处理成功）：</p>
+          <pre><code class="language-bash">gzip: data is a directory -- ignored
+2</code></pre>
+          <ul class="tasks">
+            <li><code>gzip README.copy.txt</code> 之后原文件为什么不见了？</li>
+            <li><code>gzip -k</code> 与 <code>gzip -c ... &gt; ...</code> 都能保留原文件，区别是什么？</li>
+            <li>目录要压缩，应该先做什么？</li>
+          </ul>
+          <div class="book-callout">目录不能直接被 gzip 压缩。正确做法是先用 <code>tar</code> 打包，再对归档文件做 gzip，这正是 <code>tar -z</code> 存在的原因。</div>
+          <div class="check-point"><strong>检查点：</strong>能看到 <code>.gz</code> 生成、原文件消失；<code>gunzip</code> 后内容与 <code>README.txt</code> 一致；<code>gzip data</code> 提示目录被忽略。</div>
+
+          <h3 id="p1-6">1.6 zip、unzip 与格式对照</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">ZIP 是与 Windows 交换文件时最常用的格式。压缩目录必须加 <code>-r</code> 递归；查看清单用 <code>unzip -l</code>；指定解压目录用 <code>-d</code>。</p>
+          <div class="step-label">Step 1 / 创建 ZIP，查看内容并解压</div>
+          <pre><code class="language-bash">cd ~
+rpm -q zip unzip
+zip -r ArchiveLab.zip ArchiveLab/
+ls -lh ArchiveLab.zip
+unzip -l ArchiveLab.zip</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（节选并省略目录项，长度与时间以实际为准；此时目录中已有 1.5 生成的 <code>.gz</code> 文件，因此共 7 个普通文件）：</p>
+          <pre><code class="language-bash">  Length      Date    Time    Name
+---------  ---------- -----   ----
+       40  11-09-2026 09:00   ArchiveLab/README.txt
+       40  11-09-2026 09:00   ArchiveLab/README.copy.txt
+   138000  11-09-2026 09:00   ArchiveLab/app.log
+     4600  11-09-2026 09:00   ArchiveLab/app.log.gz
+     4600  11-09-2026 09:00   ArchiveLab/app_copy.log.gz
+       70  11-09-2026 09:00   ArchiveLab/data/notes.txt
+       56  11-09-2026 09:00   ArchiveLab/students.txt
+---------                     -------
+   147406                     7 files</code></pre>
+          <div class="step-label">Step 2 / 解压到 restore_zip 并核对</div>
+          <pre><code class="language-bash">mkdir -p restore_zip
+unzip ArchiveLab.zip -d restore_zip
+find restore_zip -type f | sort
+diff -r ArchiveLab restore_zip/ArchiveLab &amp;&amp; echo "ZIP 恢复：内容一致"</code></pre>
+          <div class="step-label">Step 3 / 常见压缩格式对照</div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>格式</th><th>创建命令</th><th>查看内容</th><th>解压 / 恢复</th><th>是否压缩</th><th>典型用途</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>.tar</code></td><td><code>tar -cvf x.tar dir/</code></td><td><code>tar -tvf x.tar</code></td><td><code>tar -xvf x.tar -C out/</code></td><td>否，只打包</td><td>先归档，再选择压缩方式</td></tr>
+                <tr><td><code>.tar.gz</code></td><td><code>tar -czvf x.tar.gz dir/</code></td><td><code>tar -tzvf x.tar.gz</code></td><td><code>tar -xzvf x.tar.gz -C out/</code></td><td>是，gzip</td><td>Linux 备份与传输的常用格式</td></tr>
+                <tr><td><code>.gz</code></td><td><code>gzip -k file</code></td><td><code>zcat file.gz</code></td><td><code>gunzip file.gz</code></td><td>是，gzip</td><td>单个文件压缩，不能直接压缩目录</td></tr>
+                <tr><td><code>.zip</code></td><td><code>zip -r x.zip dir/</code></td><td><code>unzip -l x.zip</code></td><td><code>unzip x.zip -d out/</code></td><td>是</td><td>与 Windows 用户交换文件</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="tasks">
+            <li>不加 <code>-r</code> 时，ZIP 包里会缺少什么？</li>
+            <li><code>unzip -l</code> 与 <code>tar -tvf</code> 的作用是否相似？</li>
+            <li>同样一个目录，<code>.tar.gz</code> 与 <code>.zip</code> 的大小为什么不一样？</li>
+          </ul>
+          <div class="book-callout">如果 <code>zip</code> 或 <code>unzip</code> 显示 <code>command not found</code>，先举手说明，不要自行修改系统软件源。课程虚拟机上这两个工具通常已经安装，可以用 <code>rpm -q zip unzip</code> 确认。</div>
+          <div class="check-point"><strong>检查点：</strong><code>unzip -l</code> 列出 7 个普通文件；<code>unzip -d</code> 后 <code>diff -r</code> 无差异；能对照表格说清四种格式的创建与查看命令。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请亲自输入命令、观察每一步输出。所有压缩包都放在 <code>~</code>，恢复目录单独创建，不要覆盖原始 <code>~/ArchiveLab</code>。</p>
+
+          <h3 id="p2-1">2.1 任务 A：三种格式的创建与恢复（必做）</h3>
+          <ul class="tasks">
+            <li>用 <code>find</code>、<code>ls -lh</code> 和 <code>du -sh</code> 记录 <code>~/ArchiveLab</code> 的文件数量与总大小</li>
+            <li>创建 <code>ArchiveLab.tar</code>，用 <code>tar -tvf</code> 查看归档清单</li>
+            <li>创建 <code>ArchiveLab.tar.gz</code>，用 <code>ls -lh</code> 与 <code>.tar</code> 比较大小</li>
+            <li>创建 <code>ArchiveLab.zip</code>，用 <code>unzip -l</code> 查看 ZIP 内容</li>
+            <li>把 <code>.tar.gz</code> 解压到 <code>restore_gz</code>，把 <code>.zip</code> 解压到 <code>restore_zip</code>，各自用 <code>diff -r</code> 核对</li>
+            <li>用 1～2 句话解释 <code>-z</code>、<code>-r</code>、<code>-C</code>、<code>-d</code> 分别起什么作用</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>结果记录表：</strong>把实际数值填入下表，实验报告中要附截图。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>项目</th><th>文件数</th><th>大小</th><th>查看内容的命令</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>ArchiveLab 原始目录</td><td>____</td><td>____</td><td><code>find</code> / <code>du -sh</code></td></tr>
+                <tr><td>ArchiveLab.tar</td><td>____</td><td>____</td><td><code>tar -tvf</code></td></tr>
+                <tr><td>ArchiveLab.tar.gz</td><td>____</td><td>____</td><td><code>tar -tzvf</code></td></tr>
+                <tr><td>ArchiveLab.zip</td><td>____</td><td>____</td><td><code>unzip -l</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="check-point"><strong>检查点：</strong>三种压缩包都能创建并查看；两个恢复目录都与原始目录 <code>diff -r</code> 一致；记录表中没有空项。</div>
+
+          <h3 id="p2-2">2.2 任务 B：备份与格式选择（拓展）</h3>
+          <ul class="tasks">
+            <li>把 <code>~/LinuxProject</code> 备份为带日期的 <code>.tar.gz</code>，记录源目录与备份包的大小</li>
+            <li>把备份解压到 <code>~/ArchiveLab/verify</code>，用 <code>find ... | wc -l</code> 与 <code>diff -r</code> 验证完整</li>
+            <li>再用 <code>zip -r</code> 备份同一个目录，比较 ZIP 与 <code>.tar.gz</code> 的大小</li>
+            <li>用 2～3 句话说明：什么时候用 <code>.tar</code>，什么时候用 <code>.tar.gz</code>，什么时候用 <code>.zip</code></li>
+            <li>任选一次失败操作，写出命令、报错原文、原因和修改后的命令</li>
+          </ul>
+          <div class="step-label">Step 1 / 从真实目录的上级目录打包</div>
+          <pre><code class="language-bash">cd ~
+cd "$(dirname "$(readlink -f LinuxProject)")"
+pwd
+STAMP=$(date +%Y%m%d)
+tar -czvf ~/ArchiveLab/LinuxProject-$STAMP.tar.gz LinuxProject/
+ls -lh ~/ArchiveLab/LinuxProject-$STAMP.tar.gz</code></pre>
+          <div class="step-label">Step 2 / 解压到独立目录并核对</div>
+          <pre><code class="language-bash">mkdir -p ~/ArchiveLab/verify
+tar -xzvf ~/ArchiveLab/LinuxProject-$STAMP.tar.gz -C ~/ArchiveLab/verify
+find ~/ArchiveLab/verify/LinuxProject -type f | wc -l
+diff -r ~/LinuxProject ~/ArchiveLab/verify/LinuxProject &amp;&amp; echo "备份恢复：内容一致"</code></pre>
+          <div class="book-callout"><code>~/LinuxProject</code> 是指向桌面真实目录的符号链接。直接打包符号链接只会得到一个指向原路径的链接，不会包含文件内容；所以先用 <code>readlink -f</code> 找到真实目录，再在它的上级目录执行 <code>tar</code>。</div>
+          <div class="book-callout">拓展任务只操作自己创建的备份包和恢复目录，不要删除 <code>~/LinuxProject</code> 原始数据，也不要改动其他同学的目录。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>说明打包与压缩的区别，以及 <code>.tar</code> 为什么不保证变小</li>
+            <li>用 <code>tar -cvf</code> / <code>-tvf</code> / <code>-xvf</code> 完成归档、查看与解包</li>
+            <li>用 <code>tar -czvf</code> / <code>-xzvf</code> 完成 tar.gz 的创建与恢复</li>
+            <li>用 <code>gzip</code>、<code>gunzip</code> 处理单个文件，并知道 <code>-k</code> 的作用</li>
+            <li>用 <code>zip -r</code>、<code>unzip -l</code>、<code>unzip -d</code> 完成 ZIP 全流程</li>
+            <li>对 <code>~/LinuxProject</code> 做备份，并用 <code>diff -r</code> 证明恢复完整</li>
+          </ul>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际运行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong><code>tar -cvf</code> 中的 <code>-c</code>、<code>-v</code>、<code>-f</code> 分别表示什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong>为什么 <code>gzip</code> 不能直接压缩一个目录？正确做法是什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong>写出把 <code>~/LinuxProject</code> 备份为 <code>LinuxProject.tar.gz</code> 并解压到 <code>verify</code> 的两条命令。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong>任务 A 记录表中三种格式的实际大小各是多少？哪一种压缩效果最好？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong>任选一个你遇到的报错，写出报错原文、原因判断和解决办法。</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成实验后，按照雨课堂中的题目填写实验记录，并提交完整实验报告（模板六部分：基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结）。本次主要记录：</p>
+          <ul class="tasks">
+            <li>tar 创建过程与 <code>tar -tvf</code> 归档清单截图</li>
+            <li><code>.tar</code> 与 <code>.tar.gz</code> 的大小比较截图，并说明 <code>-z</code> 的作用</li>
+            <li><code>zip -r</code>、<code>unzip -l</code> 与解压后文件列表截图</li>
+            <li><code>~/LinuxProject</code> 备份、解压、<code>diff -r</code> 核对结果</li>
+            <li>压缩前后大小数据，以及打包与压缩区别的 3～5 句总结</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">请按照雨课堂发布的要求完成提交。</p>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop08-text-edit.html">实验8：文本编辑与替换</a>　|　下一节：<a href="sop10-system-process.html">实验10：系统信息与进程管理</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

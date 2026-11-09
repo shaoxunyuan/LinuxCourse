@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统信息与进程管理 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验十：系统信息与进程管理｜了解程序运行状态和系统资源</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解进程、内存和磁盘空间的基本概念</li>
+              <li>掌握 ps、top 查看进程的方法</li>
+              <li>掌握 kill 结束指定进程的基本操作</li>
+              <li>能用 free、df、du 查看系统资源</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>使用 ps -ef 查看系统进程</li>
+              <li>使用 top 动态观察进程状态</li>
+              <li>使用 kill PID 结束指定测试进程</li>
+              <li>使用 free、df、du 查看内存与磁盘</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验十</h1>
+        <p class="subtitle">系统信息与进程管理：了解程序运行状态和系统资源</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">查看进程</span><code>ps</code></div>
+          <div class="node"><span class="label">动态观察</span><code>top</code></div>
+          <div class="node"><span class="label">结束进程</span><code>kill</code></div>
+          <div class="node"><span class="label">查看内存</span><code>free</code></div>
+          <div class="node"><span class="label">查看磁盘</span><code>df / du</code></div>
+        </div>
+        <div class="band band-green">关键组合：<code>ps -ef</code>　<code>ps aux</code>　<code>top</code>　<code>pgrep</code>　<code>kill</code>　<code>free -h</code>　<code>df -h</code>　<code>du -sh</code></div>
+        <div class="band band-blue">核心问题：如何查看 Linux 正在运行什么程序，以及内存和磁盘空间使用情况？</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>认识系统</div>
+          <div class="step"><span>02</span>查看进程</div>
+          <div class="step"><span>03</span>动态观察</div>
+          <div class="step"><span>04</span>查看资源</div>
+          <div class="step"><span>05</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>本次实验结束时，你应该能做到</h3>
+            <ul>
+              <li>区分程序与进程的基本概念</li>
+              <li>使用 ps、top 查看进程状态</li>
+              <li>理解 PID，并结束指定测试进程</li>
+              <li>使用 free、df、du 查看内存和磁盘空间</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先观察系统信息</li>
+              <li>再查看进程和资源</li>
+              <li>结束进程时只操作本次练习启动的测试进程</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要查看系统状态？</h2>
+        <p class="subtitle">程序运行时会占用进程、内存和磁盘资源</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>问题一：程序在运行吗</h3><p>如何查看当前系统中有哪些进程？</p></div>
+          <div class="card green"><h3>问题二：谁占用资源</h3><p>如何观察 CPU 和内存占用较高的进程？</p></div>
+          <div class="card blue"><h3>问题三：内存够不够</h3><p>如何查看内存总量和可用空间？</p></div>
+          <div class="card green"><h3>问题四：磁盘满了吗</h3><p>如何查看文件系统空间和目录大小？</p></div>
+        </div>
+        <div class="band band-blue">ps、top 关注进程；free 关注内存；df 和 du 关注磁盘空间。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>程序与进程：先分清两个概念</h2>
+        <p class="subtitle">程序是文件，进程是运行中的实例</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>程序</h3>
+            <ul>
+              <li>存放在磁盘上的可执行文件</li>
+              <li>本身是静态的，不占用 CPU</li>
+              <li>同一个程序可以启动多次</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>进程</h3>
+            <ul>
+              <li>程序运行时的实例</li>
+              <li>占用 CPU、内存等资源</li>
+              <li>每个进程有独立的 PID</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">PID（Process ID）是进程标识号，查看和结束指定进程时都会用到。</div>
+        <div class="band band-blue">进程状态会随程序运行而变化，命令输出以终端当前显示为准。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>本次实验的命令地图</h2>
+        <p class="subtitle">不同命令回答不同的问题</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>uname -r</h3><p>查看内核版本</p></div>
+          <div class="card green"><h3>uptime</h3><p>查看运行时间与负载</p></div>
+          <div class="card blue"><h3>free -h</h3><p>查看内存与 Swap</p></div>
+          <div class="card green"><h3>df -h</h3><p>查看文件系统空间</p></div>
+          <div class="card blue"><h3>du -sh</h3><p>查看目录占用</p></div>
+          <div class="card green"><h3>ps / top</h3><p>查看进程列表与动态状态</p></div>
+        </div>
+        <div class="band band-blue">顺序建议：先看系统基本信息，再看进程，最后看内存和磁盘。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>认识当前系统与运行状态</h2>
+        <p class="subtitle">通过系统命令观察 CentOS 当前运行情况</p>
+        <pre><code class="language-bash">whoami
+hostname
+uname -r
+uptime</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>观察内容</h3>
+            <ul>
+              <li>当前登录用户</li>
+              <li>主机名与内核版本</li>
+              <li>系统已运行时间</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>uptime 输出</h3>
+            <p>依次显示当前时间、已运行时间、登录用户数和平均负载。</p>
+          </div>
+        </div>
+        <div class="band band-blue"><code>uname -r</code> 查看内核版本，不等同于查看发行版名称。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>ps：查看当前进程</h2>
+        <p class="subtitle">ps 可以显示进程 ID、终端、状态和启动命令</p>
+        <pre><code class="language-bash">ps
+ps -ef
+ps aux</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>ps</h3><p>显示当前终端关联的进程，适合快速查看。</p></div>
+          <div class="card green"><h3>ps -ef</h3><p>显示完整进程列表，标准格式，常用于查找指定程序。</p></div>
+          <div class="card blue"><h3>ps aux</h3><p>显示完整进程列表，另一种常见详细格式。</p></div>
+        </div>
+        <div class="band band-blue">ps 显示的是执行命令那一刻的进程快照，不会自动刷新。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>读懂 ps 输出，并用 grep 定位</h2>
+        <p class="subtitle">先找 PID 和 CMD，再决定下一步操作</p>
+        <pre><code class="language-bash">ps -ef | head
+ps -ef | grep bash
+ps aux | head</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>常见字段</h3>
+            <p>UID 用户、PID 进程号、PPID 父进程号、TTY 终端、TIME 占用时间、CMD 启动命令。</p>
+          </div>
+          <div class="card green">
+            <h3>用 grep 定位</h3>
+            <p>按程序名筛选进程行；搜索结果中可能包含 grep 自身，需要会区分。</p>
+          </div>
+        </div>
+        <div class="band band-blue">进程列表较长时，用 <code>| head</code> 先看前几行，再用 grep 搜索程序名。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>top：动态观察进程</h2>
+        <p class="subtitle">持续刷新进程与资源使用情况</p>
+        <pre><code class="language-bash">top</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>动态刷新</h3><p>持续更新 CPU、内存和进程列表。</p></div>
+          <div class="card green"><h3>按 P</h3><p>按 CPU 使用率排序。</p></div>
+          <div class="card blue"><h3>按 M</h3><p>按内存使用率排序。</p></div>
+          <div class="card green"><h3>按 q</h3><p>退出 top 交互界面。</p></div>
+        </div>
+        <div class="band band-blue">top 是交互式界面；先看 CPU、MEM、PID、COMMAND，不要求一次读懂每一列。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>pgrep：按进程名查找 PID</h2>
+        <p class="subtitle">不确定 PID 时，先按名称查</p>
+        <pre><code class="language-bash">pgrep sleep
+pgrep -l bash
+ps -ef | grep '[s]leep'</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>pgrep 名称</h3><p>直接输出匹配进程的 PID。</p></div>
+          <div class="card green"><h3>pgrep -l</h3><p>同时显示进程名，便于确认。</p></div>
+          <div class="card blue"><h3>ps | grep</h3><p>输出信息更完整，但需要自己挑出 PID。</p></div>
+        </div>
+        <div class="band band-orange">结束进程前先确认 PID，避免结束别人的进程或系统进程。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>kill 与 kill -9 的区别</h2>
+        <p class="subtitle">先正常结束，必要时才强制结束</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>kill PID（默认 -15）</h3>
+            <p>发送 SIGTERM，请求进程正常结束，程序有机会进行清理。</p>
+          </div>
+          <div class="card green">
+            <h3>kill -9 PID</h3>
+            <p>发送 SIGKILL，强制结束进程，进程无法自行处理清理操作。</p>
+          </div>
+          <div class="card blue">
+            <h3>先确认目标</h3>
+            <div class="cmd">ps -p PID</div>
+            <p>确认 PID 对应的确实是自己的测试进程。</p>
+          </div>
+          <div class="card green">
+            <h3>使用原则</h3>
+            <p>优先使用默认 kill 或 -15；-9 只在必要时使用。</p>
+          </div>
+        </div>
+        <div class="band band-orange">不要随意结束系统进程或别人的进程；kill 发送的是信号，不是“删除”。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>安全演示：启动、查找、结束</h2>
+        <p class="subtitle">只操作自己启动的 sleep 测试进程</p>
+        <pre><code class="language-bash">sleep 300 &amp;
+PID=$!
+echo $PID
+ps -p $PID
+kill $PID
+ps -p $PID</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>命令说明</h3>
+            <p><code>sleep 300 &amp;</code> 在后台启动测试进程；<code>$!</code> 是最近一个后台进程的 PID。</p>
+          </div>
+          <div class="card green">
+            <h3>验证结果</h3>
+            <p>kill 后再次执行 <code>ps -p $PID</code>，没有进程信息即表示已经结束。</p>
+          </div>
+        </div>
+        <div class="band band-orange">把 PID 换成自己终端里真实出现的数字，不要照抄示例。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>free：查看内存使用情况</h2>
+        <p class="subtitle">使用 -h 以易读单位显示内存信息</p>
+        <pre><code class="language-bash">free
+free -h
+free -h -s 2</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>Mem</h3><p>查看物理内存总量、已使用和可用情况。</p></div>
+          <div class="card green"><h3>Swap</h3><p>查看交换空间，未配置时可能为 0。</p></div>
+          <div class="card blue"><h3>-h</h3><p>用 MB、GB 等易读单位显示。</p></div>
+          <div class="card green"><h3>-s 2</h3><p>每 2 秒刷新一次，按 Ctrl+C 结束。</p></div>
+        </div>
+        <div class="band band-blue">已用内存含缓存；判断内存是否紧张，重点看可用空间。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>df -h：查看文件系统空间</h2>
+        <p class="subtitle">看各挂载点的总容量、已用空间和可用空间</p>
+        <pre><code class="language-bash">df -h
+df -h /home</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>df -h</h3>
+            <p>列出各文件系统的容量、已用、可用和挂载点，单位易读。</p>
+          </div>
+          <div class="card green">
+            <h3>重点关注</h3>
+            <p>Use% 使用比例与 Available 可用空间；某个挂载点接近 100% 时要及时处理。</p>
+          </div>
+        </div>
+        <div class="band band-orange">df 看的是文件系统整体，不会列出某个目录内部每个文件占多少。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>du -sh：查看目录占用</h2>
+        <p class="subtitle">du 统计目录或文件实际占用的空间</p>
+        <pre><code class="language-bash">du -sh /home/njucm
+du -sh ~/Desktop
+du -sh *</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>-s</h3><p>只显示总计，不展开每个子目录。</p></div>
+          <div class="card green"><h3>-h</h3><p>以易读单位显示大小。</p></div>
+          <div class="card blue"><h3>*</h3><p>比较当前目录下各对象的大小。</p></div>
+        </div>
+        <div class="band band-blue">df 看文件系统整体空间，du 看目录或文件占用，两者统计范围不同，结果可能不一致。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习1：查看系统基本信息</h2>
+        <p class="subtitle">认识当前用户、主机和系统运行状态</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">whoami
+hostname
+uname -r
+uptime</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>当前登录用户名是什么？</li>
+              <li>主机名和内核版本分别是什么？</li>
+              <li>uptime 显示系统运行了多久？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：能说出每条命令查看的内容。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习2：查看并定位进程</h2>
+        <p class="subtitle">使用 ps 查看进程，并尝试搜索指定程序</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">ps -ef | head
+ps -ef | grep bash
+ps aux | head</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>PID 位于哪一列？</li>
+              <li>CMD 列显示什么信息？</li>
+              <li>搜索结果中为什么可能出现 grep 自身？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">理解 ps 输出是某一时刻的进程列表快照。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>练习3：使用 top 观察进程</h2>
+        <p class="subtitle">观察 CPU、内存和进程列表的动态变化</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">top</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>常用交互</h3>
+              <ul>
+                <li><code>P</code>：按 CPU 使用率排序</li>
+                <li><code>M</code>：按内存使用率排序</li>
+                <li><code>q</code>：退出 top</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>观察与思考</h3>
+              <p>顶部显示哪些系统资源信息？按 P 后列表如何变化？如何正确退出？</p>
+            </div>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：能进入 top、观察动态信息，并按 q 退出。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>练习4：结束自己启动的测试进程</h2>
+        <p class="subtitle">启动 sleep 测试进程，获取 PID 并正常结束</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">sleep 300 &amp;
+PID=$!
+echo $PID
+ps -p $PID
+kill -15 $PID
+ps -p $PID</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li><code>echo $!</code> 显示的是什么？</li>
+              <li>kill 后再次查看，进程状态有什么变化？</li>
+              <li>为什么不能随意结束系统进程？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">只对本练习启动的 sleep 进程执行 kill，不要使用不确定的 PID。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>课堂综合练习：检查系统运行状态</h2>
+        <p class="subtitle">独立完成系统信息、进程查看和资源检查</p>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>环境与目标</h3>
+            <ul>
+              <li>CentOS 当前登录会话</li>
+              <li>目录：<code>/home/njucm</code></li>
+              <li>只操作自己启动的测试进程</li>
+              <li>说明 ps、free、df、du 的统计对象</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>whoami、hostname、uname -r、uptime</li>
+              <li>ps -ef 查看进程列表</li>
+              <li>top 观察，按 q 退出</li>
+              <li>sleep 300 &amp;，用 echo $! 获取 PID</li>
+              <li>ps -p PID 确认，kill 后再次验证</li>
+              <li>free -h、df -h、du -sh 检查资源</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">实验报告的实验结果部分展示这套课堂综合练习。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>常见问题：先检查命令和操作对象</h2>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>ps 中找不到目标进程</h3>
+            <p>进程可能已经结束，或搜索关键词不正确；重新启动测试进程并检查 PID。</p>
+          </div>
+          <div class="card green">
+            <h3>kill: No such process</h3>
+            <p>PID 可能输入错误或进程已经退出；使用 <code>ps -p PID</code> 重新确认。</p>
+          </div>
+          <div class="card blue">
+            <h3>top 无法退出</h3>
+            <p>在 top 界面按 <code>q</code>；不要把 Ctrl+C 当作唯一退出方式。</p>
+          </div>
+          <div class="card green">
+            <h3>df 与 du 结果不同</h3>
+            <p>df 统计文件系统空间，du 统计目录或文件占用，两者范围不同。</p>
+          </div>
+        </div>
+        <div class="band band-blue">排错顺序：确认命令 → 确认 PID 或路径 → 查看输出 → 再次验证。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>如何保存截图与提交报告</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1</h3><p>从 Windows 桌面或开始菜单打开截图工具。</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端，保留完整命令、输出和当前提示符。</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG 或 JPG，例如 <code>exp10_system.png</code>。</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确认用户名、命令和结果清晰可读，关键内容未被裁切。</p></div>
+        </div>
+        <div class="band band-blue">建议截图：系统与进程、测试进程管理、内存与磁盘三组；每张图下写 1～2 句说明。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>实验10作业与回顾</h2>
+        <p class="subtitle">按课程实验报告模板填写，提交课堂综合练习</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>作业提交</h3>
+            <ul>
+              <li>报告按模板完整填写</li>
+              <li>实验结果含系统与进程、测试进程、内存与磁盘三类截图</li>
+              <li>问题汇总写清原因与解决办法</li>
+              <li>实验总结写 3～5 句</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>本课回顾</h3>
+            <ul>
+              <li>进程是运行中的程序实例，PID 是它的标识</li>
+              <li>ps 看快照，top 看动态变化</li>
+              <li>先 pgrep / ps 确认 PID，再 kill</li>
+              <li>优先 kill（-15），-9 只作最后手段</li>
+              <li>free 看内存，df 看文件系统，du 看目录占用</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray">提交平台：雨课堂。提交完整实验报告，前面的分步练习不单独提交。</div>
+        <div class="slide-footer"><span>Linux 实验10｜系统信息与进程管理</span><span>24</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

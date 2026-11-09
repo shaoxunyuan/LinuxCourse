@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验1：第一次进入 Linux</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>认识实验环境</a>
+              <a href="#p1-2"><span class="n">1.2</span>启动与登录</a>
+              <a href="#p1-3"><span class="n">1.3</span>看懂终端提示符</a>
+              <a href="#p1-4"><span class="n">1.4</span>认识“我”和“这台机器”</a>
+              <a href="#p1-5"><span class="n">1.5</span>用 ls 查看目录</a>
+              <a href="#p1-6"><span class="n">1.6</span>用 cd 走一圈</a>
+              <a href="#p1-7"><span class="n">1.7</span>man 与 --help</a>
+              <a href="#p1-8"><span class="n">1.8</span>创建 LinuxLab</a>
+              <a href="#p1-9"><span class="n">1.9</span>再做一遍 PracticeLab</a>
+              <a href="#p1-10"><span class="n">1.10</span>常见错误与常见问题</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：连续完成一整套操作</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：脱离教程再走一遍</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验1
+        </div>
+        <h1>实验1：第一次进入 Linux</h1>
+        <p class="practice-lead">第一次进入 Linux，不需要背命令。本页只做四件事：认识 VMware 里的 CentOS、完成登录、看懂终端提示符、在目录之间走一圈，最后创建自己的第一个实验目录 <code>LinuxLab</code>。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能启动并登录课程虚拟机；能使用 whoami、hostname、pwd、date、uname -a；能用 ls 查看、用 cd 切换目录；能查 man 和 --help；能创建 LinuxLab 并检查</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>环境热身。建立后续实验要用的主目录与基本操作习惯，本实验不涉及数据处理</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 认识实验环境</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本课程不要求你在自己的电脑上安装 Linux。实验室电脑里已经准备好一台虚拟机，所有操作都在虚拟机中进行。</p>
+          <pre><code class="language-bash">宿主机（实验室 Windows 电脑）
+        ↓
+VMware Workstation（虚拟机软件）
+        ↓
+CentOS 虚拟机（客户机系统，课程实验环境）</code></pre>
+          <ul class="tasks">
+            <li><strong>宿主机</strong>：实验室里真实存在的 Windows 电脑，提供 CPU、内存和磁盘</li>
+            <li><strong>虚拟机软件</strong>：VMware Workstation，负责运行这台“虚拟电脑”</li>
+            <li><strong>客户机系统</strong>：课程提供的 CentOS，命令全部在这里执行</li>
+          </ul>
+          <div class="book-callout">今天不要修改 CPU、内存、网络和虚拟磁盘设置，也不要移动、删除虚拟机文件。启动失败时先确认选中的是课程虚拟机，再举手说明报错信息，不要自己删掉重建。</div>
+          <div class="check-point"><strong>检查点：</strong>能用自己的话说出“宿主机 → VMware Workstation → CentOS”三层关系，并指出哪一层是你真正操作的系统。</div>
+
+          <h3 id="p1-2">1.2 启动与登录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">第一次实验在 VMware 中只用到三个动作：打开、启动、关机。启动后等待登录界面出现，不要反复点击或强制关闭。</p>
+          <div class="step-label">Step 1 / 启动虚拟机</div>
+          <pre><code class="language-bash"># 1. 打开 VMware Workstation
+# 2. 在左侧列表或主页找到课程 CentOS 虚拟机
+# 3. 点击 Power on / 启动，等待登录界面出现</code></pre>
+          <div class="step-label">Step 2 / 输入账号</div>
+          <pre><code class="language-bash">用户名：njucm
+密码：查看实验电脑 Windows 桌面上的 TXT 文档
+
+# 密码区分大小写，输入时不显示，输完按 Enter
+# 登录成功后打开 Terminal / 终端，后续练习都在终端完成</code></pre>
+          <div class="book-callout">实验结束时使用 CentOS 的关机功能，不要把“关闭 VMware 窗口”当作关机。如果登录后又回到登录界面，先确认用户名是否为 <code>njucm</code>，再检查密码输入。</div>
+          <div class="check-point"><strong>检查点：</strong>能看到 CentOS 桌面或终端窗口，并在终端中看到以 <code>[njucm@</code> 开头的提示符。</div>
+
+          <h3 id="p1-3">1.3 看懂终端提示符</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">终端里的提示符不是命令，它只是在告诉你“现在是谁、在哪台机器、在哪个目录”。本课程的提示符形如 <code>[njucm@centos ~]$</code>：方括号内是用户名、主机名和当前目录，<code>$</code> 之后才是输入命令的位置。</p>
+          <pre><code class="language-bash">whoami
+# 输出：njucm
+pwd
+# 输出：/home/njucm</code></pre>
+          <ul class="tasks">
+            <li><code>njucm</code>：当前登录的用户名</li>
+            <li><code>centos</code>：主机名示意，实际主机名以实验环境为准</li>
+            <li><code>~</code>：当前位于自己的主目录，即 <code>/home/njucm</code></li>
+            <li><code>$</code>：普通用户提示符；<code>#</code> 才是 root 用户</li>
+          </ul>
+          <div class="book-callout">提示符本身不要复制进终端。只输入 <code>whoami</code>，不要输入整行 <code>[njucm@centos ~]$ whoami</code>，否则会得到 <code>command not found</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出提示符中哪部分是用户名、哪部分是主机名、哪部分是当前目录标记。</div>
+
+          <h3 id="p1-4">1.4 认识“我”和“这台机器”</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">先回答五个最基本的问题：我是谁、机器叫什么、我在哪、现在几点、这是什么系统。五条命令逐条输入，执行一条看一次结果。</p>
+          <div class="step-label">Step 1 / 逐条执行</div>
+          <pre><code class="language-bash">whoami
+hostname
+pwd
+date
+uname -a</code></pre>
+          <div class="step-label">Step 2 / 参考输出（主机名与时间以实际环境为准）</div>
+          <pre><code class="language-bash">njucm
+centos
+/home/njucm
+2026年 11月 09日 星期一 10:23:45 CST
+Linux centos 3.10.0-1160.el7.x86_64 #1 SMP x86_64 GNU/Linux</code></pre>
+          <ul class="tasks">
+            <li><code>whoami</code>：输出当前用户名，应为 <code>njucm</code></li>
+            <li><code>hostname</code>：输出主机名，不同实验机可能不同</li>
+            <li><code>pwd</code>：输出当前目录的绝对路径</li>
+            <li><code>date</code>：输出系统日期、时间与时区</li>
+            <li><code>uname -a</code>：输出内核版本、主机名、硬件架构等系统信息</li>
+          </ul>
+          <div class="book-callout">不要复制粘贴这五条命令。亲手敲一遍，才能发现自己容易拼错哪个单词。输出与同学不同并不可怕，先想清楚“主机名、时间”本来就允许不同。</div>
+          <div class="check-point"><strong>检查点：</strong>能把每条命令的输出抄进实验记录，并各用一句话说明它回答了什么。</div>
+
+          <h3 id="p1-5">1.5 用 ls 查看目录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">同一个目录，用不同参数会看到不同信息。先确认位置，再逐条比较差别。</p>
+          <div class="step-label">Step 1 / 同一目录，五种看法</div>
+          <pre><code class="language-bash">pwd
+ls
+ls -l
+ls -a
+ls -la</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>命令</th><th>显示内容</th><th>适合什么时候用</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>ls</code></td><td>只显示名称，按列排列</td><td>快速确认这里有什么</td></tr>
+                <tr><td><code>ls -l</code></td><td>长格式：权限、所有者、大小、修改时间</td><td>查看文件类型与属性</td></tr>
+                <tr><td><code>ls -a</code></td><td>连以 <code>.</code> 开头的隐藏文件一起显示</td><td>检查配置文件、隐藏目录</td></tr>
+                <tr><td><code>ls -la</code></td><td>长格式 + 隐藏文件</td><td>实验中最常用的检查方式</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 2 / 观察任务</div>
+          <ul class="tasks">
+            <li>哪一条命令显示的信息最多？多了哪些列？</li>
+            <li><code>ls -a</code> 之后是否多出以 <code>.</code> 开头的项目？至少找到 <code>.</code> 和 <code>..</code></li>
+            <li>你的主目录里有哪些文件夹？哪些是你认识的？</li>
+          </ul>
+          <div class="book-callout">Linux 区分大小写。<code>ls</code> 与 <code>LS</code> 不是同一条命令。输入 <code>clear</code> 可以清屏，然后按 <code>pwd → ls → ls -l → ls -a</code> 再做一遍。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>-l</code> 与 <code>-a</code> 各自补充了什么信息，并能指出隐藏文件的判断依据。</div>
+
+          <h3 id="p1-6">1.6 用 cd 走一圈</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">每切换一次目录，都用 <code>pwd</code> 确认当前位置。不要凭感觉认为自己“应该到了”。</p>
+          <div class="step-label">Step 1 / 按路线切换</div>
+          <pre><code class="language-bash">cd /
+pwd
+ls
+cd /home
+pwd
+ls
+cd /tmp
+pwd
+ls
+cd ~
+pwd</code></pre>
+          <div class="step-label">Step 2 / 预期位置</div>
+          <pre><code class="language-bash">/              根目录，整个文件系统的起点
+/home          普通用户主目录的集合
+/tmp           临时目录，重启后内容可能被清理
+/home/njucm    回到自己的主目录，也可写作 ~</code></pre>
+          <ul class="tasks">
+            <li><code>cd /</code> 后 <code>pwd</code> 应输出 <code>/</code></li>
+            <li><code>cd /home</code> 后应输出 <code>/home</code></li>
+            <li><code>cd /tmp</code> 后应输出 <code>/tmp</code></li>
+            <li><code>cd ~</code> 后应输出 <code>/home/njucm</code></li>
+          </ul>
+          <div class="book-callout"><code>cd</code> 后面不写参数也会回到主目录；<code>cd -</code> 可以回到上一次所在目录。今天先把 <code>cd ~</code> 用熟。</div>
+          <div class="check-point"><strong>检查点：</strong>不看本页路线，自己完成 <code>/ → /home → /tmp → ~</code>，每到一个位置都执行 <code>pwd</code>。</div>
+
+          <h3 id="p1-7">1.7 man 与 --help</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">不会的命令不要猜。Linux 自带说明书：<code>man</code> 查看完整手册，<code>命令 --help</code> 查看常用选项，Tab 键可以减少拼写错误。</p>
+          <div class="step-label">Step 1 / 打开两本“说明书”</div>
+          <pre><code class="language-bash">man ls
+# 按 q 退出 man
+ls --help
+man mkdir
+# 按 q 退出 man
+mkdir --help</code></pre>
+          <div class="step-label">Step 2 / 用 Tab 补全路径</div>
+          <pre><code class="language-bash">cd /ho
+# 输入到 /ho 后按 Tab，观察是否补全为 /home
+# 再输入 cd /home/nju，按 Tab 观察是否补全为 njucm</code></pre>
+          <ul class="tasks">
+            <li>查出 <code>ls -a</code> 中 <code>-a</code> 的含义</li>
+            <li>查出 <code>ls -l</code> 中 <code>-l</code> 的含义</li>
+            <li>用 <code>mkdir --help</code> 找出创建多级目录的参数</li>
+            <li>用 Tab 补全 <code>/ho</code> 后面的路径</li>
+          </ul>
+          <div class="book-callout"><code>man</code> 界面里用方向键或 PageUp / PageDown 翻页，按 <code>q</code> 退出。退不出来时先按 <code>q</code>，不要直接关终端。</div>
+          <div class="check-point"><strong>检查点：</strong>能独立查到 <code>-a</code>、<code>-l</code> 的含义，并知道 <code>mkdir -p</code> 的作用。</div>
+
+          <h3 id="p1-8">1.8 创建 LinuxLab</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">这一次完全照着教程敲：回到主目录，创建 <code>LinuxLab</code>，再创建三个子目录和一个说明文件。</p>
+          <div class="step-label">Step 1 / 逐条执行</div>
+          <pre><code class="language-bash">cd ~
+mkdir LinuxLab
+cd LinuxLab
+mkdir data
+mkdir script
+mkdir result
+touch README.txt
+pwd
+ls -la</code></pre>
+          <div class="step-label">Step 2 / 目标结构</div>
+          <pre><code class="language-bash">LinuxLab/
+├── data/
+├── script/
+├── result/
+└── README.txt</code></pre>
+          <ul class="tasks">
+            <li><code>mkdir LinuxLab</code>：创建目录</li>
+            <li><code>touch README.txt</code>：创建空文件；文件已存在时只更新时间</li>
+            <li><code>ls -la</code>：检查目录内容与隐藏文件</li>
+          </ul>
+          <div class="book-callout">做完先不要关终端。确认 <code>LinuxLab</code> 中确实有 <code>data</code>、<code>script</code>、<code>result</code> 三个子目录和 <code>README.txt</code>，再截图。</div>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 <code>/home/njucm/LinuxLab</code>；<code>ls -la</code> 中四个目标项齐全，且没有拼写错误。</div>
+
+          <h3 id="p1-9">1.9 再做一遍 PracticeLab</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">第二遍减少提示，自己组合命令。目标是把上一节的动作再做一次，但这次练习“一条 mkdir 创建多个目录”。</p>
+          <div class="step-label">Step 1 / 自己完成</div>
+          <pre><code class="language-bash">cd ~
+pwd
+mkdir PracticeLab
+cd PracticeLab
+mkdir data script result
+touch README.txt
+pwd
+ls -l
+ls -a</code></pre>
+          <div class="step-label">Step 2 / 回到 LinuxLab 复查</div>
+          <pre><code class="language-bash">cd ~/LinuxLab
+ls -la
+# 如果忘记 mkdir 怎样一次创建多个目录，先执行 mkdir --help</code></pre>
+          <ul class="tasks">
+            <li>能用一条 <code>mkdir</code> 命令创建 <code>data</code>、<code>script</code>、<code>result</code></li>
+            <li>能用 <code>pwd</code> 确认自己在 <code>PracticeLab</code></li>
+            <li>能用 <code>ls -l</code> 与 <code>ls -a</code> 分别检查内容与隐藏项</li>
+            <li>能回到 <code>LinuxLab</code> 并再次检查原目录没有被破坏</li>
+          </ul>
+          <div class="book-callout">如果 <code>mkdir PracticeLab</code> 报 <code>File exists</code>，说明目录已经创建过。先用 <code>ls</code> 确认，再决定是进入它还是改名，不要反复执行同一条命令。</div>
+          <div class="check-point"><strong>检查点：</strong>两个实验目录同时存在，且每个目录中都有三个子目录和一个 <code>README.txt</code>。</div>
+
+          <h3 id="p1-10">1.10 常见错误与常见问题</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">报错不是失败，而是系统在告诉你哪里不对。先读报错文字，再检查位置、内容和拼写，最后才改命令。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>报错</th><th>常见原因</th><th>先做什么</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>No such file or directory</code></td><td>路径或文件名写错，或目标不存在</td><td><code>pwd</code> 看位置，<code>ls</code> 看拼写</td></tr>
+                <tr><td><code>command not found</code></td><td>命令拼错、大小写错误或不存在</td><td>检查 <code>ls</code> 是否写成了 <code>LS</code></td></tr>
+                <tr><td><code>Permission denied</code></td><td>当前用户没有权限</td><td>先确认对象，不要一看到就加 <code>sudo</code></td></tr>
+                <tr><td><code>Is a directory</code></td><td>把目录当作普通文件操作</td><td><code>ls -l</code> 看对象类型</td></tr>
+                <tr><td><code>File exists</code></td><td><code>mkdir</code> 的目标已经存在</td><td><code>ls</code> 确认后进入或用其他名字</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">排错口诀：先看报错文字 → 再用 <code>pwd</code> 看位置 → 再用 <code>ls</code> 看内容 → 检查大小写和拼写 → 最后查帮助。</div>
+          <ul class="tasks">
+            <li>问题：提示符里的 <code>~</code> 是不是命令？——不是，它只是当前目录标记</li>
+            <li>问题：为什么 <code>cd ~</code> 之后 <code>pwd</code> 不是 <code>~</code>？——<code>pwd</code> 显示真实绝对路径</li>
+            <li>问题：<code>ls -la</code> 里的 <code>.</code> 和 <code>..</code> 是什么？——当前目录与上一级目录</li>
+            <li>问题：命令输出和同学不一样怎么办？——主机名、时间允许不同，先核对命令本身</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>遇到报错时，能按口诀完成一次自查，并说出报错对应的原因。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">前面的练习允许边看边做；任务部分要求连续完成，中途不翻教程。做完后用 <code>ls -R</code> 或 <code>ls -la</code> 检查并截图。</p>
+
+          <h3 id="p2-1">2.1 任务 A：连续完成一整套操作（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">按顺序完成下面五组操作，每组做完再进入下一组。中间不要关闭终端。</p>
+          <ul class="tasks">
+            <li>确认当前用户、主机名、当前目录、系统时间和内核信息（五条命令各执行一次）</li>
+            <li>依次进入 <code>/</code>、<code>/home</code>、<code>/tmp</code>，每到一个目录都执行 <code>pwd</code>，并用 <code>ls</code> 查看内容</li>
+            <li>回到主目录，连续执行 <code>ls</code>、<code>ls -l</code>、<code>ls -a</code>、<code>ls -la</code></li>
+            <li>进入 <code>~/LinuxLab</code>，用 <code>ls -la</code> 检查 <code>data</code>、<code>script</code>、<code>result</code> 和 <code>README.txt</code></li>
+            <li>用 <code>man ls</code> 或 <code>ls --help</code>，确认 <code>-a</code> 和 <code>-l</code> 的含义</li>
+          </ul>
+          <div class="step-label">完成后自查</div>
+          <pre><code class="language-bash">cd ~/LinuxLab
+pwd
+ls -la
+# 预期：pwd 为 /home/njucm/LinuxLab
+# 预期：data、script、result 三个目录与 README.txt 均存在</code></pre>
+          <div class="book-callout">完成标准：五组操作连续做完，中途出错时能用 <code>pwd</code>、<code>ls</code> 和帮助系统自己定位，而不是直接问同学答案。</div>
+
+          <h3 id="p2-2">2.2 任务 B：脱离教程再走一遍（拓展）</h3>
+          <ul class="tasks">
+            <li>不看本页命令，自己从登录开始重做一遍 <code>LinuxLab</code>，并记录卡在哪一步</li>
+            <li>用一条 <code>mkdir</code> 命令创建 <code>data</code>、<code>script</code>、<code>result</code>，再用 <code>ls -la</code> 证明成功</li>
+            <li>用 <code>man ls</code> 查出 <code>-h</code> 的作用，并执行一次 <code>ls -lh</code>，用一句话说明输出变化</li>
+            <li>故意执行一次 <code>cd /hom</code>，记录报错原文，再改成正确路径，说明你如何自查</li>
+          </ul>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>说明宿主机、VMware Workstation 与 CentOS 的关系</li>
+            <li>独立启动并登录课程虚拟机</li>
+            <li>读懂终端提示符中的用户名、主机名与当前目录</li>
+            <li>使用 <code>whoami</code>、<code>hostname</code>、<code>pwd</code>、<code>date</code>、<code>uname -a</code> 获取基本信息</li>
+            <li>使用 <code>ls</code>、<code>ls -l</code>、<code>ls -a</code>、<code>ls -la</code> 查看目录</li>
+            <li>使用 <code>cd</code> 在 <code>/</code>、<code>/home</code>、<code>/tmp</code> 与 <code>~</code> 之间切换</li>
+            <li>使用 <code>man</code> 与 <code>--help</code> 自查命令</li>
+            <li>创建 <code>~/LinuxLab</code> 并用 <code>ls -la</code> 检查结果</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">报告至少保留四类截图，每张图下写 1–2 句说明：</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>截图</th><th>应包含</th><th>说明示例</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>启动成功</td><td>CentOS 桌面或终端窗口</td><td>已启动课程虚拟机并登录 njucm</td></tr>
+                <tr><td>系统信息</td><td><code>whoami</code>、<code>hostname</code>、<code>pwd</code>、<code>date</code>、<code>uname -a</code> 及输出</td><td>确认当前用户为 njucm，主目录为 /home/njucm</td></tr>
+                <tr><td>目录切换</td><td><code>cd</code> 与每次的 <code>pwd</code> 输出</td><td>依次到达 /、/home、/tmp，最后回到主目录</td></tr>
+                <tr><td>LinuxLab</td><td><code>ls -la</code> 显示三个子目录与 README.txt</td><td>已按要求创建第一个实验目录</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际执行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong>分别写出 <code>whoami</code>、<code>hostname</code>、<code>pwd</code> 的输出，并用一句话说明三者各回答什么问题。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>ls -a</code> 比 <code>ls</code> 多显示了什么？隐藏文件如何识别？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong>粘贴 <code>~/LinuxLab</code> 中 <code>ls -la</code> 的输出，指出 <code>data</code>、<code>script</code>、<code>result</code> 三行行首的字符，并说明它代表什么。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong>记录一次你实际遇到的报错：输入了什么命令、报错原文、原因判断、改正后的命令与结果。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验报告使用统一模板，按六部分完整填写：</p>
+          <ul class="tasks">
+            <li>基本信息：实验名称、日期、姓名、学号、班级</li>
+            <li>实验目的</li>
+            <li>实验内容和要求</li>
+            <li>实验结果：关键步骤截图，每张图下写 1–2 句说明</li>
+            <li>实验中出现的问题：问题、原因判断、解决方法</li>
+            <li>实验总结：3–5 句，说明学会了什么、哪里还不熟练</li>
+          </ul>
+          <div class="book-callout">提交平台为雨课堂，提交完整实验报告文件，不再单独提交四张截图。截图必须清晰，能看到用户名 <code>njucm</code>、命令和对应输出；不要只截空桌面或无关窗口。</div>
+          <div class="check-point"><strong>检查点：</strong>报告六部分齐全，四类截图都有说明，作业四题都有实际执行依据。</div>
+        </section>
+
+        <p class="practice-footer-note">下一节：<a href="sop02-file-dir.html">实验2：文件与目录管理</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

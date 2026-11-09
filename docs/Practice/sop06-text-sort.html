@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验6：文本排序与去重</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>观察 scores.txt 与准备目录</a>
+              <a href="#p1-2"><span class="n">1.2</span>sort 默认排序与 sort -r</a>
+              <a href="#p1-3"><span class="n">1.3</span>sort -n 数值排序</a>
+              <a href="#p1-4"><span class="n">1.4</span>sort -k2,2n 与 -k2,2nr</a>
+              <a href="#p1-5"><span class="n">1.5</span>uniq 只处理相邻重复行</a>
+              <a href="#p1-6"><span class="n">1.6</span>sort | uniq 与 -c、-d、-u</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：整理成绩记录（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：重复记录追踪（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验6
+        </div>
+        <h1>实验6：文本排序与去重</h1>
+        <p class="practice-lead">一份 40 行的成绩记录，顺序是乱的，还夹着完整重复行。本页从 <code>scores.txt</code> 出发，先用 <code>sort</code> 把记录排好，再观察 <code>uniq</code> 为什么只合并相邻重复行，最后用 <code>sort | uniq -c</code> 统计每种记录出现的次数。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>掌握 <code>sort</code>、<code>-r</code>、<code>-n</code>、<code>-k2,2n</code> 与 <code>-k2,2nr</code>；理解 <code>uniq</code> 只处理相邻重复行；能用 <code>sort | uniq</code> 及 <code>-c</code>、<code>-d</code>、<code>-u</code> 统计重复记录</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>成绩记录整理。对 <code>scores.txt</code> 完成排序、去重与重复次数统计，为后续字段提取做准备</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 观察 scores.txt 与准备目录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本次实验只用一个文件：<code>scores.txt</code>。它是 40 行 UTF-8 纯文本，每行是一条“姓名 成绩”记录，姓名与成绩之间用一个空格分隔。文件中既有重复行，也有个位数、两位数、三位数成绩。</p>
+          <div class="step-label">Step 1 / 准备 SortLab 并查看记录</div>
+          <pre><code class="language-bash">cd ~/Desktop
+mkdir -p SortLab
+mv scores.txt SortLab/      # 若 scores.txt 已经拖进 SortLab，这一条可跳过
+cd SortLab
+pwd
+wc -l scores.txt
+head -5 scores.txt
+tail -3 scores.txt</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">/home/njucm/Desktop/SortLab
+40 scores.txt
+Alice 88
+Bob 72
+Cindy 95
+David 60
+Eva 100
+Kevin 83
+Lily 91
+Mike 55</code></pre>
+          <ul class="tasks">
+            <li>每行包含几部分？第一列和第二列分别表示什么？</li>
+            <li>文件中一共有多少条记录？结尾有没有空行？</li>
+            <li>前 5 行中是否已经出现完整重复记录？原始顺序是乱的还是有序的？</li>
+          </ul>
+          <div class="book-callout">“姓名相同”与“整行完全相同”不是一回事。<code>uniq</code> 默认比较整行内容，因此本实验只把“姓名 + 成绩”完全一致的行视为重复记录。</div>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 <code>/home/njucm/Desktop/SortLab</code>，<code>wc -l scores.txt</code> 显示 40 行，能说出每行的两列含义。</div>
+
+          <h3 id="p1-2">1.2 sort 默认排序与 sort -r</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>sort</code> 默认把整行按文本比较规则排序，也就是从字符开头逐位比较；<code>-r</code> 表示 reverse，把同一个排序结果反向输出。</p>
+          <div class="step-label">Step 1 / 比较正序与逆序的开头</div>
+          <pre><code class="language-bash">sort scores.txt | head -5
+sort -r scores.txt | head -5</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Alice 88
+Alice 88
+Alice 88
+Alice 88
+Bob 72
+Zoe 96
+Yara 69
+Xavier 84
+Wendy 77
+Victor 90</code></pre>
+          <ul class="tasks">
+            <li>正序第一条为什么是 <code>Alice 88</code>，而不是成绩最低的 <code>Henry 9</code>？</li>
+            <li>逆序第一条为什么是 <code>Zoe 96</code>？</li>
+            <li>执行 <code>sort scores.txt</code> 之后，用 <code>head scores.txt</code> 看原文件，顺序变了吗？</li>
+          </ul>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>命令</th><th>排序依据</th><th>结果特点</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>sort scores.txt</code></td><td>整行文本，从 A 到 Z</td><td>姓名靠前的记录在前</td></tr>
+                <tr><td><code>sort -r scores.txt</code></td><td>整行文本，反向</td><td>姓名靠后的记录在前</td></tr>
+                <tr><td><code>sort -n</code></td><td>按数字大小</td><td>适合整行只有一个数字的输入</td></tr>
+                <tr><td><code>sort -k2,2n</code></td><td>只取第 2 列，按数字升序</td><td>成绩由低到高</td></tr>
+                <tr><td><code>sort -k2,2nr</code></td><td>只取第 2 列，按数字降序</td><td>成绩由高到低</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout"><code>sort</code> 默认只把结果输出到终端，不修改原文件。只有使用 <code>sort -o 文件名</code> 或重定向 <code>&gt;</code> 时，才会把排序结果写入文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释正序以 <code>Alice 88</code> 开头、逆序以 <code>Zoe 96</code> 开头，并确认原文件顺序没有被修改。</div>
+
+          <h3 id="p1-3">1.3 sort -n 数值排序</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">文本顺序和数值大小不一样。字符串 <code>"100"</code> 按文本比较时排在 <code>"18"</code> 和 <code>"9"</code> 前面，因为第一位字符 <code>1</code> 比 <code>9</code> 小；按数值比较时，100 才应该排在最后。</p>
+          <div class="step-label">Step 1 / 先用三个纯数字验证</div>
+          <pre><code class="language-bash">printf "9\n18\n100\n" | sort
+printf "9\n18\n100\n" | sort -n
+sort -n scores.txt | head -3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">100
+18
+9
+9
+18
+100
+Alice 88
+Alice 88
+Alice 88</code></pre>
+          <ul class="tasks">
+            <li>为什么 <code>sort</code> 把 100 排在最前，而 <code>sort -n</code> 把 100 排在最后？</li>
+            <li><code>sort -n scores.txt</code> 的开头为什么是 <code>Alice 88</code>，而不是 <code>Henry 9</code>？</li>
+            <li>对“姓名 成绩”两列数据，只加 <code>-n</code> 能按成绩排序吗？还需要补什么选项？</li>
+          </ul>
+          <div class="book-callout"><code>sort -n</code> 从每一行的开头读取数字。遇到 <code>Alice 88</code> 这种以字母开头的行，它取不到有效数字，只能按 0 处理，所以无法按第二列成绩排序。正确做法是先用 <code>-k</code> 指定第 2 列。</div>
+          <div class="check-point"><strong>检查点：</strong>能写出 <code>printf</code> 验证两种排序的输出顺序，并说明 <code>sort -n</code> 为什么对两列记录不直接生效。</div>
+
+          <h3 id="p1-4">1.4 sort -k2,2n 与 -k2,2nr</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-k2,2</code> 表示排序键从第 2 列开始、到第 2 列结束，也就是只看成绩列；再加 <code>n</code> 按数值比较，加 <code>r</code> 反向输出。</p>
+          <div class="step-label">Step 1 / 文本比较与数值比较</div>
+          <pre><code class="language-bash">sort -k2,2 scores.txt | head -5
+sort -k2,2n scores.txt | head -5</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Eva 100
+Peter 100
+Ivy 18
+Ivy 18
+Queen 42
+Henry 9
+Henry 9
+Ivy 18
+Ivy 18
+Queen 42</code></pre>
+          <ul class="tasks">
+            <li><code>sort -k2,2</code> 下为什么 100 分排在 18 分和 42 分之前？</li>
+            <li><code>sort -k2,2n</code> 下第一条为什么变成 <code>Henry 9</code>？</li>
+            <li>同分记录（例如两个 <code>Henry 9</code>）为什么仍然相邻？</li>
+          </ul>
+          <div class="step-label">Step 2 / 查看升序末尾与降序开头</div>
+          <pre><code class="language-bash">sort -k2,2n scores.txt | tail -3
+sort -k2,2nr scores.txt | head -6</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Zoe 96
+Eva 100
+Peter 100
+Eva 100
+Peter 100
+Zoe 96
+Cindy 95
+Cindy 95
+Lily 91</code></pre>
+          <div class="book-callout">同分记录的先后顺序还可能受整行其他字符影响，这是正常的。只要成绩列符合升序或降序要求，就已经达到排序目标。</div>
+          <div class="check-point"><strong>检查点：</strong>能写出按成绩升序、降序的两条命令；能指出 <code>-k2,2n</code> 的第一条是 <code>Henry 9</code>，<code>-k2,2nr</code> 的前两条是 <code>Eva 100</code> 与 <code>Peter 100</code>。</div>
+
+          <h3 id="p1-5">1.5 uniq 只处理相邻重复行</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>uniq</code> 默认只合并“相邻且整行完全相同”的记录，它不会扫描全文件自动去重。原文件顺序混乱时，分散在别处的重复行不会被合并。</p>
+          <div class="step-label">Step 1 / 对比直接 uniq 与先排序再 uniq</div>
+          <pre><code class="language-bash">uniq scores.txt | wc -l
+uniq -d scores.txt
+sort scores.txt | uniq | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">39
+Bob 72
+26</code></pre>
+          <ul class="tasks">
+            <li>原文件 40 行，直接 <code>uniq</code> 后为什么还有 39 行？</li>
+            <li><code>uniq -d scores.txt</code> 只输出 <code>Bob 72</code>，说明原文件中哪两行是相邻重复？</li>
+            <li>先 <code>sort</code> 后变成 26 行，去掉的 14 行分别是什么？</li>
+          </ul>
+          <div class="book-callout">原始文件中 <code>Bob 72</code> 出现在第 2、11、12、20、34 行。只有第 11、12 行是相邻的，所以直接 <code>uniq</code> 只能合并这一处；先排序后，5 条 <code>Bob 72</code> 才会聚到一起。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释 40 → 39 → 26 的变化；能说出 <code>uniq</code> 的关键前提是“相同记录相邻”。</div>
+
+          <h3 id="p1-6">1.6 sort | uniq 与 -c、-d、-u</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">先排序让相同记录相邻，再用 <code>uniq</code> 去重，是最稳妥的组合。加上 <code>-c</code> 显示计数，<code>-d</code> 只显示重复记录，<code>-u</code> 只显示只出现一次的记录。</p>
+          <div class="step-label">Step 1 / 统计每种完整记录出现的次数</div>
+          <pre><code class="language-bash">sort scores.txt | uniq -c
+sort scores.txt | uniq -c | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">      4 Alice 88
+      5 Bob 72
+      2 Cindy 95
+      1 David 60
+      1 Eva 100
+      1 Frank 88
+      1 Grace 45
+      2 Henry 9
+      2 Ivy 18
+      2 Jack 76
+      2 Kevin 83
+      2 Lily 91
+      2 Mike 55
+      1 Nina 67
+      1 Oscar 79
+      1 Peter 100
+      1 Queen 42
+      1 Rose 88
+      1 Sam 73
+      1 Tina 65
+      1 Uma 58
+      1 Victor 90
+      1 Wendy 77
+      1 Xavier 84
+      1 Yara 69
+      1 Zoe 96
+26</code></pre>
+          <ul class="tasks">
+            <li><code>uniq -c</code> 前面的数字表示什么？是成绩，还是整条记录出现的次数？</li>
+            <li>出现次数最多的是哪条记录？出现了几次？</li>
+            <li>为什么 <code>sort | uniq -c</code> 一共有 26 行？</li>
+          </ul>
+          <div class="step-label">Step 2 / 只显示重复记录与只出现一次的记录</div>
+          <pre><code class="language-bash">sort scores.txt | uniq -d
+sort scores.txt | uniq -u</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Alice 88
+Bob 72
+Cindy 95
+Henry 9
+Ivy 18
+Jack 76
+Kevin 83
+Lily 91
+Mike 55
+David 60
+Eva 100
+Frank 88
+Grace 45
+Nina 67
+Oscar 79
+Peter 100
+Queen 42
+Rose 88
+Sam 73
+Tina 65
+Uma 58
+Victor 90
+Wendy 77
+Xavier 84
+Yara 69
+Zoe 96</code></pre>
+          <ul class="tasks">
+            <li><code>uniq -d</code> 输出了多少条记录？它们分别出现了几次？</li>
+            <li><code>uniq -u</code> 输出了多少条记录？与 <code>-d</code> 的结果合起来是否正好是 26 种？</li>
+            <li><code>uniq -c</code>、<code>-d</code>、<code>-u</code> 三者的统计口径有什么不同？</li>
+          </ul>
+          <div class="book-callout"><code>uniq -c</code> 不会自己排序。如果直接写 <code>uniq -c scores.txt</code>，计数会按原文件的相邻块分段，结果不符合预期。处理无序数据时，先 <code>sort</code> 再 <code>uniq</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能读出 <code>Bob 72</code> 出现 5 次；能说出 <code>-d</code> 有 9 条重复记录、<code>-u</code> 有 17 条只出现一次的记录。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请亲自输入命令、观察输出。任务全部在 <code>~/Desktop/SortLab</code> 中完成，不修改原始成绩文件。</p>
+
+          <h3 id="p2-1">2.1 任务 A：整理成绩记录（必做）</h3>
+          <ul class="tasks">
+            <li>用 <code>pwd</code>、<code>ls -l</code>、<code>wc -l</code> 确认实验文件与记录数</li>
+            <li>用 <code>sort scores.txt</code> 完成普通排序，记录第一条记录</li>
+            <li>用 <code>sort -k2,2n scores.txt</code> 按成绩升序排序，记录第一条与最后一条</li>
+            <li>用 <code>sort -k2,2nr scores.txt</code> 按成绩降序排序，记录前两条</li>
+            <li>用 <code>sort scores.txt | uniq</code> 去重，统计去重后的记录数</li>
+            <li>用 <code>sort scores.txt | uniq -c</code> 统计每种完整记录出现的次数</li>
+            <li>用 <code>sort scores.txt | uniq -d</code> 查看重复记录，并解释为什么去重前必须先排序</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>结果记录表：</strong>先自己运行，再把实际数值填入下表；写报告时与练习部分核对。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>项目</th><th>命令</th><th>你的结果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>文件总记录数</td><td><code>wc -l scores.txt</code></td><td>____</td></tr>
+                <tr><td>普通排序第一条</td><td><code>sort scores.txt | head -1</code></td><td>____</td></tr>
+                <tr><td>成绩升序第一条</td><td><code>sort -k2,2n scores.txt | head -1</code></td><td>____</td></tr>
+                <tr><td>成绩降序前两条</td><td><code>sort -k2,2nr scores.txt | head -2</code></td><td>____</td></tr>
+                <tr><td>去重后记录数</td><td><code>sort scores.txt | uniq | wc -l</code></td><td>____</td></tr>
+                <tr><td>重复记录条数</td><td><code>sort scores.txt | uniq -d | wc -l</code></td><td>____</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="check-point"><strong>检查点：</strong>七条命令全部成功执行；能说出普通排序与成绩排序的第一条为什么不同；截图包含当前提示符、命令和输出。</div>
+
+          <h3 id="p2-2">2.2 任务 B：重复记录追踪（拓展）</h3>
+          <ul class="tasks">
+            <li>用 <code>grep -n "Bob 72" scores.txt</code> 列出这条记录在原文件中的所有行号，说明为什么直接 <code>uniq</code> 只合并了其中一处</li>
+            <li>任选另一条重复记录，重复上述追踪，并写出它的总出现次数</li>
+            <li>分别统计 <code>uniq -d</code> 与 <code>uniq -u</code> 的记录数，验证 9 + 17 = 26</li>
+            <li>用 <code>sort scores.txt | uniq -c | sort -nr | head -3</code> 找出出现次数最多的前 3 条记录</li>
+            <li>用 2～3 句话说明：<code>sort</code> 与 <code>uniq</code> 各自负责什么，为什么常配合使用</li>
+            <li>任选一次失败操作，写出命令、报错原文、原因和修改后的命令</li>
+          </ul>
+          <div class="book-callout">直接 <code>uniq</code> 处理无序文件时，看起来“没有去重成功”通常不是命令坏了，而是相同记录不相邻。先 <code>sort</code> 再 <code>uniq</code>，并检查文件中是否有空格或不可见字符差异。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>区分文本排序与数值排序，解释 9、18、100 的不同顺序</li>
+            <li>用 <code>sort -r</code> 反向输出，用 <code>sort -k2,2n</code> / <code>-k2,2nr</code> 按成绩排序</li>
+            <li>说明 <code>uniq</code> 为什么只处理相邻重复行</li>
+            <li>用 <code>sort | uniq</code> 完成去重，并用 <code>-c</code>、<code>-d</code>、<code>-u</code> 统计不同口径</li>
+            <li>读懂 <code>uniq -c</code> 前面的数字，并找出出现次数最多的记录</li>
+            <li>按“路径 → 文件 → 选项 → 输出”的顺序完成一次排错</li>
+          </ul>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际运行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong><code>printf "9\n18\n100\n" | sort</code> 与 <code>printf "9\n18\n100\n" | sort -n</code> 的输出顺序分别是什么？为什么不同？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>sort -k2,2n scores.txt</code> 的第一条记录是什么？最后一条（或最后两条）是什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong>原文件 40 行，直接 <code>uniq scores.txt | wc -l</code> 得 39，而 <code>sort scores.txt | uniq | wc -l</code> 得 26，请解释原因。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong><code>sort scores.txt | uniq -c</code> 中哪条记录出现次数最多？出现了几次？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong><code>sort scores.txt | uniq -d | wc -l</code> 与 <code>sort scores.txt | uniq -u | wc -l</code> 分别是多少？两者与去重后的 26 种记录有什么关系？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>写出“按成绩从高到低排序并只显示前 3 条”的完整命令。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成实验后，按照雨课堂中的题目填写实验记录，并提交完整实验报告（模板六部分：基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结）。本次主要记录：</p>
+          <ul class="tasks">
+            <li>文件与排序截图：当前目录、<code>wc -l</code>、普通排序和按成绩排序的关键输出</li>
+            <li>去重结果截图：<code>sort scores.txt | uniq</code> 的结果，并说明为什么先排序</li>
+            <li>重复次数统计截图：<code>sort scores.txt | uniq -c</code> 与 <code>uniq -d</code> 的输出，并说明数字含义</li>
+            <li>任务 A 记录表中的实际数值</li>
+            <li>问题汇总：至少写一个你遇到的报错或疑问，以及原因和解决方法</li>
+            <li>实验总结：用 3～5 句说明排序方式、相邻重复行的含义，以及管道在组合命令中的作用</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">请按照雨课堂发布的要求完成提交。</p>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop05-text-search.html">实验5：文本搜索与统计</a>　|　下一节：<a href="sop07-field-extract.html">实验7：文本字段提取与筛选</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

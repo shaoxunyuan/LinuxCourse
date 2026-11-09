@@ -34,14 +34,14 @@
 
     .reveal {
       font-family: var(--font);
-      font-size: 24px;
+      font-size: 28px;
       color: var(--ink);
       background: var(--paper);
       -webkit-font-smoothing: antialiased;
     }
     .reveal .slides { text-align: left; }
     .reveal .slides section {
-      padding: 26px 44px 58px;
+      padding: 36px 48px 64px;
       box-sizing: border-box;
       background:
         linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
@@ -61,7 +61,7 @@
       font-weight: 700;
       text-transform: none;
       letter-spacing: -0.025em;
-      margin: 0 0 0.4em;
+      margin: 0 0 0.55em;
       font-size: 1.18em;
       line-height: 1.25;
       position: relative;
@@ -84,10 +84,10 @@
       list-style: none;
     }
     .reveal ul > li {
-      margin: 0.22em 0;
+      margin: 0.32em 0;
       padding-left: 1em;
       position: relative;
-      font-size: 0.78em;
+      font-size: 0.82em;
     }
     .reveal ul > li::before {
       content: "";
@@ -136,7 +136,7 @@
       background: transparent !important;
       color: var(--ink) !important;
       font-family: var(--mono);
-      font-size: 0.58em;
+      font-size: 0.62em;
       font-weight: 450;
       line-height: 1.45;
       max-height: none;
@@ -154,9 +154,9 @@
     }
 
     .band {
-      padding: 0.35em 0.65em;
-      margin: 0.3em 0;
-      font-size: 0.7em;
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
       line-height: 1.4;
       font-weight: 500;
       border-left: 3px solid transparent;
@@ -200,7 +200,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-left: 3px solid var(--accent);
-      padding: 0.45em 0.6em;
+      padding: 0.55em 0.7em;
     }
     .card.blue { border-left-color: #3b82f6; }
     .card.green { border-left-color: #22c55e; }
@@ -214,9 +214,9 @@
     .card ul { margin-top: 0.15em; }
     .card p, .card .body {
       margin: 0;
-      font-size: 0.64em;
+      font-size: 0.68em;
       color: var(--ink-soft);
-      line-height: 1.42;
+      line-height: 1.45;
     }
     .card .cmd {
       font-family: var(--mono);
@@ -331,11 +331,11 @@
     .reveal .num-list > li,
     .num-list > li {
       counter-increment: n;
-      margin: 0.2em 0;
-      padding-left: 1.55em;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
       position: relative;
-      font-size: 0.68em;
-      line-height: 1.38;
+      font-size: 0.72em;
+      line-height: 1.4;
       list-style: none !important;
       list-style-type: none !important;
     }
@@ -364,8 +364,8 @@
 
     .slide-footer {
       position: absolute;
-      left: 44px;
-      right: 44px;
+      left: 48px;
+      right: 48px;
       bottom: 16px;
       display: flex;
       justify-content: space-between;
@@ -414,6 +414,7 @@
       border-color: var(--accent);
     }
 
+
     .flow-steps.six {
       grid-template-columns: repeat(6, 1fr);
     }
@@ -421,7 +422,7 @@
       grid-template-columns: 1fr 1fr 1fr;
     }
     .card-grid.four {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: 1fr 1fr 1fr 1fr;
     }
     @media (prefers-reduced-motion: reduce) {
       .reveal .slides section { transition: none !important; }
@@ -436,14 +437,14 @@
       <!-- 01 -->
       <section data-page="01">
         <h1>实验基本信息</h1>
-        <p class="exp-name">实验四：用户、用户组与权限｜理解“谁可以对什么做什么”</p>
+        <p class="exp-name">实验四：用户、用户组与权限｜理解 Linux 中“谁可以对什么做什么”</p>
         <div class="two-col">
           <div class="card blue">
             <h3>实验目的</h3>
             <ul class="num-list">
               <li>认识当前用户、用户组与文件所有者</li>
               <li>理解 r、w、x 与 owner、group、others</li>
-              <li>掌握 chmod 符号法与数字法</li>
+              <li>掌握 chmod 的符号法和数字法</li>
               <li>能根据报错判断是否属于权限问题</li>
             </ul>
           </div>
@@ -451,19 +452,20 @@
             <h3>实验内容和要求</h3>
             <ul class="num-list">
               <li>用 whoami、id、groups 确认身份</li>
-              <li>用 ls -l 读取权限并用 chmod 设置</li>
-              <li>完成课堂综合练习并写报告</li>
+              <li>用 ls -l 读取文件和目录权限</li>
+              <li>用 chmod 设置并验证不同权限</li>
+              <li>完成综合练习、截图并填写实验报告</li>
             </ul>
           </div>
         </div>
-        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 登录用户名统一为 <code>njucm</code></div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>01</span></div>
       </section>
 
       <!-- 02 -->
       <section data-page="02">
         <h1>Linux 实验四</h1>
-        <p class="subtitle">用户、用户组与权限：为什么允许你，也为什么有时拒绝你</p>
+        <p class="subtitle">用户、用户组与权限：理解 Linux 为什么允许你做这件事，也为什么有时拒绝你</p>
         <div class="five-nodes">
           <div class="node"><span class="label">识别身份</span><code>whoami</code></div>
           <div class="node"><span class="label">读懂权限</span><code>ls -l</code></div>
@@ -471,7 +473,8 @@
           <div class="node"><span class="label">验证行为</span><code>./run.sh</code></div>
           <div class="node"><span class="label">综合任务</span><code>PermissionLab</code></div>
         </div>
-        <div class="band band-blue">权限问题先回答：我是谁？文件属于谁？权限给了谁？</div>
+        <div class="band band-blue">权限问题先回答三个问题：我是谁？文件属于谁？权限给了谁？</div>
+        <div class="band band-green">学完本实验，你能读懂 <code>-rwxr-xr--</code>，也能把它改成需要的权限。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>02</span></div>
       </section>
 
@@ -487,18 +490,21 @@
         </div>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>学习目标</h3>
+            <h3>本次实验结束时，你应该能做到</h3>
             <ul>
-              <li>解释 owner / group / others</li>
-              <li>区分文件与目录上的 r、w、x</li>
-              <li>会用符号法与数字法设置权限</li>
-              <li>遇到 Permission denied 能按步骤定位</li>
+              <li>解释 owner / group / others 的含义</li>
+              <li>区分文件和目录上的 r、w、x</li>
+              <li>用符号法和数字法设置常见权限</li>
+              <li>遇到 Permission denied 时按步骤定位</li>
+              <li>完成完整权限配置任务并验证结果</li>
             </ul>
           </div>
           <div class="card green">
             <h3>课堂原则</h3>
             <ul>
-              <li>先观察，再修改，再 ls -l 验证</li>
+              <li>先观察原始权限，再修改</li>
+              <li>每次修改后都用 ls -l 验证</li>
+              <li>出现报错先判断原因</li>
               <li>不把 sudo 或 chmod 777 当万能答案</li>
             </ul>
           </div>
@@ -508,29 +514,31 @@
 
       <!-- 04 -->
       <section data-page="04">
-        <h2>权限到底在判断什么？</h2>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>① 当前用户是谁？</h3><p>whoami / id / groups</p></div>
-          <div class="card green"><h3>② 对象属于谁？</h3><p>ls -l 看 owner 与 group</p></div>
-          <div class="card blue"><h3>③ 权限允许什么？</h3><p>r / w / x</p></div>
+        <h2>场景问题：权限到底在判断什么？</h2>
+        <p class="subtitle">Linux 每次访问文件或目录，都要把“身份”和“对象权限”对应起来</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>① 当前用户是谁？</h3><p>whoami / id / groups<br>先确认 njucm 属于哪些组</p></div>
+          <div class="card green"><h3>② 对象属于谁？</h3><p>ls -l 文件<br>关注所有者 owner 与所属组 group</p></div>
+          <div class="card blue"><h3>③ 权限允许什么？</h3><p>r = read<br>w = write<br>x = execute / enter</p></div>
         </div>
         <pre><code class="language-bash">-rwxr-xr-- 1 njucm njucm 128 Oct 12  run.sh</code></pre>
-        <div class="band band-blue">判断权限不要只看 rwx，还要结合当前用户、所有者和所属组。</div>
+        <div class="band band-blue">判断权限不要只看 rwx，还要结合当前用户、文件所有者和所属组。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>04</span></div>
       </section>
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>先认清自己：whoami、id、groups</h2>
+        <h2>概念讲解：先认清自己</h2>
+        <p class="subtitle">whoami、id、groups 回答“我是谁”</p>
         <pre><code class="language-bash">whoami
 id
 groups
 pwd</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>whoami</h3><p>当前登录用户名</p></div>
-          <div class="card green"><h3>id</h3><p>UID、GID 和所属组</p></div>
-          <div class="card blue"><h3>groups</h3><p>当前用户所在的组</p></div>
-          <div class="card green"><h3>ls -l</h3><p>对象所有者、组和权限</p></div>
+        <div class="card-grid four">
+          <div class="card blue"><h3>whoami</h3><p>显示当前登录用户名</p></div>
+          <div class="card green"><h3>id</h3><p>查看 UID、GID 和所属组</p></div>
+          <div class="card blue"><h3>groups</h3><p>列出当前用户所在的组</p></div>
+          <div class="card green"><h3>pwd</h3><p>确认当前所在目录</p></div>
         </div>
         <div class="band band-blue">权限排错的第一步经常不是 chmod，而是先确认当前身份。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>05</span></div>
@@ -538,62 +546,117 @@ pwd</code></pre>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>读懂 ls -l：权限字符串</h2>
-        <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 24 demo.txt
-# 类型 | owner | group | others</code></pre>
-        <div class="card-grid">
+        <h2>概念讲解：读懂 ls -l 权限字符串</h2>
+        <p class="subtitle">先分成三组三位：owner｜group｜others，再分别读 r、w、x</p>
+        <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 24 demo.txt</code></pre>
+        <div class="card-grid four">
           <div class="card blue"><h3>第 1 位</h3><p><code>-</code> 普通文件 · <code>d</code> 目录</p></div>
           <div class="card green"><h3>第 2～4 位</h3><p>owner 权限，如 rw-</p></div>
           <div class="card blue"><h3>第 5～7 位</h3><p>group 权限，如 r--</p></div>
           <div class="card green"><h3>第 8～10 位</h3><p>others 权限，如 r--</p></div>
         </div>
-        <div class="band band-blue">先分成三组三位：owner｜group｜others，再分别读 r、w、x。</div>
+        <div class="band band-blue">例：<code>-rw-r--r--</code> 表示所有者可读写，同组和其他用户只能读。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>06</span></div>
       </section>
 
       <!-- 07 -->
       <section data-page="07">
-        <h2>r、w、x：对文件和目录含义不同</h2>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <h2>概念讲解：r、w、x 对文件和目录含义不同</h2>
+        <div class="card-grid three">
           <div class="card blue">
-            <h3>r 读取</h3>
-            <p>文件：可读内容<br>目录：可列出名称</p>
+            <h3>r：read</h3>
+            <p>文件：可以读取文件内容<br>目录：可以列出目录中的名称，能否进入还要看 x</p>
           </div>
           <div class="card green">
-            <h3>w 写入</h3>
-            <p>文件：可修改内容<br>目录：可创建/删除/改名条目</p>
+            <h3>w：write</h3>
+            <p>文件：可以修改文件内容<br>目录：可以创建、删除或重命名条目，通常需要 x 配合</p>
           </div>
           <div class="card blue">
-            <h3>x 执行/进入</h3>
-            <p>文件：可作为程序执行<br>目录：可进入并访问其中对象</p>
+            <h3>x：execute / enter</h3>
+            <p>文件：允许作为程序执行<br>目录：允许进入目录并访问其中已知名称的对象</p>
           </div>
         </div>
-        <div class="band band-orange">对目录来说，x 表示“可进入/可穿越”，最容易混淆。</div>
+        <div class="band band-orange">目录权限最容易混淆：对目录来说，x 表示“可进入 / 可穿越”。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>07</span></div>
       </section>
 
       <!-- 08 -->
       <section data-page="08">
-        <h2>chmod 符号法</h2>
-        <pre><code class="language-bash">chmod u+x run.sh
-chmod g-w report.txt
-chmod o-r secret.txt
-chmod a+r README.txt
-chmod u=rw file.txt</code></pre>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>对象</h3><p>u / g / o / a</p></div>
-          <div class="card green"><h3>动作</h3><p>+ 增加 · - 删除 · = 设置</p></div>
-          <div class="card blue"><h3>例</h3><p>u+x：给所有者增加执行权限</p></div>
+        <h2>概念讲解：所有者、用户组与 sudo</h2>
+        <div class="card-grid three">
+          <div class="card blue"><h3>chown</h3><p>修改文件所有者<br>示例：<code>chown user file</code><br>通常需要管理员权限</p></div>
+          <div class="card green"><h3>chgrp</h3><p>修改文件所属组<br>示例：<code>chgrp group file</code></p></div>
+          <div class="card blue"><h3>sudo</h3><p>临时以管理员权限执行命令<br>课程中只在明确需要时使用</p></div>
         </div>
-        <div class="band band-blue">修改后立即用 <code>ls -l</code> 验证。符号法适合只改一小部分权限。</div>
+        <div class="band band-blue">最小权限原则：能用当前用户权限解决的问题，不要先加 sudo；能只加 u+x，就不要把文件改成 777。</div>
+        <div class="band band-orange">权限只给“完成任务刚好够用”的程度。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>08</span></div>
       </section>
 
       <!-- 09 -->
       <section data-page="09">
-        <h2>chmod 数字法：r=4，w=2，x=1</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>644</h3><p>自己读写，其他只读</p></div>
+        <h2>命令演示：确认当前身份</h2>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">whoami
+id
+groups
+pwd</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察输出</h3>
+            <ul>
+              <li>用户名为 <code>njucm</code></li>
+              <li>UID 与 GID 均为 1000</li>
+              <li>所属组为 <code>njucm</code></li>
+              <li>当前目录位于 <code>/home/njucm</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">先回答“我是谁”，再去看文件属于谁，排错顺序就清楚了。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>命令演示：创建对象并观察初始权限</h2>
+        <pre><code class="language-bash">cd ~
+mkdir -p PermissionLab
+cd PermissionLab
+touch public.txt secret.txt run.sh
+mkdir data
+ls -l
+ls -ld data</code></pre>
+        <div class="band band-blue">普通文件以 <code>-</code> 开头，目录以 <code>d</code> 开头；owner 与 group 通常都是 njucm。</div>
+        <div class="band band-orange">初始权限由系统的默认权限设置决定，不要求和同学完全相同。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>命令演示：chmod 符号法</h2>
+        <p class="subtitle">先说清楚“给谁改什么”</p>
+        <pre><code class="language-bash">chmod u+x run.sh
+ls -l run.sh
+chmod o-r secret.txt
+ls -l secret.txt
+chmod g-w public.txt
+ls -l public.txt</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>对象</h3><p>u = user<br>g = group<br>o = others<br>a = all</p></div>
+          <div class="card green"><h3>动作</h3><p>+ 增加<br>- 删除<br>= 直接设置</p></div>
+          <div class="card blue"><h3>例</h3><p><code>u+x</code>：给所有者增加执行权限</p></div>
+        </div>
+        <div class="band band-blue">修改后立即使用 <code>ls -l</code> 验证。符号法适合“只改一小部分权限”。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>命令演示：chmod 数字法</h2>
+        <p class="subtitle">r = 4，w = 2，x = 1，相加得到三位数字</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>644</h3><p>自己可读写，其他只读</p></div>
           <div class="card green"><h3>600</h3><p>只有自己可读写</p></div>
           <div class="card blue"><h3>755</h3><p>自己可写并执行，其他可读执行</p></div>
           <div class="card green"><h3>700</h3><p>只有自己拥有全部权限</p></div>
@@ -602,43 +665,52 @@ chmod u=rw file.txt</code></pre>
 chmod 600 secret.txt
 chmod 755 run.sh
 chmod 700 private_dir</code></pre>
-        <div class="band band-orange">不要把 chmod 777 当成“修复权限”的默认做法。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>09</span></div>
+        <div class="band band-orange">不要把 <code>chmod 777</code> 当成“修复权限”的默认做法。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>12</span></div>
       </section>
 
-      <!-- 10 -->
-      <section data-page="10">
-        <h2>所有者、用户组与 sudo</h2>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>chown</h3><p>修改所有者，通常需管理员权限</p></div>
-          <div class="card green"><h3>chgrp</h3><p>修改所属组</p></div>
-          <div class="card blue"><h3>sudo</h3><p>临时以管理员权限执行；明确需要时才用</p></div>
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>命令演示：所有者、用户组与 sudo</h2>
+        <pre><code class="language-bash">chown user file
+chgrp group file
+sudo command</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>chown</h3><p>修改文件所有者，通常需要管理员权限</p></div>
+          <div class="card green"><h3>chgrp</h3><p>修改文件所属组</p></div>
+          <div class="card blue"><h3>sudo</h3><p>临时以管理员权限执行，明确需要时才用</p></div>
         </div>
-        <div class="band band-blue">最小权限原则：能用当前用户解决就不要先加 sudo；能只加 u+x 就不要改成 777。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>10</span></div>
+        <div class="band band-blue">最小权限原则：能只加 <code>u+x</code>，就不要改成 <code>777</code>。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>13</span></div>
       </section>
 
-      <!-- 11 -->
-      <section data-page="11">
+      <!-- 14 -->
+      <section data-page="14">
         <h2>练习1：确认当前身份和用户组</h2>
-        <pre><code class="language-bash">whoami
+        <p class="subtitle">逐条执行，观察输出</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">whoami
 id
 groups
 pwd</code></pre>
-        <div class="card green">
-          <h3>观察</h3>
-          <ul class="num-list">
-            <li>当前用户名是否为 njucm？</li>
-            <li>UID 和 GID 是什么？</li>
-            <li>groups 中有哪些组？</li>
-            <li>当前目录是否在 /home/njucm？</li>
-          </ul>
+          </div>
+          <div class="card green">
+            <h3>观察任务</h3>
+            <ul class="num-list">
+              <li>当前用户名是否为 njucm？</li>
+              <li>id 输出中 UID 和 GID 是什么？</li>
+              <li>groups 中列出了哪些用户组？</li>
+              <li>当前目录是否位于 /home/njucm？</li>
+            </ul>
+          </div>
         </div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>11</span></div>
+        <div class="band band-blue">练习要求：能说出每条命令回答的是什么问题。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>14</span></div>
       </section>
 
-      <!-- 12 -->
-      <section data-page="12">
+      <!-- 15 -->
+      <section data-page="15">
         <h2>练习2：创建对象并观察初始权限</h2>
         <pre><code class="language-bash">cd ~
 mkdir -p PermissionLab
@@ -647,25 +719,38 @@ touch public.txt secret.txt run.sh
 mkdir data
 ls -l
 ls -ld data</code></pre>
-        <div class="band band-blue">观察：普通文件与目录第 1 位有何不同？owner/group 是否都是 njucm？</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>12</span></div>
+        <div class="card-grid three">
+          <div class="card blue"><h3>观察1</h3><p>三个普通文件的第 1 位是什么？目录 data 的第 1 位是什么？</p></div>
+          <div class="card green"><h3>观察2</h3><p>当前 owner 与 group 是否都是 njucm？</p></div>
+          <div class="card blue"><h3>观察3</h3><p>初始权限由默认设置决定，同学之间可能不同。</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>15</span></div>
       </section>
 
-      <!-- 13 -->
-      <section data-page="13">
-        <h2>练习3：用符号法修改权限</h2>
-        <pre><code class="language-bash">chmod u+x run.sh
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习3：用 chmod 符号法修改权限</h2>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">chmod u+x run.sh
 ls -l run.sh
 chmod o-r secret.txt
 ls -l secret.txt
 chmod g-w public.txt
 ls -l public.txt</code></pre>
-        <div class="band band-blue">每一步都先看修改前权限，再 chmod，再用 ls -l 对比。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>13</span></div>
+          </div>
+          <div class="card green">
+            <h3>每一步都验证</h3>
+            <p>先看修改前权限，执行 chmod，再用 ls -l 对比。不要连续改完以后才检查。</p>
+            <p style="margin-top:0.45em;">自己解释：u+x、o-r、g-w 分别改变了哪一组三位权限？哪一个字母发生变化？</p>
+          </div>
+        </div>
+        <div class="band band-blue">练习重点不是背命令，而是能预测修改后的权限字符串。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>16</span></div>
       </section>
 
-      <!-- 14 -->
-      <section data-page="14">
+      <!-- 17 -->
+      <section data-page="17">
         <h2>练习4：用数字法设置常见权限</h2>
         <pre><code class="language-bash">chmod 644 public.txt
 chmod 600 secret.txt
@@ -673,47 +758,62 @@ chmod 755 run.sh
 chmod 700 data
 ls -l public.txt secret.txt run.sh
 ls -ld data</code></pre>
-        <div class="band band-blue">执行前先写出各数字对应的 rwx；执行后与 ls -l 核对。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>14</span></div>
+        <div class="two-col">
+          <div class="card blue"><h3>预测再执行</h3><p>执行前先写出 644、600、755、700 对应的 rwx 组合。</p></div>
+          <div class="card green"><h3>执行后核对</h3><p>比较你的预测与 ls -l 输出是否一致。</p></div>
+        </div>
+        <div class="band band-blue">重点：能从数字推出 rwx，也能从需求反推数字。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>17</span></div>
       </section>
 
-      <!-- 15 -->
-      <section data-page="15">
+      <!-- 18 -->
+      <section data-page="18">
         <h2>练习5：制造并解决 Permission denied</h2>
-        <pre><code class="language-bash">printf '#!/bin/bash\necho Hello Permission\n' > run.sh
+        <pre><code class="language-bash">printf '#!/bin/bash\necho Hello Permission\n' &gt; run.sh
 chmod 644 run.sh
 ./run.sh
 ls -l run.sh
 chmod u+x run.sh
 ./run.sh</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>第一次</h3><p>预期 Permission denied（缺少 x）</p></div>
-          <div class="card green"><h3>修复</h3><p>只增加 owner 的执行权限，再运行验证</p></div>
+        <div class="card-grid three">
+          <div class="card blue"><h3>第一次运行</h3><p>预期看到 Permission denied，因为脚本没有执行权限。</p></div>
+          <div class="card green"><h3>定位原因</h3><p>先用 ls -l 检查是否缺少 x，不要直接 sudo。</p></div>
+          <div class="card blue"><h3>修复</h3><p>只增加 owner 的执行权限，再运行验证。</p></div>
         </div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>15</span></div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>18</span></div>
       </section>
 
-      <!-- 16 -->
-      <section data-page="16">
+      <!-- 19 -->
+      <section data-page="19">
         <h2>练习6：目录的 x 权限为什么重要？</h2>
-        <pre><code class="language-bash">mkdir -p testdir
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">mkdir -p testdir
 touch testdir/a.txt
+chmod 600 testdir/a.txt
 chmod 600 testdir
 ls -ld testdir
 cd testdir
 chmod 700 testdir
 cd testdir
 pwd</code></pre>
-        <div class="band band-blue">目录缺少 x 时可能无法进入。改为 700 后再进入并用 pwd 确认。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>16</span></div>
+          </div>
+          <div class="card green">
+            <h3>先观察报错</h3>
+            <p>目录缺少 x 时，可能无法进入目录。记录报错，不要一看到失败就 sudo。</p>
+            <p style="margin-top:0.45em;">把目录改为 700，再进入并用 pwd 确认当前位置。</p>
+          </div>
+        </div>
+        <div class="band band-orange">这一步用来真正理解：目录上的 x 表示“可以进入 / 穿越”。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>19</span></div>
       </section>
 
-      <!-- 17 -->
-      <section data-page="17">
-        <h2>课堂综合练习：配置 PermissionLab</h2>
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>课堂综合练习：配置一个 PermissionLab</h2>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>目标</h3>
+            <h3>目标结构</h3>
             <pre><code class="language-bash">PermissionLab/
 ├── public.txt   → 644
 ├── secret.txt   → 600
@@ -722,68 +822,84 @@ pwd</code></pre>
     └── note.txt</code></pre>
           </div>
           <div class="card green">
-            <h3>步骤</h3>
+            <h3>任务步骤</h3>
             <ul class="num-list">
-              <li>创建目录与文件，写入可执行脚本</li>
-              <li>按目标设置权限并 ls 检查</li>
-              <li>运行 ./run.sh 验证</li>
-              <li>临时去掉 x，记录报错后再恢复</li>
+              <li>回到主目录，创建 PermissionLab 并进入</li>
+              <li>创建 public.txt、secret.txt、run.sh 和 data/note.txt</li>
+              <li>给 run.sh 写入一行可执行的 echo 命令</li>
+              <li>按目标要求设置 644、600、755 和 700</li>
+              <li>用 ls -l 和 ls -ld 检查所有对象</li>
+              <li>运行 ./run.sh，确认脚本能够执行</li>
+              <li>临时去掉执行权限，运行并记录 Permission denied</li>
+              <li>恢复正确权限后再次运行，确认问题解决</li>
             </ul>
           </div>
-        </div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>17</span></div>
-      </section>
-
-      <!-- 18 -->
-      <section data-page="18">
-        <h2>完成标准与截图</h2>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>截图1 最终权限</h3><p>ls -l / ls -ld 与各对象权限</p></div>
-          <div class="card green"><h3>截图2 报错定位</h3><p>Permission denied + ls -l 判断</p></div>
-          <div class="card blue"><h3>截图3 修复成功</h3><p>chmod 后再次运行成功</p></div>
-        </div>
-        <div class="band band-blue">权限设置正确、报错原因解释清楚、修复后能够再次验证。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>18</span></div>
-      </section>
-
-      <!-- 19 -->
-      <section data-page="19">
-        <h2>常见报错</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>Permission denied</h3><p>先用 id、ls -l 判断，不要立刻 sudo</p></div>
-          <div class="card green"><h3>Operation not permitted</h3><p>可能不是所有者</p></div>
-          <div class="card blue"><h3>chmod: cannot access</h3><p>路径或文件名写错</p></div>
-          <div class="card green"><h3>chmod 777 后虽能用</h3><p>权限过大，应按需求改回</p></div>
-        </div>
-        <div class="band band-blue">排错：读报错 → pwd/ls → id/ls -l → 最小修改 → 再验证。</div>
-        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>19</span></div>
-      </section>
-
-      <!-- 20 -->
-      <section data-page="20">
-        <h2>如何保存实验截图</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>步骤 1</h3><p>打开截图工具</p></div>
-          <div class="card green"><h3>步骤 2</h3><p>框选终端命令与输出</p></div>
-          <div class="card blue"><h3>步骤 3</h3><p>保存 PNG/JPG</p></div>
-          <div class="card green"><h3>步骤 4</h3><p>确认权限字符串清晰可读</p></div>
         </div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>20</span></div>
       </section>
 
       <!-- 21 -->
       <section data-page="21">
-        <h2>实验4作业：提交实验报告</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
-          <div class="card green"><h3>实验结果</h3><p>最终权限、报错定位、修复成功三类截图</p></div>
-          <div class="card blue"><h3>问题汇总</h3><p>原因 + 解决方法</p></div>
-          <div class="card green"><h3>实验总结</h3><p>3～5 句收获</p></div>
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">提交的就是这套课堂综合练习</p>
+        <div class="card-grid three">
+          <div class="card blue">
+            <h3>截图1｜最终权限</h3>
+            <p>提示符中有 njucm；能看到 ls -l / ls -ld 命令，以及 public.txt、secret.txt、run.sh、data 的最终权限。</p>
+          </div>
+          <div class="card green">
+            <h3>截图2｜报错与定位</h3>
+            <p>展示一次 Permission denied，并能看到失败的命令、ls -l 检查结果和缺少了什么权限。</p>
+          </div>
+          <div class="card blue">
+            <h3>截图3｜修复成功</h3>
+            <p>展示 chmod 修复命令、再次运行成功，以及最后的 ls -l 验证。</p>
+          </div>
         </div>
-        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告。</div>
+        <div class="band band-blue">完成标准：权限设置正确、报错原因解释清楚、修复后能够再次验证。</div>
         <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>21</span></div>
       </section>
 
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>常见问题：先看报错在说什么</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>Permission denied</h3><p>当前身份缺少所需 r、w 或 x。先用 id、ls -l 判断，不要立刻 sudo。</p></div>
+          <div class="card green"><h3>Operation not permitted</h3><p>可能不是文件所有者，或没有修改权限。先确认 owner，再决定下一步。</p></div>
+          <div class="card blue"><h3>chmod: cannot access ...</h3><p>路径或文件名写错。使用 pwd、ls 检查当前位置和对象是否存在。</p></div>
+          <div class="card green"><h3>chmod 777 后虽然能用了</h3><p>权限过大，不代表设置合理。按实际需求改成 600、644、700、755 等。</p></div>
+        </div>
+        <div class="band band-blue">排错顺序：读报错 → pwd / ls 确认对象 → id / ls -l 检查身份与权限 → 做最小修改 → 再次验证。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>步骤 1</h3><p>在 Windows 桌面或开始菜单中打开“截图工具”。</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端区域，包含命令、输出和当前提示符，不要只截空桌面。</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG 或 JPG，命名清楚，例如 <code>exp4_permission_final.png</code>。</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确保命令、权限字符串、报错和用户名都能看清。</p></div>
+        </div>
+        <div class="band band-blue">推荐截图范围：命令 + 输出结果 + 当前提示符。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>实验4作业：提交实验报告</h2>
+        <p class="subtitle">按模板完整填写，提交内容就是课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、实验目的、实验内容和要求、实验结果、实验中出现的问题、实验总结。</p></div>
+          <div class="card green"><h3>实验结果</h3><p>放入最终权限截图、Permission denied 定位截图和修复成功截图；每张图下写 1～2 句说明。</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>例如：运行 ./run.sh 提示 Permission denied；检查发现缺少 x；执行 chmod u+x run.sh 后运行成功。</p></div>
+          <div class="card green"><h3>实验总结</h3><p>用 3～5 句说明自己如何读取和修改权限，以及遇到权限问题时如何判断和验证。</p></div>
+        </div>
+        <div class="band band-blue">回顾：我是谁 → 文件属于谁 → 权限给了谁 → 最小修改 → 再次验证。提交平台：雨课堂。</div>
+        <div class="slide-footer"><span>Linux 实验4｜用户、用户组与权限</span><span>24</span></div>
+      </section>
 
     </div>
   </div>

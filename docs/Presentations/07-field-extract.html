@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本字段提取与筛选 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验七：文本字段提取与筛选｜从成绩表中找到需要的数据</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解字段与分隔符的含义</li>
+              <li>掌握 cut 提取指定字段的方法</li>
+              <li>掌握 awk 按列输出和条件筛选</li>
+              <li>能从成绩表中提取所需信息</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>使用 cut -d、cut -f 提取字段</li>
+              <li>使用 awk '{print $1}' 输出字段</li>
+              <li>使用 awk -F 指定分隔符并筛选</li>
+              <li>完成课堂综合练习并提交报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code> · 数据文件 <code>scores.csv</code>（31 行含表头）</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验七</h1>
+        <p class="subtitle">文本字段提取与筛选：从成绩表中找到需要的数据</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">认识字段</span><code>列与分隔符</code></div>
+          <div class="node"><span class="label">提取姓名</span><code>cut -d -f</code></div>
+          <div class="node"><span class="label">按列输出</span><code>awk print $1</code></div>
+          <div class="node"><span class="label">指定分隔符</span><code>awk -F</code></div>
+          <div class="node"><span class="label">条件筛选</span><code>$2 &gt; 80</code></div>
+        </div>
+        <div class="band band-green">核心工具：<code>cut -d ',' -f 1,2</code>　<code>awk -F ',' '{print $1, $2}'</code></div>
+        <div class="band band-blue">本次实验的核心问题：如何提取指定列，并找出符合条件的学生？</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>认识字段</div>
+          <div class="step"><span>02</span>掌握 cut</div>
+          <div class="step"><span>03</span>认识 awk</div>
+          <div class="step"><span>04</span>条件筛选</div>
+          <div class="step"><span>05</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>学习目标</h3>
+            <ul>
+              <li>能解释 CSV 中逗号分隔的字段</li>
+              <li>能用 cut 提取姓名和成绩</li>
+              <li>能用 awk 提取字段并按成绩筛选</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先观察表格结构</li>
+              <li>再提取字段</li>
+              <li>最后添加条件并检查结果</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要字段提取与筛选？</h2>
+        <p class="subtitle">一份成绩表有多列信息，实际任务往往只需要其中一部分</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>问题一：字段是什么</h3><p>姓名、成绩、班级分别属于哪一列？</p></div>
+          <div class="card green"><h3>问题二：如何提取</h3><p>如果只想查看姓名，该如何操作？</p></div>
+          <div class="card blue"><h3>问题三：按列读取</h3><p>怎样用 awk 输出第一列和第二列？</p></div>
+          <div class="card green"><h3>问题四：条件筛选</h3><p>如何找出成绩大于 80 分的学生？</p></div>
+        </div>
+        <div class="band band-blue">结论：cut 适合直接提取字段；awk 还能对字段进行判断与输出。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>认识 CSV：字段与分隔符</h2>
+        <p class="subtitle">以 <code>Name,Score,Class</code> 为例，逗号用来分隔字段</p>
+        <pre><code class="language-text">Name,Score,Class
+Alice,88,Class1
+Bob,72,Class1
+Cindy,95,Class2</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>第 1 列 姓名</h3><p><code>Alice</code>，学生姓名</p></div>
+          <div class="card green"><h3>第 2 列 成绩</h3><p><code>88</code>，考试分数</p></div>
+          <div class="card blue"><h3>第 3 列 班级</h3><p><code>Class1</code>，所属班级</p></div>
+        </div>
+        <div class="band band-blue">字段之间用逗号分隔；第一行是表头，后面每行是一条记录。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>配套练习文件说明：scores.csv</h2>
+        <p class="subtitle">实验数据为模拟学生成绩表</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>文件名称</h3><p><code>scores.csv</code></p></div>
+          <div class="card green"><h3>文件格式</h3><p>UTF-8 纯文本，逗号分隔，每行一条记录</p></div>
+          <div class="card blue"><h3>表格字段</h3><p><code>Name,Score,Class</code>（姓名、成绩、班级）</p></div>
+          <div class="card green"><h3>数据特点</h3><p>30 条学生记录，共 31 行（含 1 行表头），成绩与班级各不相同</p></div>
+        </div>
+        <div class="band band-orange" style="margin-top:0.55em;">注意：第一行为列名，统计与筛选时要注意表头。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>准备练习文件：导入 scores.csv</h2>
+        <p class="subtitle">把仓库 <code>data/scores.csv</code> 放入 FieldLab 后逐项确认</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+mkdir -p FieldLab
+cd FieldLab
+pwd</code></pre>
+            <pre><code class="language-bash">ls -l scores.csv
+head scores.csv
+wc -l scores.csv</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>准备目录</h3>
+              <ul class="num-list">
+                <li>进入桌面目录</li>
+                <li>创建并进入 FieldLab</li>
+                <li>用 pwd 核对路径</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>观察结果</h3>
+              <p><code>wc -l</code> 输出 <code>31 scores.csv</code>；表头是 <code>Name,Score,Class</code>；每条记录有 3 个字段。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>cut -d：指定分隔符</h2>
+        <p class="subtitle">让 cut 知道每一列之间用什么字符隔开</p>
+        <pre><code class="language-bash">cut -d ',' -f 1 scores.csv
+cut -d ',' -f 2 scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-f 1 输出姓名</h3>
+            <p>开头几行：<code>Name</code>、<code>Alice</code>、<code>Bob</code>、<code>Cindy</code>、<code>David</code>、<code>Eva</code></p>
+          </div>
+          <div class="card green">
+            <h3>-f 2 输出成绩</h3>
+            <p>开头几行：<code>Score</code>、<code>88</code>、<code>72</code>、<code>95</code>、<code>60</code>、<code>100</code></p>
+          </div>
+        </div>
+        <div class="band band-orange">-d 后面只能跟一个字符；英文逗号必须写在引号内。<code>表头也会被输出，它是第 1 行。</code></div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>cut -f：选择指定字段</h2>
+        <p class="subtitle">-f 1 表示第一列，-f 2 表示第二列</p>
+        <pre><code class="language-bash">cut -d ',' -f 1,2 scores.csv
+cut -d ',' -f 3 scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-f 1,2 同时输出两列</h3>
+            <p><code>Name,Score</code><br><code>Alice,88</code><br><code>Bob,72</code><br><code>Cindy,95</code></p>
+          </div>
+          <div class="card green">
+            <h3>-f 3 只输出班级</h3>
+            <p><code>Class</code><br><code>Class1</code><br><code>Class1</code><br><code>Class2</code></p>
+          </div>
+        </div>
+        <div class="band band-blue"><code>-f 1,2</code> 的输出仍用逗号连接；连续字段也可写成 <code>-f 1-3</code>。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>awk：通过 $1、$2 读取字段</h2>
+        <p class="subtitle">使用 print 输出当前记录中的指定字段</p>
+        <pre><code class="language-bash">awk -F ',' '{print $1}' scores.csv
+awk -F ',' '{print $1, $2}' scores.csv</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>-F ','</h3><p>告诉 awk 用逗号分隔字段</p></div>
+          <div class="card green"><h3>$1 与 $2</h3><p>第一列姓名，第二列成绩</p></div>
+          <div class="card blue"><h3>输出格式</h3><p><code>print $1, $2</code> 默认用空格连接：<code>Alice 88</code></p></div>
+          <div class="card green"><h3>$0</h3><p>当前整行；字段编号从 1 开始</p></div>
+        </div>
+        <div class="band band-blue">单引号中的 <code>{print $1}</code> 是 awk 程序，$1 表示第一列。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>awk -F：为什么必须指定逗号分隔符</h2>
+        <p class="subtitle">CSV 是逗号分隔；awk 默认按空白字符分列</p>
+        <pre><code class="language-bash">awk '{print $1}' scores.csv
+awk -F ',' '{print $1}' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>不加 -F</h3>
+            <p>整行 CSV 被当作一个字段，输出整行：<br><code>Name,Score,Class</code><br><code>Alice,88,Class1</code></p>
+          </div>
+          <div class="card green">
+            <h3>加上 -F ','</h3>
+            <p>按逗号分列，输出第一列：<br><code>Name</code><br><code>Alice</code><br><code>Bob</code></p>
+          </div>
+        </div>
+        <div class="band band-orange">处理逗号分隔的成绩表时，记得设置 <code>-F ','</code>。cut 用 -d，awk 用 -F。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>awk：按成绩条件筛选</h2>
+        <p class="subtitle">使用 <code>$2 &gt; 80</code> 判断第二列成绩是否符合条件</p>
+        <pre><code class="language-bash">awk -F ',' '$2 > 80 {print $1, $2}' scores.csv</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>表达式含义</h3>
+            <p><code>$2 &gt; 80</code>：成绩大于 80；<code>{print $1, $2}</code>：输出姓名和成绩。</p>
+          </div>
+          <div class="card green">
+            <h3>真实现象</h3>
+            <p>输出第一行是 <code>Name Score</code>，因为表头没有被排除；后面才是符合条件的学生。</p>
+          </div>
+        </div>
+        <div class="band band-orange">这就是下一张要用 <code>NR&gt;1</code> 跳过表头的原因。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>NR&gt;1：排除表头再筛选</h2>
+        <p class="subtitle">NR 是当前行号，NR&gt;1 表示从第 2 行开始处理</p>
+        <pre><code class="language-bash">awk -F ',' 'NR>1 &amp;&amp; $2 > 80 {print $1, $2}' scores.csv
+awk -F ',' 'NR>1 &amp;&amp; $2 >= 90 {print $1, $2}' scores.csv</code></pre>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>&gt; 80：共 13 行</h3>
+            <p>开头为 <code>Alice 88</code>、<code>Cindy 95</code>、<code>Eva 100</code>、<code>Frank 88</code>、<code>Kevin 83</code>……</p>
+          </div>
+          <div class="card green">
+            <h3>&gt;= 90：共 7 行</h3>
+            <p><code>Cindy 95</code>、<code>Eva 100</code>、<code>Lily 91</code>、<code>Peter 100</code>、<code>Victor 90</code>、<code>Zoe 96</code>、<code>Cindy 95</code></p>
+          </div>
+        </div>
+        <div class="band band-blue"><code>&amp;&amp;</code> 表示两个条件同时满足；原文件保持不变。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习1：查看表格与字段</h2>
+        <p class="subtitle">确认文件存在，并理解每一列的含义</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop/FieldLab
+head scores.csv
+wc -l scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>表头包含哪些字段？</li>
+              <li>每条记录由几部分构成？</li>
+              <li>31 行是否包含表头？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">练习要求：能指出姓名、成绩、班级分别位于第 1、2、3 列。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>练习2：使用 cut 提取字段</h2>
+        <p class="subtitle">使用 -d 和 -f 提取指定列</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cut -d ',' -f 1 scores.csv
+cut -d ',' -f 2 scores.csv
+cut -d ',' -f 1,2 scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>如何只查看姓名？</li>
+              <li>如何只查看成绩？</li>
+              <li>如何同时查看两列？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">说明：<code>-d</code> 控制分隔符，<code>-f</code> 控制要输出的字段。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习3：使用 awk 提取字段</h2>
+        <p class="subtitle">结合 -F 与 print 输出所需的列</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">awk -F ',' '{print $1}' scores.csv
+awk -F ',' '{print $1, $2}' scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>$1 和 $2 分别表示什么？</li>
+              <li>为什么需要 -F？</li>
+              <li>awk 与 cut 输出格式有何区别？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">提示：cut 保留逗号，awk 用空格连接输出的字段。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习4：按条件筛选成绩</h2>
+        <p class="subtitle">使用 awk 对第二列成绩进行判断</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">awk -F ',' 'NR>1 &amp;&amp; $2 > 80 {print $1, $2}' scores.csv
+awk -F ',' 'NR>1 &amp;&amp; $2 >= 90 {print $1, $2}' scores.csv</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>哪些成绩符合大于 80？</li>
+              <li>&gt;=90 与 &gt;90 有什么区别？</li>
+              <li>NR&gt;1 的作用是什么？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">通过条件选择记录，原始成绩表不会被修改。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>课堂综合练习：整理学生成绩表</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标文件与环境</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop/FieldLab</code></li>
+              <li>文件：<code>scores.csv</code></li>
+              <li>最终得到姓名、成绩及符合条件的学生记录</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>pwd、ls、head 确认成绩表</li>
+              <li>cut 提取姓名、成绩、两列</li>
+              <li>awk -F 输出第 1 列、第 1、2 列</li>
+              <li>awk 筛选成绩大于 80 的学生</li>
+              <li>解释 cut 与 awk 的区别</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">实验报告的实验结果部分展示这套课堂综合练习。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">保存三组关键结果，并在截图下方写简要说明</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>截图 1｜文件与表头</h3><p>显示文件所在目录、表头及记录行数</p></div>
+          <div class="card green"><h3>截图 2｜cut 提取</h3><p>提取姓名、成绩及两列的命令与结果</p></div>
+          <div class="card blue"><h3>截图 3｜awk 筛选</h3><p>awk 提取字段和成绩筛选的运行结果</p></div>
+        </div>
+        <div class="band band-blue" style="margin-top:0.6em;">完成标准：命令正确、截图清晰；能解释分隔符、字段和筛选条件。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>常见问题：先检查文件与命令</h2>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>找不到 scores.csv</h3>
+            <p>使用 <code>pwd</code>、<code>ls</code> 检查当前目录及文件名</p>
+          </div>
+          <div class="card green">
+            <h3>cut: the delimiter must be a single character</h3>
+            <p>检查 <code>-d</code> 后是否只指定了一个英文逗号</p>
+          </div>
+          <div class="card blue">
+            <h3>awk 输出整行而不是姓名</h3>
+            <p>没有指定逗号分隔符，补充 <code>-F ','</code></p>
+          </div>
+          <div class="card green">
+            <h3>筛选结果不符合预期</h3>
+            <p>确认第二列是成绩，检查 <code>&gt;</code>、<code>&gt;=</code> 和数字条件</p>
+          </div>
+        </div>
+        <div class="band band-blue">排错顺序：检查路径 → 查看表头 → 确认分隔符 → 核对字段 → 重试。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>如何保存实验截图</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1 打开工具</h3><p>从桌面或开始菜单打开截图工具</p></div>
+          <div class="card green"><h3>步骤 2 框选终端</h3><p>保留完整的命令、输出及当前提示符</p></div>
+          <div class="card blue"><h3>步骤 3 保存图片</h3><p>存为 PNG 或 JPG，例如 <code>exp7_cut.png</code></p></div>
+          <div class="card green"><h3>步骤 4 检查截图</h3><p>确保用户名、命令和结果清晰可读</p></div>
+        </div>
+        <div class="band band-blue">推荐截图范围：当前提示符 + 执行命令 + 输出结果。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>实验7作业：提交实验报告</h2>
+        <p class="subtitle">按课程实验报告模板填写，提交课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、实验目的、实验内容和要求、实验结果、问题、总结</p></div>
+          <div class="card green"><h3>实验结果</h3><p>文件检查、cut 字段提取、awk 条件筛选三类截图，每图附 1～2 句说明</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>例如 awk 输出整行：未指定逗号分隔符，补充 -F 后得到姓名</p></div>
+          <div class="card green"><h3>实验总结</h3><p>写 3～5 句，说明字段、分隔符、cut 和 awk 的使用</p></div>
+        </div>
+        <div class="band band-blue">提交平台：雨课堂。提交完整实验报告，分步练习不单独提交。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>实验7 作业与回顾</h2>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>提交要求</h3>
+            <ul class="num-list">
+              <li>完整实验报告</li>
+              <li>三类结果截图与说明</li>
+              <li>问题与解决办法</li>
+              <li>3～5 句实验总结</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>回顾要点</h3>
+            <ul>
+              <li>CSV 用逗号分隔字段，第一行是表头</li>
+              <li>cut -d -f 直接按列提取</li>
+              <li>awk -F 指定分隔符，$1/$2 读取字段</li>
+              <li>NR&gt;1 跳过表头，$2 &gt; 80 完成筛选</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">一句话总结：先看表头与分隔符，再选 cut 或 awk，最后用条件缩小结果。</div>
+        <div class="slide-footer"><span>Linux 实验7｜文本字段提取与筛选</span><span>23</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

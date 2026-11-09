@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验4：用户、用户组与权限</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>确认身份：whoami、id、groups</a>
+              <a href="#p1-2"><span class="n">1.2</span>读懂 ls -l 的权限串</a>
+              <a href="#p1-3"><span class="n">1.3</span>rwx 对文件和目录的不同含义</a>
+              <a href="#p1-4"><span class="n">1.4</span>chmod 符号法</a>
+              <a href="#p1-5"><span class="n">1.5</span>chmod 数字法</a>
+              <a href="#p1-6"><span class="n">1.6</span>chown、chgrp 与 sudo 边界</a>
+              <a href="#p1-7"><span class="n">1.7</span>制造并解决 Permission denied</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：配置 PermLab</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：最小权限与解释</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验4
+        </div>
+        <h1>实验4：用户、用户组与权限</h1>
+        <p class="practice-lead">Linux 的权限系统只回答三个问题：我是谁、文件属于谁、权限给了谁。本页先确认身份，再逐位读懂 <code>ls -l</code>，最后用符号法和数字法修改权限，并在 <code>~/PermLab</code> 中验证一次 Permission denied 的定位与修复。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能用 whoami、id、groups 确认身份；能逐位解读 ls -l 的权限串；能区分文件和目录上的 rwx；能用 chmod 的符号法与数字法设置 644、600、755、700；理解 chown、chgrp 与 sudo 的边界</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>项目权限检查与最小授权。用 ~/PermLab 验证文件、目录与脚本的权限，不随意改动 LinuxProject 的原始数据</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 确认身份：whoami、id、groups</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">遇到 <code>Permission denied</code> 时，第一步不是改权限，而是先确认“当前是谁”。三条命令分别回答用户名、UID/GID 与所属组。</p>
+          <div class="step-label">Step 1 / 逐条执行</div>
+          <pre><code class="language-bash">whoami
+id
+groups
+pwd</code></pre>
+          <div class="step-label">Step 2 / 参考输出（组列表与主机名以实际环境为准）</div>
+          <pre><code class="language-bash">njucm
+uid=1000(njucm) gid=1000(njucm) groups=1000(njucm)
+njucm : njucm
+/home/njucm</code></pre>
+          <ul class="tasks">
+            <li><code>whoami</code>：当前登录用户名，课程环境应为 <code>njucm</code></li>
+            <li><code>id</code>：<code>uid</code> 是用户编号，<code>gid</code> 是主组编号，<code>groups</code> 是全部所属组</li>
+            <li><code>groups</code>：只列出当前用户所在的组，格式为“用户名 : 组名”</li>
+            <li><code>pwd</code>：当前目录，登录后通常为 <code>/home/njucm</code></li>
+          </ul>
+          <div class="book-callout">不同虚拟机的 UID、GID 和附加组可能不同，不要背死数字。先看 <code>id</code> 输出中的名字，再用 <code>ls -l</code> 对照文件所有者和所属组。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出 <code>id</code> 输出中哪一段是 UID、哪一段是 GID，并说出当前用户属于哪些组。</div>
+
+          <h3 id="p1-2">1.2 读懂 ls -l 的权限串</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>ls -l</code> 的第一列是十位权限串，不是乱码。先把它分成“1 位类型 + 3 组 3 位权限”，再按 owner、group、others 分别读。</p>
+          <div class="step-label">Step 1 / 创建自己的权限练习目录</div>
+          <pre><code class="language-bash">cd ~
+mkdir -p PermLab
+cd PermLab
+touch public.txt secret.txt run.sh
+mkdir data
+touch data/note.txt
+ls -l
+ls -ld data</code></pre>
+          <div class="step-label">Step 2 / 参考输出（时间与大小随环境略有不同）</div>
+          <pre><code class="language-bash">-rw-r--r-- 1 njucm njucm 0 ... public.txt
+-rw-r--r-- 1 njucm njucm 0 ... secret.txt
+-rw-r--r-- 1 njucm njucm 0 ... run.sh
+drwxr-xr-x 2 njucm njucm 6 ... data</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">新建文件和目录的初始权限由系统的 <code>umask</code> 决定，常见结果是文件 644、目录 755，也可能与这里略有不同。以你自己的 <code>ls -l</code> 输出为准，后面的 <code>chmod</code> 数字法会统一设置目标权限。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>位置</th><th>示例</th><th>含义</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>第 1 位</td><td><code>-</code> / <code>d</code></td><td>对象类型：<code>-</code> 普通文件，<code>d</code> 目录，<code>l</code> 符号链接</td></tr>
+                <tr><td>第 2–4 位</td><td><code>rw-</code></td><td>owner（文件所有者）的权限</td></tr>
+                <tr><td>第 5–7 位</td><td><code>r--</code></td><td>group（所属组）的权限</td></tr>
+                <tr><td>第 8–10 位</td><td><code>r--</code></td><td>others（其他用户）的权限</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">查看目录本身要用 <code>ls -ld data</code>；<code>ls -l data</code> 列出的是 <code>data</code> 里面的内容，不是 <code>data</code> 目录自己的权限。两条命令差一个 <code>-d</code>，结果完全不同。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出 <code>public.txt</code> 的 owner、group、others 各有哪些权限，并解释为什么 <code>data</code> 行首是 <code>d</code>。</div>
+
+          <h3 id="p1-3">1.3 rwx 对文件和目录的不同含义</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">同样是 <code>r</code>、<code>w</code>、<code>x</code>，作用在文件上和目录上含义不同。目录最容易混淆的是 <code>x</code>：它表示“可以进入/穿越”，不只是“可以执行”。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>权限</th><th>对文件</th><th>对目录</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>r</code> read</td><td>可以读取文件内容</td><td>可以列出目录中的名称</td></tr>
+                <tr><td><code>w</code> write</td><td>可以修改文件内容</td><td>可以在目录中创建、删除或重命名条目，通常还需要 <code>x</code></td></tr>
+                <tr><td><code>x</code> execute / enter</td><td>允许作为程序执行</td><td>允许进入目录，并访问其中已知名称的对象</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="tasks">
+            <li><code>drwxr-xr-x</code>：目录；所有者可读、写、进入；组和其他用户可读、可进入，但不能写</li>
+            <li><code>-rw-r--r--</code>：普通文件；所有者可读写；组和其他用户只读</li>
+            <li>文件有 <code>r</code> 但没有 <code>x</code> 时，可以 <code>cat</code>，但不能 <code>./文件名</code> 执行</li>
+            <li>目录有 <code>r</code> 但没有 <code>x</code> 时，能看到名称，却无法真正进入和访问内部对象</li>
+          </ul>
+          <div class="book-callout">判断目录权限时要同时看 <code>r</code> 和 <code>x</code>。只有 <code>r</code> 没有 <code>x</code>，<code>ls</code> 可能列出名字，但 <code>cd</code> 会失败；只有 <code>x</code> 没有 <code>r</code>，能进入但看不到目录列表。</div>
+          <div class="check-point"><strong>检查点：</strong>能用自己的话解释“目录的 x 是进入/穿越”，并举出文件 <code>x</code> 与目录 <code>x</code> 各一个不同场景。</div>
+
+          <h3 id="p1-4">1.4 chmod 符号法</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">符号法的写法是“给谁 + 做什么 + 什么权限”：<code>u</code> 所有者、<code>g</code> 所属组、<code>o</code> 其他用户、<code>a</code> 全部；<code>+</code> 增加、<code>-</code> 删除、<code>=</code> 直接设置。它只改动指定的位，适合局部微调。</p>
+          <div class="step-label">Step 1 / 先看修改前</div>
+          <pre><code class="language-bash">ls -l public.txt secret.txt run.sh</code></pre>
+          <div class="step-label">Step 2 / 一次只改一位，改完立即验证</div>
+          <pre><code class="language-bash">chmod u+x run.sh
+ls -l run.sh
+chmod o-r secret.txt
+ls -l secret.txt
+chmod g+w public.txt
+ls -l public.txt
+chmod g-w public.txt
+ls -l public.txt</code></pre>
+          <div class="step-label">Step 3 / 预期变化</div>
+          <pre><code class="language-bash">run.sh     -rw-r--r-- -&gt; -rwxr--r--
+secret.txt -rw-r--r-- -&gt; -rw-r-----
+public.txt -rw-r--r-- -&gt; -rw-rw-r-- -&gt; -rw-r--r--</code></pre>
+          <ul class="tasks">
+            <li><code>u+x run.sh</code>：只给所有者增加执行权限，组和其他用户的位不变</li>
+            <li><code>o-r secret.txt</code>：只删除其他用户的读权限</li>
+            <li><code>g+w</code> 后再 <code>g-w</code>：观察所属组写权限增加又删除</li>
+            <li>每次 <code>chmod</code> 后都用 <code>ls -l</code> 验证，不要连续改完才检查</li>
+          </ul>
+          <div class="book-callout">先在纸上写出“改完应该是什么权限串”，再执行命令对照。符号法只碰你指定的那一位；如果初始权限中本来就没有 <code>w</code>，<code>g-w</code> 不会产生任何变化，这不是命令失效。</div>
+          <div class="check-point"><strong>检查点：</strong>能预测 <code>u+x</code>、<code>o-r</code>、<code>g+w</code> 执行后的三位权限，并用 <code>ls -l</code> 证明预测正确。</div>
+
+          <h3 id="p1-5">1.5 chmod 数字法</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">数字法把 r、w、x 分别记作 4、2、1，再把每组三位相加。一个三位数就同时设置 owner、group、others 的全部权限，所以一次会覆盖九位。</p>
+          <div class="step-label">Step 1 / 设置四个常见权限</div>
+          <pre><code class="language-bash">chmod 644 public.txt
+chmod 600 secret.txt
+chmod 755 run.sh
+chmod 700 data
+ls -l public.txt secret.txt run.sh
+ls -ld data</code></pre>
+          <div class="step-label">Step 2 / 参考输出</div>
+          <pre><code class="language-bash">-rw-r--r-- ... public.txt
+-rw------- ... secret.txt
+-rwxr-xr-x ... run.sh
+drwx------ ... data</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>数字</th><th>权限串</th><th>含义</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>7</td><td><code>rwx</code></td><td>读 + 写 + 执行/进入</td></tr>
+                <tr><td>6</td><td><code>rw-</code></td><td>读 + 写</td></tr>
+                <tr><td>5</td><td><code>r-x</code></td><td>读 + 执行/进入</td></tr>
+                <tr><td>4</td><td><code>r--</code></td><td>只读</td></tr>
+                <tr><td>2</td><td><code>-w-</code></td><td>只写</td></tr>
+                <tr><td>1</td><td><code>--x</code></td><td>只执行/进入</td></tr>
+                <tr><td>0</td><td><code>---</code></td><td>无权限</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>数字权限</th><th>权限串</th><th>常见含义</th><th>典型对象</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>644</code></td><td><code>-rw-r--r--</code></td><td>自己可读写，组和其他用户只读</td><td>普通文档、配置文件</td></tr>
+                <tr><td><code>600</code></td><td><code>-rw-------</code></td><td>只有自己可读写</td><td>私密文件</td></tr>
+                <tr><td><code>755</code></td><td><code>-rwxr-xr-x</code></td><td>自己可读写执行，组和其他用户可读执行</td><td>可执行脚本、公共目录</td></tr>
+                <tr><td><code>700</code></td><td><code>drwx------</code></td><td>只有自己拥有全部权限</td><td>私有目录</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="tasks">
+            <li><code>644</code>：owner 6 = rw，group 4 = r，others 4 = r</li>
+            <li><code>600</code>：owner 6 = rw，group 0、others 0 都没有权限</li>
+            <li><code>755</code>：owner 7 = rwx，group 5 = r-x，others 5 = r-x</li>
+            <li><code>700</code>：owner 7 = rwx，其他两组都是 0</li>
+          </ul>
+          <div class="book-callout">数字法会把九位权限整体重写，执行前先想清楚“组和其他用户是否应该保留权限”。千万不要把 <code>chmod 777</code> 当成“修复权限”的默认做法；它让所有用户都能读、写、执行，远超完成任务所需的权限。</div>
+          <div class="check-point"><strong>检查点：</strong>能从 644、600、755、700 推出对应的 rwx，也能从“自己读写、组只读、其他无权限”的需求反推出 640。</div>
+
+          <h3 id="p1-6">1.6 chown、chgrp 与 sudo 边界</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>chown</code> 修改文件所有者，<code>chgrp</code> 只修改文件所属组。普通用户通常只能把文件交给“自己”，不能把所有权转给别人；这正是权限系统在保护你的数据。</p>
+          <div class="step-label">Step 1 / 观察可以执行与不能执行的 chown</div>
+          <pre><code class="language-bash">ls -l public.txt
+chown njucm public.txt
+chgrp njucm public.txt
+ls -l public.txt
+chown root public.txt
+ls -l public.txt</code></pre>
+          <div class="step-label">Step 2 / 预期结果</div>
+          <pre><code class="language-bash">chown: changing ownership of 'public.txt': Operation not permitted
+-rw-r--r-- 1 njucm njucm 0 ... public.txt</code></pre>
+          <ul class="tasks">
+            <li><code>chown njucm public.txt</code>：所有者本来就是自己，命令成功但没有变化</li>
+            <li><code>chgrp njucm public.txt</code>：改成自己所属的主组，允许执行</li>
+            <li><code>chown root public.txt</code>：普通用户不能把文件“送”给 root，报 <code>Operation not permitted</code></li>
+            <li><code>chown 用户:组 文件</code> 可同时改所有者和组；<code>-R</code> 表示递归处理目录内容，使用前要确认范围</li>
+          </ul>
+          <div class="step-label">Step 3 / 认识 sudo 的边界（只检查，不依赖）</div>
+          <pre><code class="language-bash">sudo -n -l
+# 若提示 may not run sudo 或 a password is required，
+# 说明当前课程账号没有免密 sudo 权限，这是正常现象</code></pre>
+          <ul class="tasks">
+            <li><code>sudo</code> 让被授权的用户临时以管理员身份执行指定命令，是否允许由 <code>/etc/sudoers</code> 决定</li>
+            <li>它不能把“不会权限”变成“会权限”；执行前仍要看报错、身份与文件权限</li>
+            <li>本课程能用当前用户在自己的主目录解决的问题，不要先加 <code>sudo</code></li>
+          </ul>
+          <div class="book-callout">最小权限原则：能只加 <code>u+x</code>，就不要改成 777；能只改组权限，就不要把所有者交给别人。<code>sudo</code> 是受控的管理入口，不是绕过权限理解的捷径。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>chown</code> 与 <code>chgrp</code> 的区别，解释为什么 <code>chown root</code> 会失败，并说明 <code>sudo</code> 能做什么、不能做什么。</div>
+
+          <h3 id="p1-7">1.7 制造并解决 Permission denied</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">权限报错最适合用“制造一次、定位一次、修复一次”的方式理解。先让脚本缺少执行权限，再只补上所需的那一位。</p>
+          <div class="step-label">Step 1 / 写入一个只输出一行文字的脚本</div>
+          <pre><code class="language-bash">printf '#!/bin/bash\necho "Hello Permission"\n' &gt; run.sh
+chmod 644 run.sh
+./run.sh
+ls -l run.sh</code></pre>
+          <div class="step-label">Step 2 / 预期报错与权限串</div>
+          <pre><code class="language-bash">bash: ./run.sh: Permission denied
+-rw-r--r-- 1 njucm njucm 0 ... run.sh</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">文件有读权限、没有执行权限，所以 shell 拒绝执行。不要直接 <code>sudo</code>，先补上 owner 的 <code>x</code>：</p>
+          <pre><code class="language-bash">chmod u+x run.sh
+ls -l run.sh
+./run.sh</code></pre>
+          <div class="step-label">Step 3 / 再验证目录的 x 权限</div>
+          <pre><code class="language-bash">mkdir -p testdir
+touch testdir/a.txt
+chmod 600 testdir
+ls -ld testdir
+cd testdir
+chmod 700 testdir
+cd testdir
+pwd</code></pre>
+          <div class="step-label">Step 4 / 预期结果</div>
+          <pre><code class="language-bash">drw------- ... testdir
+bash: cd: testdir: Permission denied
+/home/njucm/PermLab/testdir</code></pre>
+          <ul class="tasks">
+            <li><code>chmod 600 testdir</code> 后：所有者有读写但没有 <code>x</code>，因此无法进入目录</li>
+            <li><code>chmod 700 testdir</code> 后：所有者恢复 <code>rwx</code>，可以进入并用 <code>pwd</code> 确认位置</li>
+            <li>目录里的文件权限设置得再宽松，只要目录本身缺少 <code>x</code>，外部访问仍会被挡住</li>
+          </ul>
+          <div class="book-callout">排错顺序：读报错 → <code>pwd</code> / <code>ls</code> 确认对象 → <code>id</code> / <code>ls -l</code> 确认身份与权限 → 做最小修改 → 再次验证。遇到 <code>Permission denied</code> 先判断缺少哪一位，不要条件反射地 <code>sudo</code> 或 <code>chmod 777</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能完整复现一次脚本的 Permission denied 和一次目录的 Permission denied，分别指出缺少的权限位，并用最小修改修复后再次运行成功。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">前面的练习允许边看边做；任务部分要求连续完成并截图。所有操作都在自己的 <code>~/PermLab</code> 中进行，不修改 <code>~/LinuxProject</code> 的原始数据。</p>
+
+          <h3 id="p2-1">2.1 任务 A：配置 PermLab（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">目标结构：<code>PermLab/</code> 下有 <code>public.txt</code>、<code>secret.txt</code>、<code>run.sh</code> 和 <code>data/note.txt</code>。按步骤完成，每一步做完都用 <code>ls -l</code> 检查。</p>
+          <ul class="tasks">
+            <li>回到主目录，创建 <code>PermLab</code> 并进入</li>
+            <li>创建 <code>public.txt</code>、<code>secret.txt</code>、<code>run.sh</code>，以及 <code>data/note.txt</code></li>
+            <li>给 <code>run.sh</code> 写入一行可执行的 <code>echo</code> 命令</li>
+            <li>按要求设置：<code>public.txt</code> 为 644，<code>secret.txt</code> 为 600，<code>run.sh</code> 为 755，<code>data</code> 为 700</li>
+            <li>用 <code>ls -l</code> 与 <code>ls -ld</code> 检查所有对象</li>
+            <li>运行 <code>./run.sh</code>，确认脚本能够执行</li>
+            <li>临时去掉 <code>run.sh</code> 的执行权限，运行一次并记录 Permission denied</li>
+            <li>恢复正确权限后再次运行，确认问题解决</li>
+          </ul>
+          <div class="step-label">参考命令（自己敲一遍，不要只复制）</div>
+          <pre><code class="language-bash">cd ~
+mkdir -p PermLab
+cd PermLab
+touch public.txt secret.txt run.sh
+mkdir -p data
+touch data/note.txt
+printf '#!/bin/bash\necho "Hello Permission"\n' &gt; run.sh
+chmod 644 public.txt
+chmod 600 secret.txt
+chmod 755 run.sh
+chmod 700 data
+ls -l
+ls -ld data</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>对象</th><th>目标数字</th><th>应看到的权限串</th><th>验证命令</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>public.txt</code></td><td>644</td><td><code>-rw-r--r--</code></td><td><code>ls -l public.txt</code></td></tr>
+                <tr><td><code>secret.txt</code></td><td>600</td><td><code>-rw-------</code></td><td><code>ls -l secret.txt</code></td></tr>
+                <tr><td><code>run.sh</code></td><td>755</td><td><code>-rwxr-xr-x</code></td><td><code>ls -l run.sh</code></td></tr>
+                <tr><td><code>data</code></td><td>700</td><td><code>drwx------</code></td><td><code>ls -ld data</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">报错与修复验证</div>
+          <pre><code class="language-bash">chmod 644 run.sh
+./run.sh
+ls -l run.sh
+chmod 755 run.sh
+./run.sh
+ls -l run.sh</code></pre>
+          <div class="book-callout">完成标准：最终四个对象的权限与表格一致；能展示一次 <code>Permission denied</code>，并用 <code>ls -l</code> 指出缺少 <code>x</code>；修复后 <code>./run.sh</code> 输出 <code>Hello Permission</code>。</div>
+
+          <h3 id="p2-2">2.2 任务 B：最小权限与解释（拓展）</h3>
+          <ul class="tasks">
+            <li>对同一个权限为 644 的文件，分别执行 <code>chmod u+x</code> 与 <code>chmod 755</code>，写出两种结果并说明组和其他用户的权限差异</li>
+            <li>把 <code>data/note.txt</code> 设为 600，解释在 <code>data</code> 为 700 的情况下，组和其他用户为什么仍然无法读取它</li>
+            <li>执行一次 <code>chown root secret.txt</code>，记录报错原文，并说明为什么普通用户不能把所有权转给别人</li>
+            <li>任选一个文件，写出“当前权限、实际需求、最小修改命令、修改后权限”四栏对照</li>
+            <li>用 2–3 句话说明为什么 <code>chmod 777</code> 不是修复权限问题的合理做法</li>
+          </ul>
+          <div class="book-callout">最小权限不是“越少越好到不能干活”，而是“刚好够完成任务”。公共脚本需要其他人读和执行，就给 755；私密文件只给自己读写，就给 600；私有目录只给自己进入，就给 700。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>用 <code>whoami</code>、<code>id</code>、<code>groups</code> 确认当前身份与所属组</li>
+            <li>把 <code>ls -l</code> 的十位权限串拆成类型、owner、group、others</li>
+            <li>分别解释文件和目录上的 r、w、x，重点说清目录的 <code>x</code></li>
+            <li>用 <code>chmod</code> 符号法只修改指定权限位</li>
+            <li>用数字法设置 644、600、755、700，并能双向换算</li>
+            <li>区分 <code>chown</code> 与 <code>chgrp</code>，理解普通用户与 <code>sudo</code> 的边界</li>
+            <li>遇到 <code>Permission denied</code> 时按“身份 → 对象 → 权限位 → 最小修改”的顺序定位</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>对照上面七条，能各举一条自己实际执行过的命令和结果。</div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际执行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong>写出 <code>whoami</code>、<code>id</code>、<code>groups</code> 的输出，并用一句话说明三者各回答什么问题。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong>粘贴任务 A 最终的 <code>ls -l</code> 与 <code>ls -ld data</code> 输出，分别指出 <code>public.txt</code>、<code>secret.txt</code>、<code>run.sh</code>、<code>data</code> 的类型、owner、group、others 权限。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong>把 644、600、755、700 分别写成 rwx 形式；再写出“自己读写、同组只读、其他用户无权限”对应的三位数字。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong>对初始权限为 644 的文件，<code>chmod u+x</code> 与 <code>chmod 755</code> 分别得到什么权限串？两者对 group 和 others 的影响有什么不同？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong><code>chown</code> 与 <code>chgrp</code> 有什么区别？为什么 <code>chown root secret.txt</code> 会失败？<code>sudo</code> 能做什么、不能做什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>记录你实际制造的一次 <code>Permission denied</code>：失败的命令、报错原文、<code>ls -l</code> 显示的权限串、缺少哪一位、修复命令、修复后的结果。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目7：</strong>为什么不建议用 <code>chmod 777</code> 解决权限问题？对 <code>secret.txt</code> 和私有目录 <code>data</code>，你分别选择什么数字权限，理由是什么？________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验报告使用统一模板，按六部分完整填写：</p>
+          <ul class="tasks">
+            <li>基本信息：实验名称、日期、姓名、学号、班级</li>
+            <li>实验目的</li>
+            <li>实验内容和要求</li>
+            <li>实验结果：最终权限截图、Permission denied 定位截图、修复成功截图，每张图下写 1–2 句说明</li>
+            <li>实验中出现的问题：问题、原因判断、解决方法</li>
+            <li>实验总结：3–5 句，说明如何读取和修改权限、遇到权限问题如何判断和验证</li>
+          </ul>
+          <div class="book-callout">提交平台为雨课堂，提交完整实验报告文件；截图必须清晰，能看到用户名 <code>njucm</code>、命令、权限串和报错。作业内容以“课堂综合练习”为准，前面的分步练习用于课堂训练。</div>
+          <div class="check-point"><strong>检查点：</strong>报告六部分齐全，三类截图都有说明，作业七题都有实际执行依据。</div>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop03-view-find.html">实验3：文本查看和查找</a>　|　下一节：<a href="sop05-text-search.html">实验5：文本搜索与统计</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

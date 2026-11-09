@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验5：文本搜索与统计</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>先认识 app.log</a>
+              <a href="#p1-2"><span class="n">1.2</span>grep 基本搜索</a>
+              <a href="#p1-3"><span class="n">1.3</span>grep -i 忽略大小写</a>
+              <a href="#p1-4"><span class="n">1.4</span>grep -n 显示行号与组合选项</a>
+              <a href="#p1-5"><span class="n">1.5</span>grep -v 反向筛选与 -w 整词匹配</a>
+              <a href="#p1-6"><span class="n">1.6</span>wc -l 与管道统计</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：日志分析七步（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：组合搜索与统计（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验5
+        </div>
+        <h1>实验5：文本搜索与统计</h1>
+        <p class="practice-lead">日志文件有一百多行时，逐行翻看既慢又容易漏。本页从 <code>app.log</code> 出发，练习用 <code>grep</code> 找出符合条件的整行，再用 <code>wc -l</code> 与管道统计数量。学完后，你应该能独立回答两个问题：哪些行符合条件？一共有多少行？</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>掌握 <code>grep</code> 基本搜索与 <code>-i</code>、<code>-n</code>、<code>-v</code>、<code>-w</code> 及组合选项；掌握 <code>wc -l</code>；理解管道 <code>|</code> 如何把上一条命令的输出交给下一条命令</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>日志分析。对模拟日志 <code>app.log</code> 完成搜索、定位与数量统计，为后续文本处理实验打基础</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 先认识 app.log</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本次实验只用一个文件：<code>app.log</code>。它是 120 行的模拟 Linux 应用日志，每行由时间戳、日志级别、进程与请求信息、日志内容组成。先把文件放进 <code>~/Desktop/LogLab</code>，再核对行数。</p>
+          <div class="step-label">Step 1 / 准备 LogLab 并核对文件</div>
+          <pre><code class="language-bash">cd ~/Desktop
+mkdir -p LogLab
+mv app.log LogLab/          # 若 app.log 已经拖进 LogLab，这一条可跳过
+cd LogLab
+pwd
+wc -l app.log
+head -3 app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">/home/njucm/Desktop/LogLab
+120 app.log
+2026-11-06 08:00:00 [INFO] pid=2100 thread=worker-1 request_id=req-0001 Application startup completed; service is accepting requests
+2026-11-06 08:04:00 [WARN] pid=2101 thread=worker-2 request_id=req-0002 Response time exceeded the expected threshold
+2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts</code></pre>
+          <ul class="tasks">
+            <li>文件一共有多少行？<code>wc -l</code> 显示的数字与文件名分别表示什么？</li>
+            <li>前 3 行的日志级别分别是什么？</li>
+            <li>日志级别外面为什么有方括号 <code>[INFO]</code>？搜索时关键词要不要带方括号？</li>
+          </ul>
+          <div class="book-callout">本页所有命令都只读取 <code>app.log</code>，不会修改原始文件。搜索关键词时不带方括号，例如写 <code>grep "ERROR" app.log</code>，不要写成 <code>grep "[ERROR]" app.log</code>。</div>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 <code>/home/njucm/Desktop/LogLab</code>，<code>wc -l app.log</code> 显示 120 行，能说出每行日志的基本结构。</div>
+
+          <h3 id="p1-2">1.2 grep 基本搜索</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>grep</code> 在文件中搜索符合条件的行，默认区分大小写，输出的是包含关键词的整行，而不只是关键词本身。</p>
+          <div class="step-label">Step 1 / 搜索大写 ERROR 与 INFO</div>
+          <pre><code class="language-bash">cd ~/Desktop/LogLab
+grep "ERROR" app.log
+grep "INFO" app.log | wc -l
+grep "error" app.log | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（<code>grep "ERROR"</code> 实际共 10 行，这里列出前 3 行）：</p>
+          <pre><code class="language-bash">2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts
+2026-11-06 08:44:00 [ERROR] pid=2114 thread=worker-3 request_id=req-0015 Unable to write report file to the output directory
+2026-11-06 09:20:00 [ERROR] pid=2109 thread=worker-3 request_id=req-0027 Authentication service returned an invalid response
+40
+10</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">默认搜索下，<code>ERROR</code>、<code>Error</code>、<code>error</code> 是三种不同的写法，各出现 10 次；大写 <code>INFO</code> 共 40 行。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>写法</th><th>作用</th><th>在 app.log 上的结果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>grep "ERROR" app.log</code></td><td>区分大小写，只匹配大写 ERROR</td><td>10 行</td></tr>
+                <tr><td><code>grep -i "error" app.log</code></td><td>忽略大小写，三种写法都算</td><td>30 行</td></tr>
+                <tr><td><code>grep -n "ERROR" app.log</code></td><td>显示匹配行在原文件中的行号</td><td>10 行，每行前带行号</td></tr>
+                <tr><td><code>grep -v "INFO" app.log</code></td><td>反向筛选，保留不含 INFO 的行</td><td>80 行</td></tr>
+                <tr><td><code>grep -w "error" app.log</code></td><td>整词匹配，避免匹配到更长的单词</td><td>10 行</td></tr>
+                <tr><td><code>wc -l app.log</code></td><td>统计文件总行数</td><td>120 行</td></tr>
+                <tr><td><code>grep ... app.log | wc -l</code></td><td>统计匹配结果的行数</td><td>随关键词和选项变化</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout"><code>grep</code> 只是把符合条件的行显示到终端，不会删除、修改或重排原文件。命令中关键词与文件名之间用空格分开，关键词建议用引号括起来。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出命令中哪部分是关键词、哪部分是文件名；能解释输出为什么是整行而不是只有 <code>ERROR</code>。</div>
+
+          <h3 id="p1-3">1.3 grep -i 忽略大小写</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-i</code> 让搜索忽略大小写。日志中同时存在 <code>ERROR</code>、<code>Error</code>、<code>error</code> 三种写法，只有加上 <code>-i</code> 才能一次找全。</p>
+          <div class="step-label">Step 1 / 比较加与不加 -i</div>
+          <pre><code class="language-bash">grep "error" app.log | wc -l
+grep -i "error" app.log | wc -l
+grep -i "error" app.log | head -5</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">10
+30
+2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts
+2026-11-06 08:12:00 [Error] pid=2104 thread=worker-1 request_id=req-0005 Payment callback could not be verified
+2026-11-06 08:24:00 [error] pid=2108 thread=worker-1 request_id=req-0009 token refresh failed for the current session
+2026-11-06 08:44:00 [ERROR] pid=2114 thread=worker-3 request_id=req-0015 Unable to write report file to the output directory
+2026-11-06 08:48:00 [Error] pid=2116 thread=worker-1 request_id=req-0017 Session data was rejected because its signature was invalid</code></pre>
+          <ul class="tasks">
+            <li>不加 <code>-i</code> 只有 10 行，加上 <code>-i</code> 为什么变成 30 行？</li>
+            <li>30 行正好是 10 + 10 + 10，分别对应哪三种写法？</li>
+            <li>把关键词换成 <code>info</code>，<code>grep -i "info" app.log | wc -l</code> 会得到多少行？</li>
+          </ul>
+          <div class="book-callout"><code>-i</code> 只改变“比较时是否区分大小写”，不会把文件中的大写改成小写，也不会修改文件内容。输出仍然保持原来的大小写。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释 10 与 30 的差别，并能说出 <code>-i</code> 只影响匹配规则、不影响文件内容。</div>
+
+          <h3 id="p1-4">1.4 grep -n 显示行号与组合选项</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-n</code> 在每条匹配结果前加上它在原文件中的行号。行号是定位日志的坐标，看到 <code>3:</code> 就知道问题在原文件第 3 行。</p>
+          <div class="step-label">Step 1 / 单独使用 -n 与组合 -in</div>
+          <pre><code class="language-bash">grep -n "ERROR" app.log | head -3
+grep -in "error" app.log | head -5
+grep -c "ERROR" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">3:2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts
+15:2026-11-06 08:44:00 [ERROR] pid=2114 thread=worker-3 request_id=req-0015 Unable to write report file to the output directory
+27:2026-11-06 09:20:00 [ERROR] pid=2109 thread=worker-3 request_id=req-0027 Authentication service returned an invalid response
+3:2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts
+5:2026-11-06 08:12:00 [Error] pid=2104 thread=worker-1 request_id=req-0005 Payment callback could not be verified
+9:2026-11-06 08:24:00 [error] pid=2108 thread=worker-1 request_id=req-0009 token refresh failed for the current session
+15:2026-11-06 08:44:00 [ERROR] pid=2114 thread=worker-3 request_id=req-0015 Unable to write report file to the output directory
+17:2026-11-06 08:48:00 [Error] pid=2116 thread=worker-1 request_id=req-0017 Session data was rejected because its signature was invalid
+10</code></pre>
+          <ul class="tasks">
+            <li><code>3:</code> 中的 3 表示什么？是第 3 条匹配，还是原文件第 3 行？</li>
+            <li><code>grep -in</code> 与 <code>grep -i -n</code> 是否等价？</li>
+            <li><code>grep -c "ERROR" app.log</code> 输出 10，与 <code>grep "ERROR" app.log | wc -l</code> 有什么区别？</li>
+          </ul>
+          <div class="book-callout">多个短选项可以合并写在同一个横杠后面，例如 <code>-in</code> 就是 <code>-i</code> 加 <code>-n</code>。行号只是显示信息，不会写回文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释 <code>3:</code> 是原文件行号；能写出“忽略大小写并显示行号”的命令 <code>grep -in "error" app.log</code>。</div>
+
+          <h3 id="p1-5">1.5 grep -v 反向筛选与 -w 整词匹配</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-v</code> 表示反向选择：保留不匹配关键词的行。<code>-w</code> 表示整词匹配：只有当关键词作为一个完整单词出现时才匹配，避免把 <code>connect</code> 误匹配到 <code>connection</code>。</p>
+          <div class="step-label">Step 1 / 排除记录并观察整词匹配</div>
+          <pre><code class="language-bash">grep -v "INFO" app.log | wc -l
+grep -iv "error" app.log | wc -l
+grep -w "error" app.log | wc -l
+grep "connect" app.log | wc -l
+grep -w "connect" app.log | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">80
+90
+10
+8
+0</code></pre>
+          <ul class="tasks">
+            <li>文件共 120 行，<code>grep -v "INFO"</code> 为什么得到 80 行？</li>
+            <li><code>grep -iv "error"</code> 先忽略大小写再排除，为什么得到 90 行？</li>
+            <li><code>connect</code> 能匹配到 8 行，但整词匹配 <code>-w "connect"</code> 却是 0 行，为什么？</li>
+          </ul>
+          <div class="book-callout"><code>-v</code> 不是“删除行”，只是让这些行不进入输出。配合 <code>-i</code> 使用时要小心：<code>grep -iv "error"</code> 会排除所有大小写形式的 error 行，剩下的才是输出。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>-v</code> 保留的是“不含关键词的行”；能举出 <code>connection</code> 包含 <code>connect</code> 但不属于整词匹配的例子。</div>
+
+          <h3 id="p1-6">1.6 wc -l 与管道统计</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>wc -l</code> 统计输入中有多少个换行符，也就是多少行。<code>|</code> 把左边命令的输出直接交给右边命令，所以可以用 <code>grep | wc -l</code> 统计匹配行数。</p>
+          <div class="step-label">Step 1 / 文件总行数与匹配行数</div>
+          <pre><code class="language-bash">wc -l app.log
+cat app.log | wc -l
+grep "ERROR" app.log | wc -l
+grep -i "error" app.log | wc -l
+grep "INFO" app.log | wc -l
+grep -v "INFO" app.log | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">120 app.log
+120
+10
+30
+40
+80</code></pre>
+          <ul class="tasks">
+            <li><code>wc -l app.log</code> 带文件名，<code>cat app.log | wc -l</code> 为什么不带文件名？</li>
+            <li>为什么 <code>wc -l app.log</code> 是 120，而 <code>grep -i "error" app.log | wc -l</code> 只有 30？</li>
+            <li>管道符 <code>|</code> 两边分别负责什么？它有没有修改 <code>app.log</code>？</li>
+          </ul>
+          <div class="book-callout">排错顺序：先 <code>pwd</code>、<code>ls</code> 确认文件位置 → 再检查关键词大小写 → 再检查选项是否写错（<code>wc -l</code> 不要写成 <code>wc -1</code>）→ 最后检查管道两侧的命令是否完整。若 <code>grep</code> 没有输出，先试 <code>-i</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能预测并核对 120、10、30、40、80 这几个数字分别来自哪条命令；能解释“总行数”与“匹配行数”的区别。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请亲自输入命令、观察输出。任务全部在 <code>~/Desktop/LogLab</code> 中完成，不修改原始日志。</p>
+
+          <h3 id="p2-1">2.1 任务 A：日志分析七步（必做）</h3>
+          <ul class="tasks">
+            <li>用 <code>pwd</code>、<code>ls -l</code>、<code>head -3</code>、<code>wc -l</code> 确认实验文件</li>
+            <li>用 <code>grep "ERROR" app.log</code> 搜索大写 ERROR 记录</li>
+            <li>用 <code>grep -i "error" app.log</code> 搜索全部错误记录（不区分大小写）</li>
+            <li>用 <code>grep -in "error" app.log</code> 显示全部错误记录及其行号</li>
+            <li>用 <code>grep -v "INFO" app.log</code> 排除 INFO 记录</li>
+            <li>用 <code>wc -l app.log</code> 统计日志总行数</li>
+            <li>用 <code>grep -i "error" app.log | wc -l</code> 统计错误记录数</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>结果记录表：</strong>先自己运行，再把实际数值填入下表；写报告时与练习部分核对。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>项目</th><th>命令</th><th>你的结果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>日志总行数</td><td><code>wc -l app.log</code></td><td>____</td></tr>
+                <tr><td>大写 ERROR 行数</td><td><code>grep "ERROR" app.log | wc -l</code></td><td>____</td></tr>
+                <tr><td>全部 error 行数</td><td><code>grep -i "error" app.log | wc -l</code></td><td>____</td></tr>
+                <tr><td>排除 INFO 后行数</td><td><code>grep -v "INFO" app.log | wc -l</code></td><td>____</td></tr>
+                <tr><td>错误记录的首个行号</td><td><code>grep -in "error" app.log | head -1</code></td><td>____</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="check-point"><strong>检查点：</strong>七条命令全部成功执行；能解释 120 与 30 为什么不同；截图包含当前提示符、命令和输出。</div>
+
+          <h3 id="p2-2">2.2 任务 B：组合搜索与统计（拓展）</h3>
+          <ul class="tasks">
+            <li>分别统计 <code>WARN</code>、<code>NOTICE</code>、<code>DEBUG</code> 的行数，验证是否分别为 20、20、10</li>
+            <li>用 <code>grep -c</code> 统计 <code>WARN</code> 行数，并与 <code>grep | wc -l</code> 的结果比较</li>
+            <li>运行 <code>grep -i "error" app.log | grep -v "Database" | wc -l</code>，解释两级管道各筛掉了什么</li>
+            <li>运行 <code>grep -i "error" app.log | grep "failed" | wc -l</code>，说明为什么结果是 10</li>
+            <li>用 <code>grep -n "Database" app.log</code> 练习“搜索 + 行号 + 计数”组合，记录命令与结果</li>
+            <li>用 2～3 句话说明：为什么“搜索到的行数”不等于“文件总行数”</li>
+          </ul>
+          <div class="book-callout">拓展任务只读取日志，不修改文件。管道可以连接两级以上，但每加一级都会进一步筛选；写命令时从左到右逐段确认，避免一次写太长不好排错。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>说明 <code>grep</code> 找的是“符合条件的整行”，不会修改原文件</li>
+            <li>用 <code>-i</code>、<code>-n</code>、<code>-v</code>、<code>-w</code> 改变搜索行为，并解释组合选项</li>
+            <li>用 <code>wc -l</code> 统计文件总行数，用 <code>grep | wc -l</code> 统计匹配行数</li>
+            <li>用 <code>grep -n</code> 定位日志中的具体行号</li>
+            <li>解释 120 与 30 两个统计数字为什么不同</li>
+            <li>按“路径 → 文件 → 关键词与选项 → 管道”的顺序完成一次排错</li>
+          </ul>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际运行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong><code>grep "ERROR" app.log | wc -l</code> 与 <code>grep -i "error" app.log | wc -l</code> 的结果分别是多少？为什么不同？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>grep -n "ERROR" app.log</code> 输出的第一个结果以 <code>3:</code> 开头，这个 3 表示什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong><code>wc -l app.log</code> 与 <code>grep -i "error" app.log | wc -l</code> 得到 120 和 30，请用 2～3 句话解释这两个数字分别统计了什么。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong><code>grep -v "INFO" app.log | wc -l</code> 与 <code>grep -iv "error" app.log | wc -l</code> 分别是多少？各自排除了什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong>写出“忽略大小写显示全部 error 记录及原文件行号”的完整命令。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>任选一个关键词，写出它的搜索命令、匹配行数，以及其中第一条记录的行号。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成实验后，按照雨课堂中的题目填写实验记录，并提交完整实验报告（模板六部分：基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结）。本次主要记录：</p>
+          <ul class="tasks">
+            <li>基础搜索截图：当前目录、原始日志、<code>grep "ERROR"</code> 的结果</li>
+            <li>筛选与定位截图：<code>grep -i</code>、<code>grep -in</code>、<code>grep -v</code> 的结果，并说明选项含义</li>
+            <li>统计与管道截图：<code>wc -l app.log</code> 与 <code>grep -i "error" app.log | wc -l</code> 的结果</li>
+            <li>任务 A 记录表中的实际数值</li>
+            <li>问题汇总：至少写一个你遇到的报错或疑问，以及原因和解决方法</li>
+            <li>实验总结：用 3～5 句说明如何搜索日志、定位行号和统计匹配行数</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">请按照雨课堂发布的要求完成提交。</p>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop04-permission.html">实验4：用户、用户组与权限</a>　|　下一节：<a href="sop06-text-sort.html">实验6：文本排序与去重</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

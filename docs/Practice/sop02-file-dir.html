@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验2：文件与目录管理</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>先想清四个问题</a>
+              <a href="#p1-2"><span class="n">1.2</span>绝对路径与相对路径</a>
+              <a href="#p1-3"><span class="n">1.3</span>建立练习目录骨架</a>
+              <a href="#p1-4"><span class="n">1.4</span>创建文件并查看信息</a>
+              <a href="#p1-5"><span class="n">1.5</span>复制文件与目录</a>
+              <a href="#p1-6"><span class="n">1.6</span>移动与重命名</a>
+              <a href="#p1-7"><span class="n">1.7</span>安全删除文件与目录</a>
+              <a href="#p1-8"><span class="n">1.8</span>用通配符批量操作</a>
+              <a href="#p1-9"><span class="n">1.9</span>用 ls 检查整理结果</a>
+              <a href="#p1-10"><span class="n">1.10</span>常见报错与排错</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：整理一个项目目录（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：独立再建一套（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验2
+        </div>
+        <h1>实验2：文件与目录管理</h1>
+        <p class="practice-lead">上一节只要求你会看目录，这一节要求你能动手整理目录。本页从路径判断开始，依次练习创建、复制、移动、改名和删除，最后在 <code>~/LinuxProject</code> 中独立整理出一套结构清楚、可以检查的项目目录。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能说清绝对路径与相对路径；能用 mkdir、touch、file、stat、cp、mv、rm、rmdir 完成文件与目录操作；能先用 ls 确认再动手</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>目录整理。在课程练习数据 <code>~/LinuxProject</code> 中建立工作目录，把文件分类放好并完成备份</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 先想清四个问题</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">文件管理看起来很杂，其实每次操作前只回答四个问题：我在哪里、这里有什么、目标在哪里、我要做什么。前两个问题用命令回答，后两个问题靠路径和对命令的理解回答。</p>
+          <div class="step-label">Step 1 / 先确认练习数据在不在</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+pwd
+ls</code></pre>
+          <ul class="tasks">
+            <li>我现在在哪里：用 <code>pwd</code> 看当前绝对路径</li>
+            <li>这里有什么：用 <code>ls</code> 看当前目录内容</li>
+            <li>目标在哪里：用绝对路径或相对路径描述目标</li>
+            <li>我要做什么：创建、复制、移动、改名还是删除</li>
+          </ul>
+          <div class="book-callout">本节所有操作都建立在 <code>~/LinuxProject</code> 上。如果 <code>pwd</code> 或 <code>ls</code> 报 <code>No such file or directory</code>，先回到主目录执行 <code>bash create_linux_practice_data.sh</code>，不要在错误路径上继续操作。</div>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 <code>/home/njucm/LinuxProject</code>，<code>ls</code> 至少能看到 <code>README.txt</code> 与 <code>data</code>、<code>logs</code>、<code>docs</code> 等目录。</div>
+
+          <h3 id="p1-2">1.2 绝对路径与相对路径</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">绝对路径从根目录 <code>/</code> 写起，位置唯一；相对路径从当前目录写起，更短，但换个位置就可能失效。四个符号先记牢：<code>~</code> 是主目录，<code>.</code> 是当前目录，<code>..</code> 是上一级目录，<code>/</code> 是根目录。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>写法</th><th>示例</th><th>从哪算起</th><th>特点</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>绝对路径</td><td><code>/home/njucm/LinuxProject/data</code></td><td>根目录 <code>/</code></td><td>完整、唯一，不受当前位置影响</td></tr>
+                <tr><td>相对路径</td><td><code>data/patients</code></td><td>当前目录</td><td>简短，但必须先确认 <code>pwd</code></td></tr>
+                <tr><td><code>~</code></td><td><code>~/LinuxProject</code></td><td>当前用户主目录</td><td>展开为 <code>/home/njucm</code></td></tr>
+                <tr><td><code>.</code></td><td><code>./README.txt</code></td><td>当前目录</td><td>强调“就在当前目录里”</td></tr>
+                <tr><td><code>..</code></td><td><code>../docs</code></td><td>上一级目录</td><td>从子目录返回父目录</td></tr>
+                <tr><td><code>/</code></td><td><code>/home</code></td><td>文件系统起点</td><td>所有绝对路径的开头</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 1 / 用现有目录走一遍</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+pwd
+pwd -P
+cd data
+pwd
+cd ..
+pwd
+cd ./data/patients
+pwd
+cd ../..
+pwd
+cd ~/LinuxProject/docs/notes
+pwd
+cd ~
+pwd</code></pre>
+          <div class="step-label">Step 2 / 预期位置</div>
+          <pre><code class="language-bash"># cd ~/LinuxProject 之后      → /home/njucm/LinuxProject
+# cd data 之后                 → /home/njucm/LinuxProject/data
+# cd .. 之后                   → /home/njucm/LinuxProject
+# cd ./data/patients 之后      → /home/njucm/LinuxProject/data/patients
+# cd ../.. 之后                → /home/njucm/LinuxProject
+# cd ~/LinuxProject/docs/notes → /home/njucm/LinuxProject/docs/notes
+# cd ~ 之后                    → /home/njucm</code></pre>
+          <ul class="tasks">
+            <li>每执行一次 <code>cd</code>，紧接着执行一次 <code>pwd</code>，不要凭感觉判断位置</li>
+            <li>观察 <code>cd ..</code> 与 <code>cd ../..</code> 分别回到哪一层</li>
+            <li>观察 <code>cd ~</code> 和 <code>cd ~/LinuxProject</code> 的区别</li>
+          </ul>
+          <div class="book-callout"><code>~/LinuxProject</code> 是数据脚本建立的符号链接，指向桌面上的 <code>LinuxProject</code>。所以 <code>pwd</code> 可能显示 <code>/home/njucm/LinuxProject</code>，而 <code>pwd -P</code> 显示真实的桌面路径；两种显示都不是错误。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出每个 <code>pwd</code> 输出为什么是这个路径，并能用 <code>..</code> 从 <code>data/patients</code> 一次回到 <code>LinuxProject</code>。</div>
+
+          <h3 id="p1-3">1.3 建立练习目录骨架</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">先把“文件柜”搭好。所有练习都放在 <code>~/LinuxProject/filelab</code>，不要直接改动课程原始数据目录。用 <code>mkdir -p</code> 一次建立多级目录，已经存在的目录不会报错。</p>
+          <div class="step-label">Step 1 / 创建 filelab 结构</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+mkdir -p filelab/data/raw filelab/data/processed filelab/scripts filelab/results filelab/docs filelab/backup
+cd filelab
+pwd
+ls -R</code></pre>
+          <div class="step-label">Step 2 / 目标结构</div>
+          <pre><code class="language-bash">filelab/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── scripts/
+├── results/
+├── docs/
+└── backup/</code></pre>
+          <ul class="tasks">
+            <li><code>pwd</code> 应输出 <code>/home/njucm/LinuxProject/filelab</code></li>
+            <li><code>ls -R</code> 应能看到 <code>data/raw</code>、<code>data/processed</code> 两级目录</li>
+            <li><code>scripts</code>、<code>results</code>、<code>docs</code>、<code>backup</code> 四个目录都存在</li>
+          </ul>
+          <div class="book-callout">如果只写 <code>mkdir filelab/data/raw</code>，而 <code>filelab/data</code> 还不存在，就会报 <code>No such file or directory</code>。<code>-p</code> 的作用是“缺哪层补哪层”，并且目标已存在时也不报错。</div>
+          <div class="check-point"><strong>检查点：</strong><code>ls -R</code> 的层级与目标结构一致，且没有任何一个目录名拼错。</div>
+
+          <h3 id="p1-4">1.4 创建文件并查看信息</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>touch</code> 创建空文件；<code>file</code> 根据内容判断类型；<code>stat</code> 查看大小、权限和三个时间。三个命令回答的是不同问题，不要混用。</p>
+          <div class="step-label">Step 1 / 创建练习文件</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+touch README.txt
+touch sample1.txt sample2.txt sample3.txt
+touch analysis.py plot.py
+touch result1.csv result2.csv
+touch notes.txt temp.txt
+touch sample10.txt
+ls -l</code></pre>
+          <div class="step-label">Step 2 / 查看文件本身的信息</div>
+          <pre><code class="language-bash">file README.txt
+stat README.txt</code></pre>
+          <pre><code class="language-bash"># ls -l 中新建空文件的大小为 0
+# file README.txt 的输出为：README.txt: empty
+# stat README.txt 中 Size: 0，并列出 Access、Modify、Change 三个时间</code></pre>
+          <ul class="tasks">
+            <li>数一数 <code>ls -l</code> 每行第 1 个字符是什么，代表文件类型</li>
+            <li>比较 <code>ls -l</code> 与 <code>stat</code> 显示的信息差别</li>
+            <li>用 <code>file</code> 判断一个文件是不是“只看扩展名”就能确定类型</li>
+          </ul>
+          <div class="book-callout"><code>touch</code> 对已存在的文件不会清空内容，只会更新访问和修改时间。<code>file</code> 看的是文件内容，不是扩展名；把 <code>.csv</code> 改成 <code>.txt</code> 并不会改变它的真实类型。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出新建空文件大小为 0，能读出 <code>file</code> 与 <code>stat</code> 各自给出的关键信息。</div>
+
+          <h3 id="p1-5">1.5 复制文件与目录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>cp</code> 的关键是分清“源”和“目标”。复制文件后原文件仍然保留；复制目录必须加 <code>-r</code>，否则只会得到一个“不能复制目录”的报错。</p>
+          <div class="step-label">Step 1 / 复制文件与目录</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+cp README.txt README_copy.txt
+cp README.txt backup/
+cp -i README.txt backup/
+# 目标 backup/README.txt 已存在，按提示输入 y 覆盖
+cp sample1.txt backup/
+cp -r data backup/data_copy
+cp ~/LinuxProject/config/hospital.conf backup/hospital.conf.bak
+ls -R backup</code></pre>
+          <div class="step-label">Step 2 / 验证</div>
+          <ul class="tasks">
+            <li>根目录的 <code>README.txt</code> 是否还在</li>
+            <li><code>backup</code> 中是否出现了 <code>README.txt</code>、<code>sample1.txt</code>、<code>hospital.conf.bak</code></li>
+            <li><code>backup/data_copy</code> 中是否有 <code>raw</code> 与 <code>processed</code> 两个子目录</li>
+            <li><code>cp -i</code> 在什么情况下才会询问</li>
+          </ul>
+          <div class="book-callout"><code>cp 源 目标</code> 中，如果目标是已存在的目录，文件会被复制进去；如果目标是新名字，则相当于复制并改名。覆盖已有文件前先用 <code>ls</code> 看清目标，需要确认时加 <code>-i</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>原文件仍在，<code>backup</code> 中能看到副本，且能解释复制目录为什么必须加 <code>-r</code>。</div>
+
+          <h3 id="p1-6">1.6 移动与重命名</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>mv</code> 既能“搬家”也能“改名”。移动成功后，源位置通常就没有它了，这一点与 <code>cp</code> 完全不同。</p>
+          <div class="step-label">Step 1 / 改名与移动</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+mv README.txt README_Linux.txt
+mv notes.txt docs/
+mv analysis.py plot.py scripts/
+mv result1.csv result2.csv results/
+mv README_copy.txt docs/README_copy.txt
+mv backup/hospital.conf.bak backup/hospital_config.bak
+ls -R</code></pre>
+          <div class="step-label">Step 2 / 检查源与目标</div>
+          <ul class="tasks">
+            <li>根目录是否还存在 <code>README.txt</code></li>
+            <li><code>scripts</code> 中是否有 <code>analysis.py</code> 与 <code>plot.py</code></li>
+            <li><code>results</code> 中是否有两个 <code>.csv</code> 文件</li>
+            <li><code>docs</code> 中是否出现了 <code>notes.txt</code> 与 <code>README_copy.txt</code></li>
+          </ul>
+          <div class="book-callout"><code>mv</code> 的目标是已存在目录时，会把源移动进去；目标是新文件名时，相当于改名。目标位置已有同名文件时可能直接覆盖，重要文件先用 <code>ls</code> 确认，必要时使用 <code>mv -i</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>每个文件只在预期位置出现一次，源位置没有残留副本。</div>
+
+          <h3 id="p1-7">1.7 安全删除文件与目录</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">Linux 终端没有 Windows 那样的回收站，删除前要先看位置、再看对象、最后才执行。<code>rmdir</code> 只能删除空目录，目录里还有内容时会失败。</p>
+          <div class="step-label">Step 1 / 删文件前先确认</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+pwd
+ls -l temp.txt
+rm -i temp.txt
+# 提示 remove regular empty file 'temp.txt'? 时输入 y</code></pre>
+          <div class="step-label">Step 2 / 删除空目录与非空目录</div>
+          <pre><code class="language-bash">mkdir emptydir
+rmdir emptydir
+mkdir trash_demo
+touch trash_demo/a.txt trash_demo/b.txt
+ls -R trash_demo
+rm -r trash_demo
+rmdir backup/data_copy
+# 预期报错：Directory not empty
+rm -r backup/data_copy
+ls -R backup</code></pre>
+          <ul class="tasks">
+            <li><code>rmdir emptydir</code> 成功，因为目录是空的</li>
+            <li><code>rmdir backup/data_copy</code> 失败，因为里面还有子目录</li>
+            <li><code>rm -r</code> 只用于已经用 <code>ls -R</code> 确认过的目录</li>
+            <li><code>rm -i</code> 每删一个对象都会询问，适合新手</li>
+          </ul>
+          <div class="book-callout">不要把 <code>rm -rf</code> 当作常规删除方法。路径没看清、通配符范围没确认时，不要执行带 <code>-r</code> 或 <code>-f</code> 的删除命令；先 <code>pwd</code>，再 <code>ls</code>，最后删。</div>
+          <div class="check-point"><strong>检查点：</strong><code>temp.txt</code> 已删除；能解释 <code>rmdir</code> 与 <code>rm -r</code> 的适用场景，并完成过一次 <code>pwd → ls → rm -i</code> 的安全删除流程。</div>
+
+          <h3 id="p1-8">1.8 用通配符批量操作</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">文件多起来以后，用通配符一次匹配多个对象。规则很简单：<code>*</code> 匹配任意多个字符，<code>?</code> 只匹配一个字符。批量操作前先用 <code>ls</code> 验证匹配范围。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>通配符</th><th>匹配范围</th><th>本节示例</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>*.txt</code></td><td>所有以 <code>.txt</code> 结尾的文件</td><td><code>README.txt</code>、<code>notes.txt</code></td></tr>
+                <tr><td><code>sample*.txt</code></td><td><code>sample</code> 开头、<code>.txt</code> 结尾，中间可以是任意多个字符</td><td><code>sample1.txt</code>、<code>sample10.txt</code></td></tr>
+                <tr><td><code>sample?.txt</code></td><td><code>sample</code> 后只允许一个字符</td><td><code>sample1.txt</code> 到 <code>sample3.txt</code></td></tr>
+                <tr><td><code>results/*.csv</code></td><td><code>results</code> 目录下所有 <code>.csv</code></td><td><code>result1.csv</code>、<code>result2.csv</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 1 / 先看匹配，再批量移动</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+ls sample*.txt
+# 预期：sample1.txt sample2.txt sample3.txt sample10.txt
+ls sample?.txt
+# 预期：sample1.txt sample2.txt sample3.txt
+rm -i sample10.txt
+mv sample*.txt data/raw/
+ls data/raw/</code></pre>
+          <div class="step-label">Step 2 / 批量复制结果文件</div>
+          <pre><code class="language-bash">ls results/*.csv
+cp results/*.csv backup/
+ls backup/</code></pre>
+          <div class="book-callout">通配符由 shell 先展开成具体文件名，再交给命令执行。执行 <code>mv</code>、<code>cp</code>、<code>rm</code> 之前，先单独执行一次同样的通配符给 <code>ls</code>，确认它到底匹配了哪些文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能预测 <code>sample*.txt</code> 与 <code>sample?.txt</code> 各自匹配几个文件，并在批量操作后用 <code>ls</code> 验证结果。</div>
+
+          <h3 id="p1-9">1.9 用 ls 检查整理结果</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">命令没有报错，不代表结果一定正确。文件操作做完后必须检查：名称对不对、位置对不对、数量对不对。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>命令</th><th>显示内容</th><th>本实验用它检查什么</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>ls</code></td><td>当前目录的名称列表</td><td>快速确认这里有什么</td></tr>
+                <tr><td><code>ls -l</code></td><td>权限、所有者、大小、修改时间</td><td>确认文件类型与大小</td></tr>
+                <tr><td><code>ls -a</code></td><td>包含以 <code>.</code> 开头的隐藏项</td><td>确认没有遗漏隐藏文件</td></tr>
+                <tr><td><code>ls -lh</code></td><td>文件大小换成 KB、MB 等易读单位</td><td>比较备份文件大小</td></tr>
+                <tr><td><code>ls -lt</code></td><td>按修改时间从新到旧排序</td><td>确认最近操作了哪些文件</td></tr>
+                <tr><td><code>ls -R</code></td><td>递归列出所有子目录</td><td>检查整个项目结构</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 1 / 逐项检查</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/filelab
+pwd
+ls
+ls -lh
+ls -lt
+ls -la
+ls -R</code></pre>
+          <div class="step-label">Step 2 / 对照结构自查</div>
+          <pre><code class="language-bash">filelab/
+├── README_Linux.txt
+├── data/
+│   ├── raw/            # sample1.txt sample2.txt sample3.txt
+│   └── processed/
+├── scripts/            # analysis.py plot.py
+├── results/            # result1.csv result2.csv
+├── docs/               # notes.txt README_copy.txt
+└── backup/             # README.txt sample1.txt hospital_config.bak result1.csv result2.csv</code></pre>
+          <div class="book-callout">发现位置不对时，不要继续往下复制或删除。先用 <code>pwd</code> 确认自己在哪，再用 <code>ls -R</code> 找到文件实际在哪里，最后决定是移动回来还是重新操作。</div>
+          <div class="check-point"><strong>检查点：</strong>能对照结构图指出每个文件应在的目录，并用 <code>ls -R</code> 证明它确实在那里。</div>
+
+          <h3 id="p1-10">1.10 常见报错与排错</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">报错信息通常已经说明了问题。先读报错原文，再检查当前位置和对象，不要一看到失败就换一条更危险的命令。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>报错</th><th>常见原因</th><th>先做什么</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>No such file or directory</code></td><td>路径或文件名写错，或目标不存在</td><td><code>pwd</code> 看位置，<code>ls</code> 看拼写</td></tr>
+                <tr><td><code>cannot stat</code></td><td><code>cp</code> 或 <code>mv</code> 找不到源文件</td><td>确认源文件存在，并核对当前目录</td></tr>
+                <tr><td><code>Directory not empty</code></td><td><code>rmdir</code> 的目标目录里还有内容</td><td><code>ls -R</code> 看清内容后再决定如何删除</td></tr>
+                <tr><td><code>cannot overwrite directory</code></td><td>文件与目录类型不匹配，路径写混了</td><td><code>ls -ld</code> 分别查看源和目标</td></tr>
+                <tr><td><code>Permission denied</code></td><td>当前用户没有对应权限</td><td>先确认对象和权限，不要直接加 <code>sudo</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">排错口诀：先看报错文字 → 再用 <code>pwd</code> 看当前位置 → 再用 <code>ls</code> 看目录内容 → 检查大小写和拼写 → 最后查帮助。<code>ls</code> 与 <code>LS</code>、<code>filelab</code> 与 <code>FileLab</code> 都不是同一个名字。</div>
+          <ul class="tasks">
+            <li>问题：<code>cp: cannot stat 'sample1.txt'</code> 说明什么？——当前目录没有这个文件，先 <code>pwd</code></li>
+            <li>问题：<code>rmdir</code> 为什么删不掉 <code>backup/data_copy</code>？——它不是空目录</li>
+            <li>问题：<code>mv</code> 后源文件去哪了？——已经到目标位置，源位置不再保留</li>
+            <li>问题：通配符匹配结果不确定怎么办？——先执行 <code>ls 通配符</code> 验证</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>能按口诀完成一次自查，并把报错原文、原因和改正命令写进实验记录。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">练习部分允许边看边做，任务部分要求连续完成。做完后必须用 <code>ls -R</code> 检查，并截图保留结果。</p>
+
+          <h3 id="p2-1">2.1 任务 A：整理一个项目目录（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">在 <code>~/LinuxProject</code> 下新建 <code>tasklab</code>，按下面的目标完成创建、分类、备份、改名和安全删除。不要直接改动 <code>data</code>、<code>logs</code> 等课程原始目录。</p>
+          <div class="step-label">Step 1 / 建立目录并创建待整理文件</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+mkdir -p tasklab/data/raw tasklab/data/processed tasklab/scripts tasklab/results tasklab/docs tasklab/backup
+cd tasklab
+touch README.txt sample1.txt sample2.txt sample3.txt analysis.py plot.py result1.csv result2.csv notes.txt temp.txt
+cp ~/LinuxProject/data/patients/patient_demo_small.csv data/raw/
+cp ~/LinuxProject/docs/notes/shift_notes.txt docs/
+pwd
+ls -l</code></pre>
+          <div class="step-label">Step 2 / 分类整理</div>
+          <pre><code class="language-bash">mv sample*.txt data/raw/
+mv analysis.py plot.py scripts/
+mv result1.csv result2.csv results/
+mv notes.txt docs/
+cp -r data/raw backup/raw_backup
+mv results/result1.csv results/result_final.csv
+rm -i temp.txt
+ls -R</code></pre>
+          <ul class="tasks">
+            <li><code>pwd</code> 为 <code>/home/njucm/LinuxProject/tasklab</code></li>
+            <li><code>data/raw</code> 中有 <code>sample1.txt</code>、<code>sample2.txt</code>、<code>sample3.txt</code> 和 <code>patient_demo_small.csv</code></li>
+            <li><code>scripts</code> 中有 <code>analysis.py</code>、<code>plot.py</code></li>
+            <li><code>results</code> 中有 <code>result_final.csv</code>、<code>result2.csv</code></li>
+            <li><code>docs</code> 中有 <code>shift_notes.txt</code> 和 <code>notes.txt</code></li>
+            <li><code>backup/raw_backup</code> 中有与 <code>data/raw</code> 相同的四个文件</li>
+            <li><code>temp.txt</code> 已删除，根目录保留 <code>README.txt</code></li>
+          </ul>
+          <div class="book-callout">验收命令是 <code>ls -R</code>。如果 <code>backup/raw_backup</code> 少文件，先回到 <code>data/raw</code> 执行 <code>ls</code>，确认复制时源目录里到底有什么，再重新复制。</div>
+          <div class="check-point"><strong>检查点：</strong>任务 A 的七条验收项全部满足，并保存 <code>pwd</code>、整理命令与最终 <code>ls -R</code> 的截图。</div>
+
+          <h3 id="p2-2">2.2 任务 B：独立再建一套（拓展）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">不看上面的命令，自己在实验1建立的 <code>~/LinuxLab</code> 中再建一个 <code>project</code> 目录，完整走一遍“创建 → 复制 → 移动/改名 → 备份 → 安全删除 → 检查”。</p>
+          <ul class="tasks">
+            <li>建立 <code>data/raw</code>、<code>data/processed</code>、<code>scripts</code>、<code>results</code>、<code>docs</code>、<code>backup</code></li>
+            <li>在项目根目录创建 <code>README.txt</code>、<code>circuit.txt</code>、<code>temp.txt</code></li>
+            <li>从 <code>~/LinuxProject</code> 复制真实练习文件到项目中，不凭空编造文件内容</li>
+            <li>完成一次目录复制备份，并把一个文件改名后放进 <code>data/processed</code></li>
+            <li>用 <code>rm -i</code> 删除 <code>temp.txt</code>，用 <code>ls -R</code> 检查最终结构</li>
+          </ul>
+          <div class="step-label">参考流程（先自己试，卡住再对照）</div>
+          <pre><code class="language-bash">mkdir -p ~/LinuxLab/project/data/raw ~/LinuxLab/project/data/processed ~/LinuxLab/project/scripts ~/LinuxLab/project/results ~/LinuxLab/project/docs ~/LinuxLab/project/backup
+cd ~/LinuxLab/project
+touch README.txt circuit.txt temp.txt
+cp ~/LinuxProject/data/patients/patient_demo_small.csv data/raw/
+cp ~/LinuxProject/reports/2025/midyear_report.txt docs/
+mv data/raw/patient_demo_small.csv data/processed/patient_clean.csv
+mv docs/midyear_report.txt docs/report_2025.txt
+cp -r data/processed backup/processed_backup
+rm -i temp.txt
+file data/processed/patient_clean.csv
+stat data/processed/patient_clean.csv
+ls -R</code></pre>
+          <div class="book-callout">任务 B 的重点不是把命令抄对，而是每做一步都知道源在哪里、目标在哪里。做完后用 <code>ls -R</code> 和 <code>file</code> 证明结果，而不是只说“我执行过了”。</div>
+          <div class="check-point"><strong>检查点：</strong><code>~/LinuxLab/project</code> 结构完整，<code>backup/processed_backup</code> 与 <code>data/processed</code> 内容一致，<code>temp.txt</code> 已删除。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>说清绝对路径、相对路径、<code>~</code>、<code>.</code>、<code>..</code> 的区别</li>
+            <li>用 <code>mkdir -p</code> 建立多级目录，用 <code>touch</code> 创建空文件</li>
+            <li>用 <code>file</code> 与 <code>stat</code> 查看文件类型和基本信息</li>
+            <li>用 <code>cp</code>、<code>cp -r</code> 复制文件与目录，用 <code>mv</code> 移动和改名</li>
+            <li>用 <code>rm -i</code>、<code>rm -r</code>、<code>rmdir</code> 安全删除，并能解释各自适用场景</li>
+            <li>用 <code>*</code>、<code>?</code> 完成批量操作，并在操作前用 <code>ls</code> 验证范围</li>
+            <li>用 <code>ls -R</code> 检查最终结构，而不是只看命令有没有报错</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">报告至少保留三类截图，每张图下写 1–2 句说明：</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>截图</th><th>应包含</th><th>说明示例</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>截图 A：创建项目</td><td><code>pwd</code>、<code>mkdir -p</code>、<code>touch</code> 与 <code>ls -l</code> 结果</td><td>已在 ~/LinuxProject 下建立 tasklab 与待整理文件</td></tr>
+                <tr><td>截图 B：整理操作</td><td><code>mv</code>、<code>cp -r</code>、改名与 <code>rm -i</code> 的提示和输出</td><td>已完成文件分类、备份、改名与安全删除</td></tr>
+                <tr><td>截图 C：最终结构</td><td><code>ls -R</code> 完整输出</td><td>各文件已进入预期目录，temp.txt 已删除</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际执行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong>分别写出你当前项目目录的一个绝对路径和一个相对路径，并说明相对路径依赖什么条件。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>mkdir -p a/b/c</code> 与 <code>mkdir a/b/c</code> 有什么区别？在什么情况下前者更有用？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong><code>cp</code> 与 <code>mv</code> 操作完成后，源文件是否还在？复制目录为什么需要 <code>-r</code>？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong><code>rm</code>、<code>rmdir</code>、<code>rm -r</code> 各适用于什么对象？写出一次你实际执行的安全删除过程（命令、提示、结果）。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong>粘贴任务 A 最终 <code>ls -R</code> 的输出，并指出 <code>backup/raw_backup</code> 与 <code>data/raw</code> 的内容关系。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验报告使用统一模板，按六部分完整填写：</p>
+          <ul class="tasks">
+            <li>基本信息：实验名称、日期、姓名、学号、班级</li>
+            <li>实验目的</li>
+            <li>实验内容和要求：完成 Linux 文件与目录管理综合练习</li>
+            <li>实验结果：三类关键截图，每张图下写 1–2 句说明</li>
+            <li>实验中出现的问题：报错内容、原因判断、解决方法；没有明显报错时记录一次 <code>pwd</code> + <code>ls</code> 自检过程</li>
+            <li>实验总结：3–5 句，说明掌握了哪些命令、哪一步仍不熟练</li>
+          </ul>
+          <div class="book-callout">提交平台为雨课堂，提交完整实验报告文件，截图直接放进报告中，不再单独上传。截图必须清晰，能看到用户名 <code>njucm</code>、命令和对应结果；只截空桌面或无关窗口不计分。</div>
+          <div class="check-point"><strong>检查点：</strong>报告六部分齐全，三类截图都有说明，五道作业题都有实际执行依据。</div>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop01-first-linux.html">实验1：第一次进入 Linux</a>　|　下一节：<a href="sop03-view-find.html">实验3：文本查看和查找</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

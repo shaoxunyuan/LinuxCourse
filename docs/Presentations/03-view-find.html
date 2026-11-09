@@ -436,41 +436,42 @@
       <!-- 01 -->
       <section data-page="01">
         <h1>实验基本信息</h1>
-        <p class="exp-name">实验三：文件查看与查找｜掌握查看命令，并用 find 按条件定位文件</p>
+        <p class="exp-name">实验三：文本查看和查找｜掌握文件查看命令，并使用 find 按名称、类型、大小和修改时间定位文件</p>
         <div class="two-col">
           <div class="card blue">
             <h3>实验目的</h3>
             <ul class="num-list">
-              <li>掌握 cat、more、less、head、tail、nl</li>
-              <li>能根据文件长度选择合适查看方式</li>
-              <li>掌握 find 的 -name、-type、-size、-mtime</li>
+              <li>掌握 cat、more、less、head、tail、nl 等文件查看命令</li>
+              <li>能根据文件长度和查看目的选择合适的查看方式</li>
+              <li>掌握 find 的基本用法，能按 -name、-type、-size、-mtime 查找文件</li>
             </ul>
           </div>
           <div class="card green">
             <h3>实验内容和要求</h3>
             <ul class="num-list">
-              <li>在 ~/Desktop/LinuxProject 中完成查看练习</li>
-              <li>用 find 按名称、类型、大小、时间查找</li>
-              <li>完成课堂综合练习并写报告</li>
+              <li>使用用户名 njucm 登录 CentOS，在终端完成分步练习</li>
+              <li>使用桌面 LinuxProject 中的模拟文本、CSV、日志和报告完成查看练习</li>
+              <li>使用 find 按名称、类型、大小和修改时间逐步缩小查找范围</li>
+              <li>独立完成课堂综合练习，保存关键截图并写入实验报告</li>
             </ul>
           </div>
         </div>
-        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code> · 练习目录 <code>~/Desktop/LinuxProject</code></div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：VMware Workstation + CentOS 课程虚拟机 · 练习目录 <code>~/Desktop/LinuxProject</code></div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>01</span></div>
       </section>
 
       <!-- 02 -->
       <section data-page="02">
-        <h1>Linux 实验三</h1>
-        <p class="subtitle">文件查看与查找：从“看内容”到“按条件快速找到文件”</p>
+        <h1>文本查看和查找</h1>
+        <p class="subtitle">从“看文件内容”到“按多个条件快速找到文件”</p>
         <div class="five-nodes">
-          <div class="node"><span class="label">全文查看</span><code>cat / nl</code></div>
+          <div class="node"><span class="label">一次看完</span><code>cat</code></div>
           <div class="node"><span class="label">分页浏览</span><code>more / less</code></div>
           <div class="node"><span class="label">首尾定位</span><code>head / tail</code></div>
-          <div class="node"><span class="label">按名查找</span><code>find -name</code></div>
-          <div class="node"><span class="label">属性查找</span><code>-size / -mtime</code></div>
+          <div class="node"><span class="label">带行号</span><code>nl</code></div>
+          <div class="node"><span class="label">按条件查找</span><code>find</code></div>
         </div>
-        <div class="band band-blue">长文件优先 more / less，不要让 cat 刷满终端。</div>
+        <div class="band band-blue">实验环境：VMware Workstation + CentOS 课程虚拟机；练习数据目录 <code>~/Desktop/LinuxProject</code>。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>02</span></div>
       </section>
 
@@ -479,26 +480,30 @@
         <h2>实验流程与学习目标</h2>
         <div class="flow-steps six">
           <div class="step"><span>01</span>认识数据</div>
-          <div class="step"><span>02</span>短文本</div>
-          <div class="step"><span>03</span>长文本</div>
-          <div class="step"><span>04</span>首尾行号</div>
-          <div class="step"><span>05</span>find 条件</div>
+          <div class="step"><span>02</span>短文本查看</div>
+          <div class="step"><span>03</span>长文本分页</div>
+          <div class="step"><span>04</span>首尾定位</div>
+          <div class="step"><span>05</span>行号与查找</div>
           <div class="step"><span>06</span>综合练习</div>
         </div>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>学习目标</h3>
+            <h3>本次实验结束时，你应该能做到</h3>
             <ul>
-              <li>会用 cat / nl / more / less / head / tail</li>
-              <li>会用 find 组合多个条件</li>
-              <li>能解释命令返回结果</li>
+              <li>用 cat 和 nl 快速查看较短文本</li>
+              <li>用 more、less 分页浏览较长报告和日志</li>
+              <li>用 head、tail 定位 CSV 表头和日志末尾</li>
+              <li>用 find 按名称、类型、大小和修改时间定位文件</li>
+              <li>把多个 find 条件组合起来，解释命令返回结果</li>
             </ul>
           </div>
           <div class="card green">
-            <h3>课堂原则</h3>
+            <h3>课堂操作原则</h3>
             <ul>
-              <li>先进入 LinuxProject</li>
-              <li>find 先定起点，再加条件</li>
+              <li>先进入 LinuxProject，再确认查看或查找的对象</li>
+              <li>长文件优先 more / less，不要让 cat 刷满终端</li>
+              <li>find 先确定查找起点，再逐步增加条件</li>
+              <li>每次执行后观察结果，确认条件是否达到预期</li>
             </ul>
           </div>
         </div>
@@ -507,265 +512,419 @@
 
       <!-- 04 -->
       <section data-page="04">
-        <h2>配套练习文件说明：LinuxProject</h2>
-        <ul class="num-list" style="margin-top:0.45em;">
-          <li>在桌面准备目录 <code>LinuxProject</code>，含 data、logs、reports、docs、archive、config、mixed 等子目录。</li>
-          <li>放入短文本（如 README.txt）、长报告、患者/检验 CSV、系统与应用日志等模拟教学数据。</li>
-          <li>准备不同大小文件（如约 2K / 16K / 128K / 1M）以及不同修改时间的报告样例，便于练习 -size / -mtime。</li>
-          <li>UTF-8 纯文本为主；路径相对 <code>~/Desktop/LinuxProject</code>。</li>
-        </ul>
-        <div class="band band-blue">后面命令默认已执行 <code>cd ~/Desktop/LinuxProject</code>。</div>
+        <h2>场景问题：360 行报告，能不能直接 cat？</h2>
+        <p class="subtitle">文件长短不同，查看方式也应该不同</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>短文本</h3><p>README、小型 CSV：一次显示全部更方便。</p></div>
+          <div class="card green"><h3>长报告与日志</h3><p>几百行内容会刷满终端，需要分页浏览。</p></div>
+          <div class="card blue"><h3>只看首尾</h3><p>CSV 表头在前，日志最新记录在后。</p></div>
+        </div>
+        <pre><code class="language-bash">cd ~/Desktop/LinuxProject
+pwd
+ls</code></pre>
+        <div class="band band-blue">本节路线：认识数据 → 短文本 → 长文本 → 首尾 → 行号 → find 查找。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>04</span></div>
       </section>
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>文件查看命令怎么选？</h2>
-        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
-          <div class="card blue"><h3>cat</h3><p>一次显示全部 · 短文本</p></div>
-          <div class="card green"><h3>more</h3><p>向下分页 · 长报告</p></div>
-          <div class="card blue"><h3>less</h3><p>前后翻页并搜索 · 日志</p></div>
-          <div class="card green"><h3>head</h3><p>查看开头 · CSV 表头</p></div>
-          <div class="card blue"><h3>tail</h3><p>查看结尾 · 日志末尾</p></div>
-          <div class="card green"><h3>nl</h3><p>带行号查看</p></div>
+        <h2>练习数据：LinuxProject 里有什么？</h2>
+        <p class="subtitle">患者、检验与日志内容均为模拟教学数据</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd ~/Desktop/LinuxProject
+pwd
+ls
+ls data/patients
+ls logs
+ls reports</code></pre>
+            <div class="card blue">
+              <h3>先进入练习目录</h3>
+              <p>后面的命令默认已经执行 <code>cd ~/Desktop/LinuxProject</code>。每换一个终端窗口，先 pwd 确认位置。</p>
+            </div>
+          </div>
+          <div class="stack">
+            <pre><code class="language-text">LinuxProject/
+├── README.txt
+├── data/patients/
+├── data/labs/
+├── data/statistics/
+├── logs/system/
+├── logs/application/
+├── reports/2024 2025 2026/
+├── docs/
+├── archive/backup/
+└── mixed/</code></pre>
+            <div class="card green">
+              <h3>文件不一样</h3>
+              <p>短文本、长报告、患者 CSV、检验 CSV、系统日志、应用日志、配置文件；还有不同大小和不同修改时间的样例。</p>
+            </div>
+          </div>
         </div>
-        <div class="band band-blue">短文件用 cat；长文件用 more/less；只看首尾用 head/tail；需要行号用 nl。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>练习1：用 cat 查看较短文本</h2>
-        <pre><code class="language-bash">cd ~/Desktop/LinuxProject
-cat README.txt
-cat data/patients/patient_demo_small.csv</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>cat</h3><p>把文件内容一次输出到终端</p></div>
-          <div class="card green"><h3>观察</h3><p>短文本直观；较长 CSV、报告和日志不要直接 cat</p></div>
+        <h2>文件查看命令怎么选？</h2>
+        <p class="subtitle">同一个练习目录，不同命令解决不同查看需求</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>cat</h3><p>一次输出全部内容。适合 README.txt、小型 CSV。</p></div>
+          <div class="card green"><h3>more</h3><p>从前向后分页查看。适合年度报告。</p></div>
+          <div class="card blue"><h3>less</h3><p>可前后翻页并搜索。适合系统日志。</p></div>
+          <div class="card green"><h3>head</h3><p>查看文件开头。适合 CSV 表头和前几条记录。</p></div>
+          <div class="card blue"><h3>tail</h3><p>查看文件结尾。适合日志末尾和最近记录。</p></div>
+          <div class="card green"><h3>nl</h3><p>查看内容并编号。适合 shift_notes.txt。</p></div>
         </div>
+        <div class="band band-blue">短文件才用 cat；长文件优先 more / less；只看首尾用 head / tail；需要行号用 nl。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>06</span></div>
       </section>
 
       <!-- 07 -->
       <section data-page="07">
-        <h2>练习2：用 more 和 less 分页浏览</h2>
-        <pre><code class="language-bash">more reports/2026/annual_medical_report.txt
-# 空格下一页 · Enter下一行 · q退出
-less logs/system/system_runtime.log
-# 空格下一页 · b上一页 · /ERROR 搜索 · n下一个 · q退出</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>more</h3><p>从前向后分页，适合顺序阅读长报告</p></div>
-          <div class="card green"><h3>less</h3><p>可前后翻页，还能搜索 ERROR 等关键词</p></div>
+        <h2>命令演示：cat 一次看完短文件</h2>
+        <p class="subtitle">先从“把整个文件一次显示出来”开始</p>
+        <pre><code class="language-bash">cd ~/Desktop/LinuxProject
+cat README.txt
+cat data/patients/patient_demo_small.csv</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>cat 文件名</h3><p>把文件内容从第一行到最后一行一次输出到终端。</p></div>
+          <div class="card green"><h3>观察 1</h3><p>README.txt 较短，用 cat 查看比较直观。</p></div>
+          <div class="card blue"><h3>观察 2</h3><p>patient_demo_small.csv 只有少量记录，可以同时看到表头和全部数据。</p></div>
+          <div class="card green"><h3>结论</h3><p>cat 适合较短文本。较长 CSV、报告和日志不要直接 cat。</p></div>
         </div>
-        <div class="band band-blue">两个文件都至少翻 2 页；在 less 中搜索一次 ERROR 再退出。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>07</span></div>
       </section>
 
       <!-- 08 -->
       <section data-page="08">
-        <h2>练习3：用 head 和 tail 看首尾</h2>
-        <pre><code class="language-bash">head data/patients/patient_records.csv
-head -n 5 data/patients/patient_records.csv
-tail logs/application/hospital_app.log
-tail -n 10 logs/application/hospital_app.log</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>head</h3><p>默认前 10 行；适合看 CSV 表头</p></div>
-          <div class="card green"><h3>tail</h3><p>默认后 10 行；适合看日志末尾</p></div>
+        <h2>命令演示：长文本用 more 与 less 分页</h2>
+        <p class="subtitle">长文件不要一次刷完，学会停下来慢慢看</p>
+        <pre><code class="language-bash">more reports/2026/annual_medical_report.txt
+# 空格下一页，Enter 下一行，q 退出
+less logs/system/system_runtime.log
+# 空格下一页，b 上一页，/ERROR 搜索，n 下一个匹配，q 退出</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>more</h3><p>按页从前往后查看，适合顺序阅读 360 行的年度报告。</p></div>
+          <div class="card green"><h3>less</h3><p>可以前后翻页，还能在 900 行系统日志中搜索 ERROR 等关键词。</p></div>
+          <div class="card blue"><h3>退出方式</h3><p>两个命令都按 <code>q</code> 退出，回到提示符。</p></div>
+          <div class="card green"><h3>练习要求</h3><p>两个文件都至少翻 2 页；在 less 中搜索一次 ERROR，再按 q 退出。</p></div>
         </div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>08</span></div>
       </section>
 
       <!-- 09 -->
       <section data-page="09">
-        <h2>练习4：用 nl 给文本加行号</h2>
-        <pre><code class="language-bash">nl docs/notes/shift_notes.txt
-nl -ba docs/notes/shift_notes.txt
-nl README.txt</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>nl</h3><p>给非空行编号</p></div>
-          <div class="card green"><h3>nl -ba</h3><p>给所有行编号，包括空白行</p></div>
+        <h2>命令演示：head 与 tail 快速看首尾</h2>
+        <p class="subtitle">表格先看表头，日志常常先看最后几行</p>
+        <pre><code class="language-bash">head data/patients/patient_records.csv
+head -n 5 data/patients/patient_records.csv
+tail logs/application/hospital_app.log
+tail -n 10 logs/application/hospital_app.log</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>head</h3><p>默认显示前 10 行；查看 CSV 时可以快速确认表头和最前面的记录。</p></div>
+          <div class="card green"><h3>tail</h3><p>默认显示最后 10 行；查看日志时适合快速观察文件末尾记录。</p></div>
+          <div class="card blue"><h3>-n 5</h3><p>只显示前 5 行，常用于只看 CSV 表头和少量记录。</p></div>
+          <div class="card green"><h3>-n 10</h3><p>只显示最后 10 行，用于定位日志最新内容。</p></div>
         </div>
-        <div class="band band-blue">行号不是文件原有内容，只是显示时临时加上的。</div>
+        <div class="band band-blue">比较默认输出与 -n 指定行数的差别，确认 head 看“开头”、tail 看“结尾”。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>09</span></div>
       </section>
 
       <!-- 10 -->
       <section data-page="10">
-        <h2>练习5：面对不同需求，自己选择命令</h2>
-        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
-          <div class="card blue"><h3>A</h3><p>完整查看 README.txt → cat</p></div>
-          <div class="card green"><h3>B</h3><p>分页读年度报告 → more/less</p></div>
-          <div class="card blue"><h3>C</h3><p>CSV 前 5 行 → head -n 5</p></div>
-          <div class="card green"><h3>D</h3><p>日志最后 10 行 → tail -n 10</p></div>
-          <div class="card blue"><h3>E</h3><p>全部行号 → nl -ba</p></div>
-          <div class="card green"><h3>F</h3><p>日志中搜索 ERROR → less</p></div>
+        <h2>命令演示：用 nl 给文本加上行号</h2>
+        <p class="subtitle">需要说明“第几行”时，行号会非常有用</p>
+        <pre><code class="language-bash">nl docs/notes/shift_notes.txt
+nl -ba docs/notes/shift_notes.txt
+nl README.txt</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>nl 文件名</h3><p>显示文件内容，并在非空行前添加行号。</p></div>
+          <div class="card green"><h3>nl -ba</h3><p>给所有行编号，包括空白行。</p></div>
+          <div class="card blue"><h3>提醒</h3><p>行号不是文件原有内容，只是 nl 在显示时临时加上的。</p></div>
         </div>
-        <div class="band band-blue">文件越长，为什么越不应该直接 cat？</div>
+        <div class="band band-blue">shift_notes.txt 中故意保留了空行，便于比较 nl 与 nl -ba 的差别。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>10</span></div>
       </section>
 
       <!-- 11 -->
       <section data-page="11">
-        <h2>find：从“路径”到“条件”</h2>
-        <pre><code class="language-bash">find 查找起点 查找条件
-find . -type f -name "*.csv"
-find . -type f -size +100k
-find . -type f -mtime -30</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>-name</h3><p>按名称，如 <code>"*.csv"</code></p></div>
-          <div class="card green"><h3>-type</h3><p>f 普通文件 · d 目录</p></div>
-          <div class="card blue"><h3>-size</h3><p>+100k / -20k</p></div>
-          <div class="card green"><h3>-mtime</h3><p>+365 / -30</p></div>
+        <h2>练习：面对需求，自己选择查看命令</h2>
+        <p class="subtitle">不只练语法，更练“什么时候该用谁”</p>
+        <pre><code class="language-bash">cat README.txt
+head -n 5 data/patients/patient_records.csv
+tail -n 10 logs/application/hospital_app.log
+more reports/2026/annual_medical_report.txt
+less logs/system/system_runtime.log
+nl -ba docs/notes/shift_notes.txt</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>A 完整查看</h3><p>README.txt → cat</p></div>
+          <div class="card green"><h3>B 分页读报告</h3><p>年度报告 → more / less</p></div>
+          <div class="card blue"><h3>C 只看前 5 行</h3><p>patient_records.csv → head -n 5</p></div>
+          <div class="card green"><h3>D 只看后 10 行</h3><p>hospital_app.log → tail -n 10</p></div>
+          <div class="card blue"><h3>E 全部行号</h3><p>shift_notes.txt → nl -ba</p></div>
+          <div class="card green"><h3>F 搜索 ERROR</h3><p>system_runtime.log → less</p></div>
         </div>
-        <div class="band band-blue">通配符模式请放在引号中。多个条件默认同时满足。</div>
+        <div class="band band-blue">做完再问自己：文件越长，为什么越不应该直接 cat？</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>11</span></div>
       </section>
 
       <!-- 12 -->
       <section data-page="12">
-        <h2>练习6：用 find 按名称查找</h2>
-        <pre><code class="language-bash">find . -name "README.txt"
-find . -name "*.txt"
-find . -name "*.csv"
-find reports -name "result*"</code></pre>
-        <div class="band band-blue">观察：从 <code>.</code> 开始和从 <code>reports</code> 开始，结果范围有什么不同？</div>
+        <h2>find：先确定“从哪里找”，再决定“按什么找”</h2>
+        <pre><code class="language-text">基本格式：find 查找起点 查找条件</code></pre>
+        <pre><code class="language-bash">find . -type f -name "*.csv"
+find . -type f -size +100k
+find . -type f -mtime -30</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>-name</h3><p>按名称匹配，如 <code>"*.csv"</code>。</p></div>
+          <div class="card green"><h3>-type</h3><p>按类型：f 普通文件，d 目录。</p></div>
+          <div class="card blue"><h3>-size</h3><p>按大小：+100k 大于，-20k 小于。</p></div>
+          <div class="card green"><h3>-mtime</h3><p>按修改时间：+365 较早，-30 最近。</p></div>
+        </div>
+        <div class="band band-blue"><code>.</code> 表示当前目录；多个条件默认“同时满足”；通配符模式建议放在引号中。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>12</span></div>
       </section>
 
       <!-- 13 -->
       <section data-page="13">
-        <h2>练习7：用 find 区分文件和目录</h2>
-        <pre><code class="language-bash">find . -type f
-find . -type d
-find . -type f -name "*.txt"
-find . -type d -name "data*"</code></pre>
+        <h2>命令演示：按名称查找</h2>
+        <p class="subtitle">-name 用来匹配文件名或目录名</p>
+        <pre><code class="language-bash">find . -name "README.txt"
+find . -name "*.txt"
+find . -name "*.csv"
+find reports -name "result*"</code></pre>
         <div class="card-grid">
-          <div class="card blue"><h3>-type f</h3><p>只匹配普通文件</p></div>
-          <div class="card green"><h3>-type d</h3><p>只匹配目录</p></div>
+          <div class="card blue"><h3>-name</h3><p>按名称匹配；通配符写在引号中，避免被 shell 提前展开。</p></div>
+          <div class="card green"><h3>查找起点</h3><p><code>.</code> 表示从当前目录向下查找；<code>reports</code> 表示只在 reports 下查找。</p></div>
+          <div class="card blue"><h3>范围不同</h3><p>从 . 开始与从 reports 开始，返回结果范围不同。</p></div>
+          <div class="card green"><h3>观察</h3><p>同一个 -name 条件，改变起点后结果有什么变化？</p></div>
         </div>
-        <div class="band band-blue">能解释查找起点、-type、-name 各自控制什么吗？</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>13</span></div>
       </section>
 
       <!-- 14 -->
       <section data-page="14">
-        <h2>练习8：用 find -size 按大小查找</h2>
-        <pre><code class="language-bash">ls -lh archive/backup
-find archive/backup -type f -size +100k
-find archive/backup -type f -size -20k
-find . -type f -size +100k</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>+100k</h3><p>大于 100 KiB</p></div>
-          <div class="card green"><h3>-20k</h3><p>小于 20 KiB</p></div>
+        <h2>命令演示：用 -type 区分文件和目录</h2>
+        <p class="subtitle">名称相似时，再用类型把范围缩得更准确</p>
+        <pre><code class="language-bash">find . -type f
+find . -type d
+find . -type f -name "*.txt"
+find . -type d -name "data*"</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>-type f</h3><p>只匹配普通文件。</p></div>
+          <div class="card green"><h3>-type d</h3><p>只匹配目录。</p></div>
+          <div class="card blue"><h3>条件组合</h3><p>例如既是普通文件，又以 .txt 结尾。</p></div>
+          <div class="card green"><h3>自查</h3><p>你能解释“查找起点、-type、-name”各自控制什么吗？</p></div>
         </div>
-        <div class="band band-blue">单位：k 表示 KiB，M 表示 MiB；+ 表示大于，- 表示小于。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>14</span></div>
       </section>
 
       <!-- 15 -->
       <section data-page="15">
-        <h2>练习9：用 find -mtime 按修改时间查找</h2>
-        <pre><code class="language-bash">ls -l reports/2024/old_report.txt
-ls -l reports/2026/recent_report.txt
-find . -type f -mtime +365
-find . -type f -mtime -30</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>-mtime +365</h3><p>约 365 天以前修改过的文件</p></div>
-          <div class="card green"><h3>-mtime -30</h3><p>最近约 30 天内修改过的文件</p></div>
+        <h2>命令演示：用 -size 按文件大小查找</h2>
+        <p class="subtitle">脚本已经准备了 2K、16K、128K、1M 四个固定大小文件</p>
+        <pre><code class="language-bash">ls -lh archive/backup
+find archive/backup -type f -size +100k
+find archive/backup -type f -size -20k
+find . -type f -size +100k</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>-size +100k</h3><p>查找大于 100 KiB 的文件。固定样例中 128K 与 1M 文件会匹配。</p></div>
+          <div class="card green"><h3>-size -20k</h3><p>查找小于 20 KiB 的文件。archive/backup 中 2K 与 16K 文件会匹配。</p></div>
+          <div class="card blue"><h3>常用单位</h3><p>k 表示 KiB，M 表示 MiB。</p></div>
+          <div class="card green"><h3>正负号</h3><p>前面的 + 表示“大于”，- 表示“小于”。</p></div>
         </div>
-        <div class="band band-blue">-mtime 以当前时间为基准，按完整 24 小时周期计算。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>15</span></div>
       </section>
 
       <!-- 16 -->
       <section data-page="16">
-        <h2>练习10：把 find 条件组合起来</h2>
+        <h2>命令演示：用 -mtime 按修改时间查找</h2>
+        <p class="subtitle">文件时间戳不同，就可以用“多久以前修改过”来筛选</p>
+        <pre><code class="language-bash">ls -l reports/2024/old_report.txt
+ls -l reports/2026/recent_report.txt
+find . -type f -mtime +365
+find . -type f -mtime -30</code></pre>
         <div class="card-grid">
-          <div class="card blue"><h3>A</h3><div class="cmd">find . -type f -name "*.csv"</div></div>
-          <div class="card green"><h3>B</h3><div class="cmd">find . -type f -size +100k</div></div>
-          <div class="card blue"><h3>C</h3><div class="cmd">find logs -type f -name "*.log" -mtime -30</div></div>
-          <div class="card green"><h3>D</h3><div class="cmd">find reports -type f -name "*.txt" -mtime +365</div></div>
+          <div class="card blue"><h3>-mtime +365</h3><p>查找修改时间早于约 365 天前的文件。2024、2025 的固定样例可以帮助验证。</p></div>
+          <div class="card green"><h3>-mtime -30</h3><p>查找最近约 30 天内修改过的文件。脚本还设置了若干 2026-08-30 / 08-31 的固定样例。</p></div>
+          <div class="card blue"><h3>计算基准</h3><p>以执行命令时的当前时间为基准，并按完整的 24 小时周期计算。</p></div>
+          <div class="card green"><h3>注意</h3><p>随机时间戳的结果每次可能不同；先用 ls -l 看时间，再解释结果。</p></div>
         </div>
-        <div class="band band-blue">结果太多时，先想还能增加哪个条件：-type / -name / -size / -mtime。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>16</span></div>
       </section>
 
       <!-- 17 -->
       <section data-page="17">
-        <h2>课堂综合练习</h2>
-        <div class="two-col uneven">
+        <h2>命令演示：把 find 条件组合起来</h2>
+        <p class="subtitle">真实查找通常不是只有一个条件，而是逐步缩小范围</p>
+        <div class="card-grid">
           <div class="card blue">
-            <h3>环境</h3>
-            <ul>
-              <li>目录：<code>~/Desktop/LinuxProject</code></li>
-              <li>查看：README、CSV、报告、日志</li>
-              <li>查找：. / reports / logs / archive/backup</li>
-            </ul>
+            <h3>A 找所有 CSV 普通文件</h3>
+            <pre><code class="language-bash">find . -type f -name "*.csv"</code></pre>
           </div>
           <div class="card green">
-            <h3>任务</h3>
-            <ul class="num-list">
-              <li>短文本、长报告、CSV 开头、日志结尾、带行号查看</li>
-              <li>按名称与类型查找</li>
-              <li>按大小与时间查找，并至少一次条件组合</li>
-            </ul>
+            <h3>B 找大于 100K 的普通文件</h3>
+            <pre><code class="language-bash">find . -type f -size +100k</code></pre>
+          </div>
+          <div class="card blue">
+            <h3>C 找最近 30 天修改的日志</h3>
+            <pre><code class="language-bash">find logs -type f -name "*.log" -mtime -30</code></pre>
+          </div>
+          <div class="card green">
+            <h3>D 找较老的报告文本</h3>
+            <pre><code class="language-bash">find reports -type f -name "*.txt" -mtime +365</code></pre>
           </div>
         </div>
+        <div class="band band-blue">结果太多时不要立刻换工具：先问自己，还能增加 -type、-name、-size、-mtime 中的哪个条件？</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>17</span></div>
       </section>
 
       <!-- 18 -->
       <section data-page="18">
-        <h2>课堂综合练习：操作清单</h2>
-        <ul class="num-list" style="margin-top:0.3em;">
-          <li>完整查看 README.txt</li>
-          <li>给 shift_notes.txt 全部行编号（含空行）</li>
-          <li>显示 patient_records.csv 前 5 行</li>
-          <li>显示 hospital_app.log 最后 10 行</li>
-          <li>用 more 浏览年度报告；用 less 浏览系统日志并搜索 ERROR</li>
-          <li>按名称、类型、大小、时间完成查找</li>
+        <h2>练习：分步缩小查找范围</h2>
+        <p class="subtitle">先按名称和类型，再按大小和时间</p>
+        <pre><code class="language-bash">find . -type f -name "*.txt"
+find . -type d
+find archive/backup -type f -size +100k
+find . -type f -mtime -30
+find logs -type f -name "*.log" -mtime -30</code></pre>
+        <ul class="num-list" style="margin-top:0.35em;">
+          <li>找出所有 .txt 普通文件</li>
+          <li>分别列出普通文件和目录</li>
+          <li>在 archive/backup 中找大于 100K 的文件</li>
+          <li>找最近 30 天内修改过的文件</li>
+          <li>在 logs 中组合名称与时间条件</li>
         </ul>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>18</span></div>
       </section>
 
       <!-- 19 -->
       <section data-page="19">
-        <h2>常见报错</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>No such file or directory</h3><p>先 pwd / ls 确认位置</p></div>
-          <div class="card green"><h3>paths must precede expression</h3><p>把 <code>*.txt</code> 写成 <code>"*.txt"</code></p></div>
-          <div class="card blue"><h3>invalid -size</h3><p>检查单位写法，如 +100k</p></div>
-          <div class="card green"><h3>结果与预期不同</h3><p>先 ls -l 看时间，再解释 -mtime</p></div>
+        <h2>课堂综合练习：独立完成查看与查找</h2>
+        <p class="subtitle">前面的练习用于熟悉命令，这一部分需要自己选择合适工具</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>查看对象</h3>
+            <ul>
+              <li>README.txt</li>
+              <li>patient_records.csv</li>
+              <li>annual_medical_report.txt</li>
+              <li>system_runtime.log</li>
+              <li>hospital_app.log</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>查找对象</h3>
+            <ul>
+              <li>当前目录 .</li>
+              <li>reports/</li>
+              <li>logs/</li>
+              <li>archive/backup/</li>
+            </ul>
+          </div>
         </div>
+        <pre><code class="language-bash">cd ~/Desktop/LinuxProject
+pwd
+ls</code></pre>
+        <div class="band band-blue">目标：看内容、看首尾、看行号；按名称、类型、大小、时间查找。老师只给目标，不给完整命令。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>19</span></div>
       </section>
 
       <!-- 20 -->
       <section data-page="20">
-        <h2>如何保存实验截图</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>截图 A</h3><p>cat / nl / head / tail</p></div>
-          <div class="card green"><h3>截图 B</h3><p>more / less 分页或搜索</p></div>
-          <div class="card blue"><h3>截图 C</h3><p>-name / -type 查找</p></div>
-          <div class="card green"><h3>截图 D</h3><p>-size / -mtime 查找</p></div>
-        </div>
-        <div class="band band-blue">截取命令、输出和提示符；确保 njucm 清晰可读。</div>
+        <h2>综合练习：需要完成的操作</h2>
+        <ul class="num-list" style="margin-top:0.2em;">
+          <li>完整查看 README.txt</li>
+          <li>让 shift_notes.txt 的空白行也显示行号</li>
+          <li>只显示 patient_records.csv 前 5 行</li>
+          <li>只显示 hospital_app.log 最后 10 行</li>
+          <li>用 more 浏览 annual_medical_report.txt</li>
+          <li>用 less 浏览 system_runtime.log，并搜索 ERROR</li>
+          <li>查找 README.txt、所有 .txt 和所有 .csv</li>
+          <li>分别查普通文件、目录，以及 .txt 普通文件</li>
+          <li>在 archive/backup 中找大于 100K 和小于 20K 的文件</li>
+          <li>找最近 30 天和 365 天以前修改过的文件</li>
+        </ul>
+        <pre><code class="language-bash">pwd
+ls -R</code></pre>
+        <div class="band band-blue">完成标准：能自主选择 cat / more / less / head / tail / nl / find；输出与目标一致，截图清晰。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>20</span></div>
       </section>
 
       <!-- 21 -->
       <section data-page="21">
-        <h2>实验3作业：提交实验报告</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
-          <div class="card green"><h3>实验结果</h3><p>四类截图 + 说明</p></div>
-          <div class="card blue"><h3>问题汇总</h3><p>报错与解决方法</p></div>
-          <div class="card green"><h3>实验总结</h3><p>3～5 句收获</p></div>
+        <h2>常见报错：先看它在说什么</h2>
+        <p class="subtitle">排错顺序：读报错 → 检查路径和查找范围 → 检查参数与单位 → 再执行</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>No such file or directory</h3><p>文件路径写错，或尚未进入 LinuxProject。先用 pwd / ls 确认。</p></div>
+          <div class="card green"><h3>paths must precede expression</h3><p>find 中通配符可能被 shell 提前展开。把 *.txt 写成 "*.txt"。</p></div>
+          <div class="card blue"><h3>invalid -size type</h3><p>-size 后的单位或写法错误。本实验使用 +100k、-20k，注意 k / M。</p></div>
+          <div class="card green"><h3>结果与预期不同</h3><p>-mtime 相对当前时间按完整 24 小时计算。先用 ls -l 看时间，再解释结果。</p></div>
+          <div class="card blue"><h3>Permission denied</h3><p>查找范围包含无权进入的目录。把起点缩小到自己的练习目录，不要一看到就 sudo。</p></div>
+          <div class="card green"><h3>排错口诀</h3><p>先确认“我在哪里”，再确认“我要找什么”，最后检查引号、单位和条件。</p></div>
         </div>
-        <div class="band band-blue">提交平台：雨课堂。作业内容就是课堂综合练习。</div>
         <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>21</span></div>
       </section>
 
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>保存截图与填写实验报告</h2>
+        <p class="subtitle">截图重点：关键命令、输出和最终查找结果</p>
+        <div class="split-panel">
+          <div class="stack">
+            <div class="card blue">
+              <h3>建议保留 4 类截图</h3>
+              <ul class="num-list">
+                <li>A 基础查看：cat / nl / head / tail</li>
+                <li>B 长文本分页：more / less 或搜索 ERROR</li>
+                <li>C 名称与类型：-name、-type 及返回路径</li>
+                <li>D 大小与时间：-size、-mtime 及返回路径</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>截图与报告</h3>
+              <p>打开截图工具，框选终端区域，保存为 PNG/JPG；报告写基本信息、目的、内容和要求、实验结果、问题、总结。</p>
+            </div>
+          </div>
+          <div class="stack">
+            <pre><code class="language-bash">find . -type f -name "*.txt"
+find . -type f -size +100k
+find . -type f -mtime -30</code></pre>
+            <div class="band band-blue" style="margin:0;">截图命名示例：实验3_查看_01.png、实验3_find_name_type.png、实验3_find_size_mtime.png。</div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>作业与回顾：文本查看和查找</h2>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>作业：提交课堂综合练习报告</h3>
+            <ul class="num-list">
+              <li>使用《实验报告》模板，封面和基本信息填写完整</li>
+              <li>实验结果放入 4 类关键截图，每张下写 1–2 句说明</li>
+              <li>问题汇总写清报错内容、原因判断和解决方法</li>
+              <li>实验总结写 3～5 句，重点写命令选择与 find 条件</li>
+              <li>提交平台：雨课堂，截图直接放入报告</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>本课回顾</h3>
+            <ul>
+              <li>短文本用 cat，带行号用 nl</li>
+              <li>长文本用 more / less，less 还能搜索</li>
+              <li>看开头用 head，看结尾用 tail</li>
+              <li>find 先定起点，再按 -name、-type、-size、-mtime 筛选</li>
+              <li>多个条件默认同时满足，结果太多就继续加条件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">下一课：继续练习文本查找与内容筛选，把“找到文件”推进到“找到内容”。</div>
+        <div class="slide-footer"><span>Linux 实验3｜文本查看和查找</span><span>23</span></div>
+      </section>
 
     </div>
   </div>

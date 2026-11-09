@@ -436,33 +436,34 @@
       <!-- 01 -->
       <section data-page="01">
         <h1>实验基本信息</h1>
-        <p class="exp-name">实验二：文件与目录管理｜掌握目录与文件的创建、复制、移动、重命名和删除</p>
+        <p class="exp-name">实验二：文件与目录管理｜熟悉 Linux 文件系统，掌握目录与文件的创建、复制、移动、重命名和删除</p>
         <div class="two-col">
           <div class="card blue">
             <h3>实验目的</h3>
             <ul class="num-list">
-              <li>理解绝对路径、相对路径和主目录</li>
-              <li>掌握 mkdir、touch、cp、mv、rm、rmdir</li>
-              <li>养成先确认路径再操作的习惯</li>
+              <li>理解绝对路径、相对路径和主目录等基本概念</li>
+              <li>掌握 mkdir、touch、cp、mv、rm、rmdir 等常用命令</li>
+              <li>能使用 ls 检查操作结果，养成先确认路径再操作的习惯</li>
             </ul>
           </div>
           <div class="card green">
             <h3>实验内容和要求</h3>
             <ul class="num-list">
-              <li>建立 LinuxProject 并完成文件操作</li>
-              <li>删除前先用 pwd、ls 检查路径</li>
-              <li>独立完成课堂综合练习并写报告</li>
+              <li>使用用户名 njucm 登录 CentOS，在终端完成分步练习</li>
+              <li>建立 LinuxProject，完成文件创建、复制、移动、改名和删除</li>
+              <li>删除前先用 pwd、ls 检查路径，避免误删</li>
+              <li>独立完成课堂综合练习，保存关键截图并写入实验报告</li>
             </ul>
           </div>
         </div>
-        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：VMware Workstation + CentOS 课程虚拟机 · 用户名 <code>njucm</code></div>
         <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>01</span></div>
       </section>
 
       <!-- 02 -->
       <section data-page="02">
-        <h1>Linux 实验二</h1>
-        <p class="subtitle">文件与目录管理：从“会看目录”到“能自己整理一个项目”</p>
+        <h1>文件与目录管理</h1>
+        <p class="subtitle">从“会看目录”到“能自己整理一个项目”</p>
         <div class="five-nodes">
           <div class="node"><span class="label">路径</span><code>pwd / ~</code></div>
           <div class="node"><span class="label">创建</span><code>mkdir</code></div>
@@ -470,7 +471,16 @@
           <div class="node"><span class="label">移动</span><code>mv</code></div>
           <div class="node"><span class="label">删除</span><code>rm -i</code></div>
         </div>
-        <div class="band band-blue">最终整理出带 data、scripts、results、docs、backup 的项目结构</div>
+        <pre><code class="language-text">LinuxProject/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── scripts/
+├── results/
+├── docs/
+├── backup/
+└── README.txt</code></pre>
+        <div class="band band-blue">本次实验最终会整理出上面这个规范项目结构。</div>
         <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>02</span></div>
       </section>
 
@@ -479,26 +489,30 @@
         <h2>实验流程与学习目标</h2>
         <div class="flow-steps six">
           <div class="step"><span>01</span>路径基础</div>
-          <div class="step"><span>02</span>创建</div>
-          <div class="step"><span>03</span>复制备份</div>
-          <div class="step"><span>04</span>移动改名</div>
+          <div class="step"><span>02</span>创建目录与文件</div>
+          <div class="step"><span>03</span>复制与备份</div>
+          <div class="step"><span>04</span>移动与改名</div>
           <div class="step"><span>05</span>安全删除</div>
           <div class="step"><span>06</span>综合整理</div>
         </div>
         <div class="two-col uneven">
           <div class="card blue">
-            <h3>学习目标</h3>
+            <h3>本次实验结束时，你应该能做到</h3>
             <ul>
-              <li>说清绝对路径与相对路径区别</li>
-              <li>会创建、复制、移动、重命名</li>
-              <li>知道 rm 的风险并能安全删除</li>
+              <li>说清绝对路径与相对路径的区别</li>
+              <li>创建目录和文件，并查看基本信息</li>
+              <li>复制、移动、重命名文件和目录</li>
+              <li>安全删除文件，知道 rm 的风险</li>
+              <li>独立整理出规范的 Linux 项目目录</li>
             </ul>
           </div>
           <div class="card green">
-            <h3>课堂原则</h3>
+            <h3>课堂操作原则</h3>
             <ul>
-              <li>先 pwd，再 ls，再操作</li>
-              <li>cp / mv / rm 后立即检查结果</li>
+              <li>先用 pwd 确认当前位置</li>
+              <li>再用 ls 看清源文件和目标目录</li>
+              <li>完成 cp、mv、rm 后立即检查结果</li>
+              <li>报错时先读提示，再改命令</li>
             </ul>
           </div>
         </div>
@@ -507,110 +521,215 @@
 
       <!-- 04 -->
       <section data-page="04">
-        <h2>文件管理在做什么？</h2>
+        <h2>场景问题：文件都堆在项目根目录会怎样？</h2>
+        <p class="subtitle">先回答四个问题，再开始整理项目</p>
         <div class="card-grid">
-          <div class="card blue"><h3>我现在在哪里？</h3><p><code>pwd</code></p></div>
-          <div class="card green"><h3>这里有什么？</h3><p><code>ls</code></p></div>
-          <div class="card blue"><h3>目标在哪里？</h3><p>路径</p></div>
-          <div class="card green"><h3>我要做什么？</h3><p>创建 / 复制 / 移动 / 删除</p></div>
+          <div class="card blue"><h3>我现在在哪里？</h3><p>用 <code>pwd</code> 确认当前位置，避免在错误目录里操作。</p></div>
+          <div class="card green"><h3>这里有什么？</h3><p>用 <code>ls</code> 看清当前目录中已有的文件。</p></div>
+          <div class="card blue"><h3>目标在哪里？</h3><p>用路径描述目标位置：绝对路径或相对路径。</p></div>
+          <div class="card green"><h3>我要做什么？</h3><p>创建、复制、移动、改名还是删除？</p></div>
         </div>
-        <div class="band band-blue">主目录通常是 <code>/home/njucm</code>，也可简写为 <code>~</code>。</div>
+        <pre><code class="language-bash">cd ~
+pwd
+ls</code></pre>
+        <div class="band band-blue">本节目标：把一堆散乱文件，整理成有 data、scripts、results、docs、backup 的规范项目。</div>
         <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>04</span></div>
       </section>
 
       <!-- 05 -->
       <section data-page="05">
-        <h2>路径基础：绝对路径、相对路径与符号</h2>
-        <div class="two-col">
-          <div class="card blue">
-            <h3>绝对路径</h3>
-            <p>从根目录 <code>/</code> 写完整位置，例如 <code>/home/njucm/LinuxProject/data/raw</code>。不受当前目录影响。</p>
+        <h2>Linux 目录从哪里开始？</h2>
+        <p class="subtitle">整个文件系统从根目录 / 开始，用户主目录在 /home 下</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">pwd
+cd ~
+pwd
+ls
+ls -a</code></pre>
+            <div class="card blue">
+              <h3>目录层级</h3>
+              <p><code>/</code> 是整个 Linux 文件系统的起点；<code>/home</code> 存放普通用户主目录；<code>/home/njucm</code> 就是你的主目录。</p>
+            </div>
           </div>
-          <div class="card green">
-            <h3>相对路径</h3>
-            <p>从当前目录出发描述目标。写得更短，但依赖当前位置。</p>
+          <div class="stack">
+            <pre><code class="language-text">/
+└── home/
+    └── njucm/
+        └── LinuxProject/
+            ├── data/
+            ├── scripts/
+            └── results/</code></pre>
+            <div class="card green">
+              <h3>记住</h3>
+              <p>主目录通常写成 <code>/home/njucm</code>，也可以简写为 <code>~</code>。回到主目录用 <code>cd ~</code>。</p>
+            </div>
           </div>
-        </div>
-        <div class="card-grid" style="margin-top:0.55em;grid-template-columns:repeat(4,1fr);">
-          <div class="card blue"><h3>~</h3><p>主目录</p></div>
-          <div class="card green"><h3>.</h3><p>当前目录</p></div>
-          <div class="card blue"><h3>..</h3><p>上一级目录</p></div>
-          <div class="card green"><h3>/</h3><p>根目录</p></div>
         </div>
         <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>05</span></div>
       </section>
 
       <!-- 06 -->
       <section data-page="06">
-        <h2>练习1：建立项目目录结构</h2>
+        <h2>路径基础：绝对路径、相对路径与常用符号</h2>
+        <p class="subtitle">文件操作是否成功，很多时候取决于路径是否写对</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>绝对路径</h3>
+            <p>从根目录 <code>/</code> 开始写完整位置，例如 <code>/home/njucm/LinuxProject/data/raw</code>。不受当前所在目录影响。</p>
+          </div>
+          <div class="card green">
+            <h3>相对路径</h3>
+            <p>从当前目录出发描述目标位置。若当前在 <code>/home/njucm</code>，可写 <code>LinuxProject/data/raw</code>。更短，但依赖当前位置。</p>
+          </div>
+        </div>
+        <div class="card-grid four" style="margin-top:0.55em;">
+          <div class="card blue"><h3>~</h3><p>当前用户主目录</p></div>
+          <div class="card green"><h3>.</h3><p>当前目录</p></div>
+          <div class="card blue"><h3>..</h3><p>上一级目录</p></div>
+          <div class="card green"><h3>/</h3><p>根目录</p></div>
+        </div>
+        <pre><code class="language-bash">cd /home/njucm
+pwd
+cd ..
+pwd
+cd njucm
+pwd</code></pre>
+        <div class="band band-blue">不确定当前位置时先执行 <code>pwd</code>；不确定文件是否存在时先执行 <code>ls</code>。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>命令演示：建立项目目录结构</h2>
+        <p class="subtitle">先搭好“文件柜”，后面的文件都要放进正确位置</p>
         <div class="split-panel">
           <div class="stack">
             <pre><code class="language-bash">cd ~
 mkdir LinuxProject
 cd LinuxProject
-mkdir data scripts results docs backup
+mkdir data
+mkdir scripts results docs backup
 mkdir data/raw data/processed
 pwd
 ls -R</code></pre>
           </div>
           <div class="stack">
             <div class="card blue">
-              <h3>目标结构</h3>
-              <pre><code class="language-bash">LinuxProject/
-├── data/raw/
-├── data/processed/
+              <h3>最终结构</h3>
+              <pre><code class="language-text">LinuxProject/
+├── data/
+│   ├── raw/
+│   └── processed/
 ├── scripts/
 ├── results/
 ├── docs/
 └── backup/</code></pre>
             </div>
             <div class="card green">
-              <h3>检查</h3>
-              <p>pwd 应为 <code>/home/njucm/LinuxProject</code>；<code>ls -R</code> 能看到完整多级结构。</p>
+              <h3>检查要求</h3>
+              <p><code>pwd</code> 应显示 <code>/home/njucm/LinuxProject</code>；<code>ls -R</code> 能看到完整的多级目录结构。</p>
             </div>
           </div>
-        </div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>06</span></div>
-      </section>
-
-      <!-- 07 -->
-      <section data-page="07">
-        <h2>练习2：创建文件并查看信息</h2>
-        <pre><code class="language-bash">cd ~/LinuxProject
-touch README.txt sample1.txt sample2.txt sample3.txt
-touch analysis.py plot.py result1.csv result2.csv
-touch notes.txt temp.txt
-ls -l
-file README.txt
-stat README.txt</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>touch</h3><p>创建空文件；已存在则更新时间</p></div>
-          <div class="card green"><h3>file</h3><p>判断文件类型，不只看扩展名</p></div>
-          <div class="card blue"><h3>stat</h3><p>查看大小、权限、时间等属性</p></div>
-          <div class="card green"><h3>观察</h3><p>新建空文件大小通常是多少？</p></div>
         </div>
         <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>07</span></div>
       </section>
 
       <!-- 08 -->
       <section data-page="08">
-        <h2>练习3：复制文件与目录</h2>
-        <p class="subtitle">cp 要分清“源”与“目标”；复制后原文件仍保留</p>
+        <h2>练习1：照着建一遍项目结构</h2>
+        <p class="subtitle">换一个目录练习，避免覆盖刚才建好的 LinuxProject</p>
+        <pre><code class="language-bash">cd ~
+mkdir PracticeProject
+cd PracticeProject
+mkdir data scripts results docs backup
+mkdir data/raw data/processed
+pwd
+ls -R</code></pre>
+        <div class="band band-green">检查：pwd 是否为 <code>/home/njucm/PracticeProject</code>。</div>
+        <div class="band band-blue"><code>mkdir</code> 可以一次创建多个同级目录；<code>mkdir data/raw data/processed</code> 则分别指定父目录与子目录。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>命令演示：创建文件并查看文件信息</h2>
+        <p class="subtitle">touch 创建空文件，file 和 stat 帮你了解文件本身</p>
+        <pre><code class="language-bash">cd ~/LinuxProject
+touch README.txt
+touch sample1.txt sample2.txt sample3.txt
+touch analysis.py plot.py
+touch result1.csv result2.csv
+touch notes.txt temp.txt
+ls -l
+file README.txt
+stat README.txt</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>touch</h3><p>创建空文件；若文件已经存在，则更新它的时间信息。</p></div>
+          <div class="card green"><h3>file</h3><p>根据文件内容判断类型，不只看扩展名。</p></div>
+          <div class="card blue"><h3>stat</h3><p>查看文件大小、权限、时间等更详细的属性。</p></div>
+          <div class="card green"><h3>观察</h3><p>新建的空文件大小通常是多少？</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>练习2：创建待整理的文件</h2>
+        <p class="subtitle">这些文件后面要分类移动到不同目录</p>
+        <pre><code class="language-bash">cd ~/LinuxProject
+touch README.txt
+touch sample1.txt sample2.txt sample3.txt
+touch analysis.py plot.py
+touch result1.csv result2.csv
+touch notes.txt temp.txt
+ls -l
+file README.txt
+stat README.txt</code></pre>
+        <div class="band band-blue">观察 <code>ls -l</code> 的列：权限、大小、时间、文件名。</div>
+        <div class="band band-orange"><code>touch</code> 对已存在文件只更新时间，不会清空内容；但后续仍不要随意覆盖已有文件。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>命令演示：复制文件与目录</h2>
+        <p class="subtitle">cp 的关键是分清“源”与“目标”，复制后原文件仍然保留</p>
         <pre><code class="language-bash">cd ~/LinuxProject
 cp sample1.txt backup/
 cp -i README.txt backup/README_copy.txt
 cp -r data backup/data_copy
 ls -R backup/</code></pre>
         <div class="card-grid">
-          <div class="card blue"><h3>验证</h3><p>原文件还在吗？backup 中是否出现副本？</p></div>
-          <div class="card green"><h3>思考</h3><p>复制目录为什么要加 <code>-r</code>？<code>cp -i</code> 何时询问？</p></div>
+          <div class="card blue"><h3>基本格式</h3><p><code>cp 源 目标</code>；目标是目录时，文件会复制到该目录中。</p></div>
+          <div class="card green"><h3>cp -i</h3><p>目标已存在时先询问，避免无意覆盖。</p></div>
+          <div class="card blue"><h3>cp -r</h3><p>复制目录必须递归，连同子目录一起复制。</p></div>
+          <div class="card green"><h3>验证</h3><p>原文件还在吗？backup 中是否出现副本？</p></div>
         </div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>08</span></div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>11</span></div>
       </section>
 
-      <!-- 09 -->
-      <section data-page="09">
-        <h2>练习4：移动文件与重命名</h2>
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>练习3：再复制一次并检查结果</h2>
+        <pre><code class="language-bash">cd ~/LinuxProject
+cp sample2.txt backup/
+cp -i README.txt backup/README_copy.txt
+cp -r scripts backup/scripts_copy
+ls -R backup/</code></pre>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>原文件还在吗？</li>
+          <li>backup 中是否出现副本？</li>
+          <li>复制目录为什么要加 -r？</li>
+          <li>cp -i 在什么情况下会询问？</li>
+        </ul>
+        <div class="band band-blue">每做完一次 cp，都用 <code>ls -R</code> 检查源和目标。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>命令演示：移动文件与重命名</h2>
         <p class="subtitle">mv 既能“搬家”，也能“改名字”</p>
         <pre><code class="language-bash">cd ~/LinuxProject
 mv README.txt README_Linux.txt
@@ -618,14 +737,34 @@ mv notes.txt docs/
 mv analysis.py plot.py scripts/
 mv result1.csv result2.csv results/
 ls -R</code></pre>
-        <div class="band band-orange">mv 不会保留一份“原件”；移动成功后，源位置通常就没有它了。</div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>09</span></div>
+        <div class="card-grid">
+          <div class="card blue"><h3>重命名</h3><p>源和目标都是文件：<code>mv 旧名 新名</code>。</p></div>
+          <div class="card green"><h3>移动</h3><p>目标是目录：文件被搬到该目录中。</p></div>
+          <div class="card blue"><h3>批量移动</h3><p>一次可以给多个源文件，最后写目标目录。</p></div>
+          <div class="card green"><h3>注意</h3><p>mv 不会保留一份“原件”，移动成功后源位置通常就没有它了。</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>13</span></div>
       </section>
 
-      <!-- 10 -->
-      <section data-page="10">
-        <h2>练习5：安全删除文件与目录</h2>
-        <p class="subtitle">删除通常没有回收站，先确认再执行</p>
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>练习4：把文件搬到正确位置</h2>
+        <p class="subtitle">新建两个练习文件，一个移动并改名，一个直接移动</p>
+        <pre><code class="language-bash">cd ~/LinuxProject
+touch memo.txt draft.py
+mv memo.txt docs/meeting_notes.txt
+mv draft.py scripts/draft.py
+mv sample3.txt data/raw/
+ls -R</code></pre>
+        <div class="band band-blue">操作后检查源位置和目标位置：源位置应少了这些文件，目标目录应多出它们。</div>
+        <div class="band band-orange">路径不清时不要执行 mv，先用 pwd 和 ls 确认。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>命令演示：安全删除文件与目录</h2>
+        <p class="subtitle">删除命令通常没有 Windows 式“回收站”，所以先确认再执行</p>
         <pre><code class="language-bash">cd ~/LinuxProject
 pwd
 ls -l temp.txt
@@ -633,15 +772,56 @@ rm -i temp.txt
 mkdir emptydir
 rmdir emptydir
 ls -l</code></pre>
-        <div class="two-col">
-          <div class="card blue"><h3>rmdir</h3><p>只删除空目录；目录非空会失败</p></div>
-          <div class="card green"><h3>注意</h3><p>不要把 <code>rm -rf</code> 当作常规删除方法</p></div>
+        <div class="card-grid three">
+          <div class="card blue"><h3>1 先看位置</h3><p>用 <code>pwd</code> 确认自己当前在哪个目录。</p></div>
+          <div class="card green"><h3>2 再看对象</h3><p>用 <code>ls -l temp.txt</code> 确认要删的是哪个文件。</p></div>
+          <div class="card blue"><h3>3 最后删除</h3><p><code>rm -i</code> 输入 y 后才真正删除。</p></div>
         </div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>10</span></div>
+        <div class="band band-orange"><code>rmdir</code> 只删除空目录，目录里还有内容时会失败。不要把 <code>rm -rf</code> 当作常规删除方法。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>15</span></div>
       </section>
 
-      <!-- 11 -->
-      <section data-page="11">
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习5：先确认，再安全删除</h2>
+        <pre><code class="language-bash">cd ~/LinuxProject
+pwd
+ls -l temp.txt
+rm -i temp.txt
+mkdir testdir
+rmdir testdir
+ls -l</code></pre>
+        <ul class="num-list" style="margin-top:0.4em;">
+          <li>删除前用 pwd 确认目录</li>
+          <li>用 ls -l 确认文件名</li>
+          <li>执行 rm -i，看到询问再输入 y</li>
+          <li>用 rmdir 删除刚建的空目录 testdir</li>
+          <li>最后用 ls -l 检查结果</li>
+        </ul>
+        <div class="band band-blue">养成习惯：删除前先停一秒，看清路径和文件名。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>通配符：先验证匹配范围，再批量操作</h2>
+        <p class="subtitle">文件多起来后，通配符能一次匹配多个对象</p>
+        <pre><code class="language-bash">cd ~/LinuxProject
+ls sample*.txt
+ls results/*.csv
+ls sample?.txt</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>*.txt</h3><p>匹配所有以 .txt 结尾的文件。</p></div>
+          <div class="card green"><h3>sample*.txt</h3><p>匹配 sample 开头、.txt 结尾的文件。</p></div>
+          <div class="card blue"><h3>sample?.txt</h3><p><code>?</code> 只代表一个字符，例如 sample1.txt。</p></div>
+          <div class="card green"><h3>安全规则</h3><p>执行 mv、cp 前先用 ls 看一遍；执行 rm 前更要确认匹配结果。</p></div>
+        </div>
+        <div class="band band-orange">不要凭感觉输入 <code>rm *.xxx</code>。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
         <h2>练习6：用通配符完成批量操作</h2>
         <pre><code class="language-bash">cd ~/LinuxProject
 ls sample*.txt
@@ -650,108 +830,166 @@ ls data/raw/
 ls results/*.csv
 cp results/*.csv backup/
 ls backup/</code></pre>
-        <div class="card-grid">
-          <div class="card blue"><h3>*.txt</h3><p>匹配以 .txt 结尾的文件</p></div>
-          <div class="card green"><h3>sample*.txt</h3><p>匹配 sample 开头的 txt</p></div>
-          <div class="card blue"><h3>sample?.txt</h3><p>? 只代表一个字符</p></div>
-          <div class="card green"><h3>安全规则</h3><p>先用 ls 验证匹配范围，再 mv/cp/rm</p></div>
-        </div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>11</span></div>
+        <div class="band band-blue">每一步都先 <code>ls</code> 验证匹配范围，再交给 <code>mv</code> 或 <code>cp</code>。</div>
+        <div class="band band-green">观察：移动后原位置还剩什么？目标目录中多了哪些文件？</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>18</span></div>
       </section>
 
-      <!-- 12 -->
-      <section data-page="12">
+      <!-- 19 -->
+      <section data-page="19">
         <h2>练习7：用 ls 检查整理结果</h2>
-        <div class="card-grid" style="grid-template-columns:repeat(3,1fr);">
-          <div class="card blue"><h3>ls</h3><p>快速看名称</p></div>
+        <p class="subtitle">“命令没报错”不等于“结果一定正确”</p>
+        <pre><code class="language-bash">cd ~/LinuxProject
+ls
+ls -l
+ls -a
+ls -lh
+ls -lt
+ls -R</code></pre>
+        <div class="card-grid three">
+          <div class="card blue"><h3>ls</h3><p>快速看当前目录名称</p></div>
           <div class="card green"><h3>ls -l</h3><p>权限、大小、时间</p></div>
-          <div class="card blue"><h3>ls -a</h3><p>含隐藏文件</p></div>
+          <div class="card blue"><h3>ls -a</h3><p>包含隐藏文件</p></div>
           <div class="card green"><h3>ls -lh</h3><p>大小更易读</p></div>
           <div class="card blue"><h3>ls -lt</h3><p>按时间排序</p></div>
-          <div class="card green"><h3>ls -R</h3><p>递归看整个项目</p></div>
+          <div class="card green"><h3>ls -R</h3><p>递归查看整个项目</p></div>
         </div>
-        <div class="band band-blue">“命令没报错”不等于“结果一定正确”。用 ls -R 确认文件都在预期位置。</div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>12</span></div>
+        <div class="band band-blue">用 <code>ls -R</code> 确认 data/raw、scripts、results、docs、backup 中的文件都在预期位置。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>19</span></div>
       </section>
 
-      <!-- 13 -->
-      <section data-page="13">
-        <h2>课堂综合练习：整理 LinuxProject_Final</h2>
-        <div class="two-col uneven">
-          <div class="card blue">
-            <h3>目标结构</h3>
-            <pre><code class="language-bash">~/LinuxProject_Final/
-├── data/raw/ processed/
-├── scripts/ results/
-├── docs/ backup/
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>课堂综合练习：独立整理 LinuxProject_Final</h2>
+        <p class="subtitle">前面的练习用于熟悉命令，这一部分需要自己组合</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd ~
+mkdir LinuxProject_Final
+cd LinuxProject_Final
+mkdir data scripts results docs backup
+mkdir data/raw data/processed
+touch README.txt
+pwd
+ls -R</code></pre>
+            <div class="band band-blue" style="margin:0;">老师只给目标，不给完整命令；做完后用 ls -R 检查并截图。</div>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>目标结构</h3>
+              <pre><code class="language-text">LinuxProject_Final/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── scripts/
+├── results/
+├── docs/
+├── backup/
 └── README.txt</code></pre>
+            </div>
+            <div class="card green">
+              <h3>第 1 步</h3>
+              <p>建立完整目录结构，再在项目根目录创建 README.txt 和待整理文件。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>综合练习：需要完成的操作</h2>
+        <ul class="num-list" style="margin-top:0.25em;">
+          <li>把 sample*.txt 移动到 data/raw/</li>
+          <li>把 analysis.py、plot.py 移动到 scripts/</li>
+          <li>把 result1.csv、result2.csv 移动到 results/</li>
+          <li>把 notes.txt 移动到 docs/</li>
+          <li>把 data/raw/ 整体复制为 backup/raw_backup/</li>
+          <li>把 results/result1.csv 改为 results/result_final.csv</li>
+          <li>确认 temp.txt 后使用 rm -i 删除</li>
+          <li>执行 ls -R 检查结构与文件位置并截图</li>
+        </ul>
+        <pre><code class="language-bash">cd ~/LinuxProject_Final
+pwd
+ls -R</code></pre>
+        <div class="band band-blue">完成标准：目录结构正确、文件分类正确、备份存在、重命名正确、temp.txt 已安全删除。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>常见报错：先看它在说什么</h2>
+        <p class="subtitle">排错顺序：读报错 → pwd → ls → 检查路径和拼写 → 再执行</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>No such file or directory</h3><p>路径或文件名写错，或目标不存在。先 pwd，再 ls。</p></div>
+          <div class="card green"><h3>cannot stat</h3><p>cp / mv 找不到源文件。确认源文件是否存在、当前目录是否正确。</p></div>
+          <div class="card blue"><h3>Directory not empty</h3><p>rmdir 不能删除非空目录。先 ls 查看内容。</p></div>
+          <div class="card green"><h3>cannot overwrite directory</h3><p>目标类型或路径与预期不一致。用 ls -ld 确认谁是文件、谁是目录。</p></div>
+          <div class="card blue"><h3>Permission denied</h3><p>当前用户没有该操作的权限。先确认对象和权限，不要一看到就 sudo。</p></div>
+          <div class="card green"><h3>排错口诀</h3><p>看报错文字 → 看当前位置 → 看目录内容 → 检查拼写和大小写 → 再改命令。</p></div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>保存截图与填写实验报告</h2>
+        <p class="subtitle">截图重点：命令、输出和提示符</p>
+        <div class="split-panel">
+          <div class="stack">
+            <div class="card blue">
+              <h3>截图四步</h3>
+              <ul class="num-list">
+                <li>打开实验电脑上的“截图工具”</li>
+                <li>框选终端中的命令、输出和提示符</li>
+                <li>保存为 PNG/JPG，按实验和步骤命名</li>
+                <li>确认 njucm、命令和对应输出都能看清</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>建议保留 3 类截图</h3>
+              <p>A 创建项目和待整理文件；B 移动、备份、改名与安全删除；C 最终 ls -R 结构。</p>
+            </div>
+          </div>
+          <div class="stack">
+            <pre><code class="language-bash">cd ~/LinuxProject_Final
+pwd
+ls -R</code></pre>
+            <div class="band band-blue" style="margin:0;">报告六部分：基本信息、实验目的、实验内容和要求、实验结果、出现的问题、实验总结。每张截图下写 1–2 句说明。</div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>作业与回顾：文件与目录管理</h2>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>作业：提交课堂综合练习报告</h3>
+            <ul class="num-list">
+              <li>使用《实验报告》模板，封面和基本信息填写完整</li>
+              <li>实验结果放入 3 类关键截图，每张下写 1–2 句说明</li>
+              <li>问题汇总写清报错内容、原因判断和解决方法</li>
+              <li>实验总结写 3～5 句，重点写路径判断、复制移动、删除安全</li>
+              <li>提交平台：雨课堂，截图直接放入报告</li>
+            </ul>
           </div>
           <div class="card green">
-            <h3>步骤概要</h3>
-            <ul class="num-list">
-              <li>建立完整目录结构</li>
-              <li>创建待整理文件（txt/py/csv 等）</li>
-              <li>先 pwd / ls -l 再整理</li>
+            <h3>本课回顾</h3>
+            <ul>
+              <li>绝对路径、相对路径与 ~ . .. /</li>
+              <li>mkdir、touch 创建目录和文件</li>
+              <li>cp、cp -r、cp -i 复制与备份</li>
+              <li>mv 移动与重命名</li>
+              <li>rm -i、rmdir 安全删除</li>
+              <li>用通配符批量操作，用 ls -R 检查结果</li>
             </ul>
           </div>
         </div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>13</span></div>
+        <div class="band band-blue">下一课：文本查看和查找，学会看内容并用 find 定位文件。</div>
+        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>24</span></div>
       </section>
-
-      <!-- 14 -->
-      <section data-page="14">
-        <h2>课堂综合练习：需要完成的操作</h2>
-        <ul class="num-list" style="margin-top:0.35em;">
-          <li>把 sample*.txt 移到 data/raw/</li>
-          <li>把 analysis.py、plot.py 移到 scripts/</li>
-          <li>把 result*.csv 移到 results/</li>
-          <li>把 notes.txt 移到 docs/</li>
-          <li>把 data/raw/ 复制为 backup/raw_backup/</li>
-          <li>把 results/result1.csv 改为 result_final.csv</li>
-          <li>确认后用 rm -i 删除 temp.txt</li>
-          <li>执行 ls -R 检查并截图</li>
-        </ul>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>14</span></div>
-      </section>
-
-      <!-- 15 -->
-      <section data-page="15">
-        <h2>常见报错</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>No such file or directory</h3><p>路径写错 → pwd + ls</p></div>
-          <div class="card green"><h3>cannot stat</h3><p>cp/mv 找不到源文件</p></div>
-          <div class="card blue"><h3>Directory not empty</h3><p>rmdir 不能删非空目录</p></div>
-          <div class="card green"><h3>Permission denied</h3><p>先确认对象与权限</p></div>
-        </div>
-        <div class="band band-blue">排错：读报错 → pwd → ls → 检查路径拼写 → 再执行。</div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>15</span></div>
-      </section>
-
-      <!-- 16 -->
-      <section data-page="16">
-        <h2>如何保存实验截图</h2>
-        <div class="card-grid" style="grid-template-columns:1fr 1fr 1fr;">
-          <div class="card blue"><h3>截图 A</h3><p>创建项目与待整理文件</p></div>
-          <div class="card green"><h3>截图 B</h3><p>移动、备份、改名与安全删除</p></div>
-          <div class="card blue"><h3>截图 C</h3><p>最终 ls -R 结构</p></div>
-        </div>
-        <div class="band band-blue">重点截取命令、输出和提示符；确保 njucm 与结果清晰可读。</div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>16</span></div>
-      </section>
-
-      <!-- 17 -->
-      <section data-page="17">
-        <h2>实验2作业：提交实验报告</h2>
-        <div class="card-grid">
-          <div class="card blue"><h3>报告内容</h3><p>基本信息、目的、要求、结果、问题、总结</p></div>
-          <div class="card green"><h3>实验结果</h3><p>三类综合练习截图 + 说明</p></div>
-          <div class="card blue"><h3>问题汇总</h3><p>报错内容与解决方法</p></div>
-          <div class="card green"><h3>实验总结</h3><p>3～5 句收获</p></div>
-        </div>
-        <div class="band band-blue">提交平台：雨课堂。作业内容就是课堂综合练习。</div>
-        <div class="slide-footer"><span>Linux 实验2｜文件与目录管理</span><span>17</span></div>
-      </section>
-
 
     </div>
   </div>

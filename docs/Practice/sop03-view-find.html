@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验3：文本查看和查找</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>进入 LinuxProject，先确认对象</a>
+              <a href="#p1-2"><span class="n">1.2</span>cat 与 wc -l：短文本与长度</a>
+              <a href="#p1-3"><span class="n">1.3</span>more 与 less：长文件分页</a>
+              <a href="#p1-4"><span class="n">1.4</span>head 与 tail：首尾与 -f</a>
+              <a href="#p1-5"><span class="n">1.5</span>nl：行号阅读与输出流</a>
+              <a href="#p1-6"><span class="n">1.6</span>find：名称、类型、大小、时间</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：课堂综合练习</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：查找条件组合</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验3
+        </div>
+        <h1>实验3：文本查看和查找</h1>
+        <p class="practice-lead">本页从“把文件打开看”走到“按条件把文件找出来”。所有命令都在 <code>~/LinuxProject</code> 中执行；完成后你能根据文件长度和查看目的选择 cat、more、less、head、tail 或 nl，并用 find 的四个条件逐步缩小查找范围。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能比较 cat、more、less、head、tail、nl 的适用场景；能用 wc -l 判断文件长度；能用 find 的 -name、-type、-size、-mtime 及组合条件定位文件</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>项目数据阅读与定位。在 ~/LinuxProject 中读取报告、CSV 与日志，并按名称、类型、大小和修改时间找到目标文件</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 进入 LinuxProject，先确认对象</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">课程脚本会在桌面生成 <code>LinuxProject/</code>，并在主目录建立 <code>~/LinuxProject</code> 符号链接，两者指向同一份练习数据。后面的命令都默认从 <code>~/LinuxProject</code> 开始。</p>
+          <div class="step-label">Step 1 / 确认位置与目录内容</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+pwd
+ls
+ls -la
+ls -l README.txt</code></pre>
+          <div class="step-label">Step 2 / 预期位置</div>
+          <pre><code class="language-bash">/home/njucm/LinuxProject
+README.txt  archive  config  data  docs  logs  mixed  reports  tmp</code></pre>
+          <ul class="tasks">
+            <li><code>data/</code>：模拟患者、检验与统计 CSV</li>
+            <li><code>logs/</code>：系统日志、应用日志与归档日志</li>
+            <li><code>reports/</code>：2024、2025、2026 三个年份的报告文本</li>
+            <li><code>archive/backup/</code>：不同大小的二进制练习文件</li>
+          </ul>
+          <div class="book-callout">如果 <code>cd</code> 提示 <code>No such file or directory</code>，先按 SOP0 的步骤在 CentOS 中执行 <code>create_linux_practice_data.sh</code> 生成数据，再回到本页；不要自己编造一个同名空目录。</div>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 输出 <code>/home/njucm/LinuxProject</code>，<code>ls</code> 能看到 <code>README.txt</code> 与 <code>data</code>、<code>logs</code>、<code>reports</code> 等目录。</div>
+
+          <h3 id="p1-2">1.2 cat 与 wc -l：短文本与长度</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>cat</code> 会把文件从第一行到最后一行一次输出。打开之前先用 <code>wc -l</code> 量一下行数，再决定要不要用 <code>cat</code>。</p>
+          <div class="step-label">Step 1 / 先量长度</div>
+          <pre><code class="language-bash">wc -l README.txt
+wc -l data/patients/patient_demo_small.csv
+wc -l reports/2026/annual_medical_report.txt
+wc -l logs/system/system_runtime.log</code></pre>
+          <div class="step-label">Step 2 / 只对短文件使用 cat</div>
+          <pre><code class="language-bash">cat README.txt
+cat data/patients/patient_demo_small.csv</code></pre>
+          <div class="step-label">Step 3 / 参考输出（行数以实际生成结果为准）</div>
+          <pre><code class="language-bash">  26 README.txt
+   6 data/patients/patient_demo_small.csv
+ 368 reports/2026/annual_medical_report.txt
+ 900 logs/system/system_runtime.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>patient_demo_small.csv</code> 只有表头和 5 条记录，所以可以直接 <code>cat</code>：</p>
+          <pre><code class="language-bash">patient_id,sex,age,department,diagnosis,status
+P9001,F,26,Respiratory,Pneumonia,discharged
+P9002,M,71,Cardiology,Hypertension,inpatient
+P9003,F,53,Endocrinology,Diabetes,followup
+P9004,M,45,Neurology,Stroke,transferred
+P9005,F,67,Gastroenterology,Gastritis,discharged</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>命令</th><th>作用</th><th>适合的对象</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>cat</code></td><td>一次性输出全部内容</td><td>README、小型 CSV 等短文件</td></tr>
+                <tr><td><code>wc -l</code></td><td>统计行数，不显示内容</td><td>决定用哪种查看方式之前</td></tr>
+                <tr><td><code>more</code></td><td>只能从前往后分页</td><td>顺序阅读长报告</td></tr>
+                <tr><td><code>less</code></td><td>可前后翻页并搜索</td><td>长日志、需要查关键词的文件</td></tr>
+                <tr><td><code>head</code></td><td>查看文件开头，默认前 10 行</td><td>CSV 表头与最前面的记录</td></tr>
+                <tr><td><code>tail</code></td><td>查看文件结尾，默认后 10 行</td><td>日志末尾与最近记录</td></tr>
+                <tr><td><code>nl</code></td><td>显示内容并临时添加行号</td><td>需要说明“第几行”时</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">900 行的日志直接 <code>cat</code> 会刷满终端，既看不清末尾，也不方便回看。先 <code>wc -l</code>，再用 <code>less</code> 或 <code>tail</code>，这是本实验要养成的习惯。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>README.txt</code> 与系统日志各有多少行，并解释为什么后者不应该直接 <code>cat</code>。</div>
+
+          <h3 id="p1-3">1.3 more 与 less：长文件分页</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>more</code> 和 <code>less</code> 都会把长文件按屏幕分页。<code>more</code> 只能向后翻；<code>less</code> 可以前后翻，还能搜索。</p>
+          <div class="step-label">Step 1 / 用 more 读年度报告</div>
+          <pre><code class="language-bash">more reports/2026/annual_medical_report.txt
+# 空格：下一页；Enter：下一行；q：退出</code></pre>
+          <div class="step-label">Step 2 / 用 less 读系统日志并搜索</div>
+          <pre><code class="language-bash">less logs/system/system_runtime.log
+# 空格：下一页；b：上一页
+# 输入 /ERROR 后按 Enter 搜索，n：下一个匹配
+# q：退出</code></pre>
+          <ul class="tasks">
+            <li>两个文件都至少翻 2 页，确认分页显示正常</li>
+            <li>在 <code>less</code> 中搜索一次 <code>ERROR</code>，用 <code>n</code> 跳到下一个匹配</li>
+            <li>两个分页器都用 <code>q</code> 正常退出，不用关闭终端窗口</li>
+          </ul>
+          <div class="book-callout">画面停住不是卡死，而是分页器在等你按键。先按 <code>q</code>；<code>less</code> 中 <code>Ctrl+C</code> 不一定能退出。需要前后对比时优先 <code>less</code>，只顺序读一遍时 <code>more</code> 就够了。</div>
+          <div class="check-point"><strong>检查点：</strong>能在 <code>less</code> 中完成一次“搜索 ERROR → n 下一个 → q 退出”，并说出 more 与 less 的一个关键区别。</div>
+
+          <h3 id="p1-4">1.4 head 与 tail：首尾与 -f</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>head</code> 看开头，<code>tail</code> 看结尾，两者默认都是 10 行。用 <code>-n</code> 可以指定行数；<code>tail -f</code> 会持续跟随文件末尾的新内容。</p>
+          <div class="step-label">Step 1 / 比较默认 10 行与指定 5 行</div>
+          <pre><code class="language-bash">head data/patients/patient_records.csv
+head -n 5 data/patients/patient_records.csv
+tail logs/application/hospital_app.log
+tail -n 10 logs/application/hospital_app.log</code></pre>
+          <ul class="tasks">
+            <li><code>head</code> 默认输出前 10 行；<code>head -n 5</code> 只输出前 5 行</li>
+            <li><code>tail</code> 默认输出后 10 行；<code>tail -n 10</code> 与默认结果一致</li>
+            <li>CSV 的第一行是字段名，后面的记录内容由脚本随机生成，不必与同学完全相同</li>
+          </ul>
+          <div class="step-label">Step 2 / 用 tail -f 观察新写入的日志</div>
+          <pre><code class="language-bash">tail -f logs/application/hospital_app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">保持这个终端不动，另开一个终端追加一行模拟日志：</p>
+          <pre><code class="language-bash">echo "manual test line from another terminal" &gt;&gt; ~/LinuxProject/logs/application/hospital_app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">回到 <code>tail -f</code> 的终端，应能看到新行出现；按 <code>Ctrl+C</code> 结束跟随。</p>
+          <div class="book-callout"><code>tail -f</code> 适合观察日志“接下来写了什么”，会一直占用当前终端；<code>tail -n 10</code> 只显示“现在已经写了什么”，执行完立刻返回提示符。看静态历史用 <code>-n</code>，看实时变化才用 <code>-f</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能分别得到 5 行与 10 行的输出，并在 <code>tail -f</code> 中亲眼看到另开的终端追加的新行，最后用 <code>Ctrl+C</code> 正常结束。</div>
+
+          <h3 id="p1-5">1.5 nl：行号阅读与输出流</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>nl</code> 显示文件内容并临时加上行号。默认只给非空行编号，<code>nl -ba</code> 会给所有行编号，包括空白行。行号不是文件原有内容，只是显示效果。</p>
+          <div class="step-label">Step 1 / 对比 nl 与 nl -ba</div>
+          <pre><code class="language-bash">nl docs/notes/shift_notes.txt
+nl -ba docs/notes/shift_notes.txt
+nl README.txt</code></pre>
+          <ul class="tasks">
+            <li><code>shift_notes.txt</code> 中故意保留了空白行，比较两个输出中空白行是否带行号</li>
+            <li>用 <code>nl README.txt</code> 找到某一行的行号，并说明它方便你做什么</li>
+          </ul>
+          <div class="step-label">Step 2 / 必要认识：输入、输出与管道</div>
+          <pre><code class="language-bash">wc -l &lt; README.txt
+cat README.txt | wc -l
+find . -type f -name "*.csv" | wc -l
+find . -type f -name "*.csv" &gt; /tmp/csv_list.txt
+cat /tmp/csv_list.txt</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">本实验只需要认识三种写法：<code>&lt;</code> 把文件作为输入；<code>&gt;</code> 把输出写入文件，会覆盖原内容；<code>|</code> 把前一条命令的输出交给后一条命令继续处理。追加内容用 <code>&gt;&gt;</code>。</p>
+          <div class="book-callout"><code>&gt;</code> 会在不询问的情况下覆盖目标文件。重定向输出时先确认目标路径，不要把结果写回源文件；本页示例把查找结果写到 <code>/tmp</code>，不会破坏练习数据。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>nl</code> 与 <code>nl -ba</code> 的区别，能用一句话解释 <code>|</code> 与 <code>&gt;</code> 各自做什么。</div>
+
+          <h3 id="p1-6">1.6 find：名称、类型、大小、时间</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">find 的基本格式是“查找起点 + 条件”。起点 <code>.</code> 表示当前目录；多个条件默认是“同时满足”，范围越小结果越准确。</p>
+          <div class="step-label">Step 1 / 按名称 -name</div>
+          <pre><code class="language-bash">find . -name "README.txt"
+find . -name "*.txt"
+find . -name "*.csv"
+find reports -name "result*"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">从 <code>.</code> 开始会搜索整个 LinuxProject；从 <code>reports</code> 开始只搜索报告目录。同一个条件，起点不同，返回范围就不同。</p>
+          <div class="step-label">Step 2 / 按类型 -type</div>
+          <pre><code class="language-bash">find . -type f
+find . -type d
+find . -type f -name "*.txt"
+find . -type d -name "data*"</code></pre>
+          <div class="step-label">Step 3 / 按大小 -size</div>
+          <pre><code class="language-bash">ls -lh archive/backup
+find archive/backup -type f -size +100k
+find archive/backup -type f -size -20k
+find . -type f -size +100k</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>archive/backup</code> 中准备了 2K、16K、128K、1M 四个固定大小文件：<code>-size +100k</code> 应匹配 128K 与 1M，<code>-size -20k</code> 应匹配 2K 与 16K。</p>
+          <div class="step-label">Step 4 / 按修改时间 -mtime</div>
+          <pre><code class="language-bash">ls -l reports/2024/old_report.txt reports/2025/midyear_report.txt reports/2026/recent_report.txt
+find . -type f -mtime +365
+find . -type f -mtime -30
+find logs -type f -name "*.log" -mtime -30
+find reports -type f -name "*.txt" -mtime +365</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>条件</th><th>含义</th><th>示例</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>-name "模式"</code></td><td>按文件名或目录名匹配，通配符建议加引号</td><td><code>-name "*.csv"</code></td></tr>
+                <tr><td><code>-type f</code></td><td>只匹配普通文件</td><td><code>find . -type f</code></td></tr>
+                <tr><td><code>-type d</code></td><td>只匹配目录</td><td><code>find . -type d</code></td></tr>
+                <tr><td><code>-size +100k</code></td><td>大于 100 KiB；<code>k</code> 是 KiB，<code>M</code> 是 MiB</td><td><code>find . -type f -size +100k</code></td></tr>
+                <tr><td><code>-size -20k</code></td><td>小于 20 KiB</td><td><code>find archive/backup -size -20k</code></td></tr>
+                <tr><td><code>-mtime +365</code></td><td>修改时间早于约 365 个 24 小时周期</td><td><code>find . -mtime +365</code></td></tr>
+                <tr><td><code>-mtime -30</code></td><td>修改时间在最近约 30 个 24 小时周期内</td><td><code>find logs -mtime -30</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">通配符一定要写在引号里，例如 <code>-name "*.txt"</code>；不加引号时可能先被 shell 展开，find 会报 <code>paths must precede expression</code>。先缩小起点，再逐层增加 <code>-type</code>、<code>-name</code>、<code>-size</code>、<code>-mtime</code>，比一次写一长串条件更容易排错。</div>
+          <div class="book-callout"><code>-mtime</code> 以执行命令时的系统时间为基准，并按完整的 24 小时周期计算。数据集包含随机时间戳，2024、2025 的固定样例可以用来验证“较老”的方向；不同日期执行，<code>-mtime -30</code> 的结果会有差异，先用 <code>ls -l</code> 看时间再解释结果。</div>
+          <div class="check-point"><strong>检查点：</strong>能在 <code>archive/backup</code> 中分别找出大于 100K 与小于 20K 的文件，并能解释 <code>find . -type f -name "*.txt"</code> 中三个部分各自控制什么。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">前面的练习允许边看边做；任务部分要求连续完成，自己选择命令，做完后再截图。所有对象仍在 <code>~/LinuxProject</code> 中。</p>
+
+          <h3 id="p2-1">2.1 任务 A：课堂综合练习（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">按下面十项连续完成，不要翻回前面的命令逐条照抄。每完成一类，先观察输出是否符合目标，再进入下一项。</p>
+          <ul class="tasks">
+            <li>完整查看 <code>README.txt</code>（选择适合短文件的命令）</li>
+            <li>让 <code>shift_notes.txt</code> 的空白行也显示行号</li>
+            <li>只显示 <code>patient_records.csv</code> 前 5 行</li>
+            <li>只显示 <code>hospital_app.log</code> 最后 10 行</li>
+            <li>用 <code>more</code> 浏览 <code>annual_medical_report.txt</code>，至少翻 2 页</li>
+            <li>用 <code>less</code> 浏览 <code>system_runtime.log</code>，搜索一次 <code>ERROR</code></li>
+            <li>按名称查找 <code>README.txt</code>、所有 <code>.txt</code> 与所有 <code>.csv</code></li>
+            <li>按类型分别查普通文件、目录，以及 <code>.txt</code> 普通文件</li>
+            <li>在 <code>archive/backup</code> 中找大于 100K 和小于 20K 的文件</li>
+            <li>找最近 30 天内与 365 天以前修改过的文件，并至少完成一次条件组合</li>
+          </ul>
+          <div class="step-label">完成后自查</div>
+          <pre><code class="language-bash">cd ~/LinuxProject
+find . -type f -name "*.csv" | wc -l
+find . -type f -size +100k
+find logs -type f -name "*.log" -mtime -30</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>截图</th><th>应包含</th><th>说明示例</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>A 基础查看</td><td><code>cat</code>、<code>nl -ba</code>、<code>head -n 5</code>、<code>tail -n 10</code> 与输出</td><td>按文件长度选择了不同查看命令</td></tr>
+                <tr><td>B 长文本分页</td><td><code>more</code> / <code>less</code> 的界面与 <code>/ERROR</code> 搜索结果</td><td>在长日志中定位到 ERROR</td></tr>
+                <tr><td>C 名称与类型</td><td><code>-name</code>、<code>-type</code> 命令与返回路径</td><td>普通文件与目录已按类型分开</td></tr>
+                <tr><td>D 大小与时间</td><td><code>-size</code>、<code>-mtime</code> 命令与返回路径</td><td>能找到大文件与指定时间范围的文件</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">截图要包含当前提示符、输入的命令和对应输出，能看到用户名 <code>njucm</code>。不要只截一张空白终端；也不要为了结果好看而修改练习数据。</div>
+
+          <h3 id="p2-2">2.2 任务 B：查找条件组合（拓展）</h3>
+          <ul class="tasks">
+            <li>找出 <code>reports/</code> 下所有 <code>.txt</code> 普通文件，再增加 <code>-mtime +365</code>，比较两次结果</li>
+            <li>找出 <code>logs/</code> 下所有 <code>.log</code> 普通文件，再增加 <code>-mtime -30</code>，记录结果条数</li>
+            <li>找出所有 <code>.bin</code> 普通文件中大于 100K 的文件，并说明每个条件删掉后结果会怎样变化</li>
+            <li>把一次 <code>find</code> 的结果重定向到 <code>/tmp/find_result.txt</code>，再用 <code>wc -l</code> 统计条数</li>
+            <li>任选一条结果，用一句话解释“起点、类型、名称、大小、时间”中哪些条件在起作用</li>
+          </ul>
+          <div class="book-callout">结果太多时不要立刻换工具。先问自己：还能增加哪一个条件？例如先限定 <code>-type f</code>，再限定 <code>-name "*.log"</code>，最后用 <code>-mtime</code> 把范围收窄。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>用 <code>wc -l</code> 判断文件长度，并据此选择查看命令</li>
+            <li>用 <code>cat</code>、<code>nl</code> 查看短文本并解释行号来源</li>
+            <li>用 <code>more</code>、<code>less</code> 分页浏览长报告和日志，并在 <code>less</code> 中搜索</li>
+            <li>用 <code>head</code>、<code>tail</code> 查看 CSV 表头和日志末尾，用 <code>tail -f</code> 观察新增内容</li>
+            <li>用 <code>find</code> 按名称、类型、大小和修改时间查找，并能组合条件</li>
+            <li>用必要的重定向和管道保存或统计查找结果</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>对照上面六条，能各举一条自己实际执行过的命令和结果。</div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际执行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong>面对 900 行的 <code>system_runtime.log</code>，你会选 <code>cat</code> 还是 <code>less</code>？写出你执行的命令，并说明选择理由。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong>写出 <code>wc -l README.txt</code>、<code>wc -l reports/2026/annual_medical_report.txt</code> 的输出，并说明为什么年度报告不应该直接 <code>cat</code>。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong>写出“在 <code>~/LinuxProject</code> 中查找所有 CSV 普通文件”的完整命令，并说明每个条件的作用；再写出统计其条数的命令。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong>写出在 <code>archive/backup</code> 中查找大于 100K 和小于 20K 文件的命令，并列出各自匹配到的文件名。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong><code>-mtime +365</code> 与 <code>-mtime -30</code> 分别表示什么？你在 <code>reports/</code> 下执行得到哪些文件？结果与当天日期有什么关系？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>记录一次你实际遇到的 find 报错（例如 <code>paths must precede expression</code>）：输入了什么、报错原文、原因判断、改正后的命令与结果。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验报告使用统一模板，按六部分完整填写：</p>
+          <ul class="tasks">
+            <li>基本信息：实验名称、日期、姓名、学号、班级</li>
+            <li>实验目的</li>
+            <li>实验内容和要求</li>
+            <li>实验结果：任务 A 的 A、B、C、D 四类截图，每张图下写 1–2 句说明</li>
+            <li>实验中出现的问题：问题、原因判断、解决方法</li>
+            <li>实验总结：3–5 句，说明学会了哪些查看与查找命令、哪里还不熟练</li>
+          </ul>
+          <div class="book-callout">提交平台为雨课堂，提交完整实验报告文件；截图直接放入报告，确保能看到用户名 <code>njucm</code>、命令与输出。作业内容以“课堂综合练习”为准，前面的分步练习用于课堂训练。</div>
+          <div class="check-point"><strong>检查点：</strong>报告六部分齐全，四类截图都有说明，作业六题都有实际执行依据。</div>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop02-file-dir.html">实验2：文件与目录管理</a>　|　下一节：<a href="sop04-permission.html">实验4：用户、用户组与权限</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

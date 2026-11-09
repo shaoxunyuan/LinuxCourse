@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件压缩与解压 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验九：文件压缩与解压｜把多个文件整理成便于保存和传输的形式</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解文件打包与压缩的用途</li>
+              <li>掌握 tar 的打包、解包与压缩操作</li>
+              <li>掌握 gzip、gunzip、zip、unzip 的基本用法</li>
+              <li>能根据任务选择合适的压缩方式</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>tar -cvf / -xvf 打包与解包</li>
+              <li>tar -czvf / -xzvf 创建与解压 tar.gz</li>
+              <li>gzip、gunzip 处理 .gz 文件</li>
+              <li>zip、unzip 创建和解压 ZIP 文件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray" style="margin-top:0.7em;">运行环境：CentOS · 用户名 <code>njucm</code></div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>Linux 实验九</h1>
+        <p class="subtitle">文件压缩与解压：把多个文件整理成便于保存和传输的形式</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">打包文件</span><code>tar</code></div>
+          <div class="node"><span class="label">gzip 压缩</span><code>gzip</code></div>
+          <div class="node"><span class="label">解压文件</span><code>gunzip</code></div>
+          <div class="node"><span class="label">ZIP 压缩</span><code>zip</code></div>
+          <div class="node"><span class="label">查看与解压</span><code>unzip</code></div>
+        </div>
+        <div class="band band-green">关键组合：<code>tar -czvf</code>　<code>tar -xzvf</code>　<code>zip -r</code>　<code>unzip -l</code></div>
+        <div class="band band-blue">核心问题：如何将文件和目录打包、压缩，并在需要时恢复出来？</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps">
+          <div class="step"><span>01</span>认识文件</div>
+          <div class="step"><span>02</span>tar 打包</div>
+          <div class="step"><span>03</span>gzip 压缩</div>
+          <div class="step"><span>04</span>ZIP 操作</div>
+          <div class="step"><span>05</span>综合练习</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>本次实验结束时，你应该能做到</h3>
+            <ul>
+              <li>区分打包与压缩的含义</li>
+              <li>创建并解开 tar 归档文件</li>
+              <li>用 gzip、gunzip 处理 .gz 文件</li>
+              <li>用 zip、unzip 创建和解压 ZIP 文件</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先确认原始文件和目录</li>
+              <li>再执行打包、压缩与解压</li>
+              <li>操作后检查生成的文件和目录</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要压缩与解压？</h2>
+        <p class="subtitle">文件数量多、体积大时，需要更方便地整理和传输</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>问题一：文件太多</h3><p>如何把一个目录中的多个文件整理成一个归档文件？</p></div>
+          <div class="card green"><h3>问题二：节省空间</h3><p>如何压缩文件，减少存储空间占用？</p></div>
+          <div class="card blue"><h3>问题三：恢复文件</h3><p>收到压缩包后，如何解压并恢复原始内容？</p></div>
+          <div class="card green"><h3>问题四：格式选择</h3><p>tar.gz 与 zip 有什么区别，应该选哪一个？</p></div>
+        </div>
+        <div class="band band-blue">tar 主要负责打包；gzip 等工具负责压缩；zip 可以直接创建 ZIP 压缩包。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>打包与压缩不是一回事</h2>
+        <p class="subtitle">先理解两个动作的区别，再记命令</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>打包（tar）</h3>
+            <ul>
+              <li>把多个文件或目录合并成一个归档文件</li>
+              <li>便于整体保存、复制和传输</li>
+              <li>不承诺减小体积</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>压缩（gzip / zip）</h3>
+            <ul>
+              <li>用压缩算法减少数据体积</li>
+              <li>生成 .gz 或 .zip 文件</li>
+              <li>可与打包组合为 .tar.gz</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange"><code>.tar</code> 只是归档包；<code>.tar.gz</code> 才是“打包 + 压缩”。</div>
+        <div class="band band-blue">记忆顺序：先打包，再压缩；恢复时先解压，再解包。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>tar 的常用选项</h2>
+        <p class="subtitle">选项决定 tar 是创建、查看、解包还是压缩</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>-c</h3><p>创建新的归档文件</p></div>
+          <div class="card green"><h3>-x</h3><p>从归档文件中提取内容</p></div>
+          <div class="card blue"><h3>-t</h3><p>列出归档中的文件清单</p></div>
+          <div class="card green"><h3>-v</h3><p>显示处理过程</p></div>
+          <div class="card blue"><h3>-f</h3><p>指定归档文件名，必须紧跟文件名</p></div>
+          <div class="card green"><h3>-z</h3><p>调用 gzip 压缩或解压</p></div>
+        </div>
+        <div class="band band-blue">常用组合：<code>-cvf</code> 创建　<code>-tvf</code> 查看　<code>-xvf</code> 解包　<code>-czvf</code> 压缩　<code>-xzvf</code> 解压</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>准备练习文件：导入 ArchiveLab</h2>
+        <p class="subtitle">本次实验使用 ArchiveLab 目录完成全部练习</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+pwd
+ls -lh
+find ArchiveLab -type f</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>准备实验目录</h3>
+              <ul class="num-list">
+                <li>进入 CentOS 桌面</li>
+                <li>确认 ArchiveLab 文件夹已在桌面</li>
+                <li>用 pwd 与 ls 确认位置和目录</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>导入文件夹</h3>
+              <p>把配套的 ArchiveLab 文件夹拖入 CentOS 桌面，确认目录中有多个文本文件后再开始。</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>认识练习目录：ArchiveLab</h2>
+        <p class="subtitle">先查看目录结构和文件大小，再开始压缩</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>执行</h3>
+            <div class="cmd">ls -lh ArchiveLab</div>
+            <div class="cmd">find ArchiveLab -type f</div>
+          </div>
+          <div class="card green">
+            <h3>观察</h3>
+            <ul>
+              <li>目录中包含哪些文件？</li>
+              <li>哪些文件位于 data 子目录？</li>
+              <li>为什么多个文件可以放进同一个归档？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-orange">压缩包统一放在 ArchiveLab 的上级目录，便于与原始目录比较。</div>
+        <div class="band band-blue">压缩前先确认目录位置和文件内容，解压后再核对文件是否完整。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>tar -cvf：创建归档文件</h2>
+        <p class="subtitle">将整个目录打包为一个 .tar 文件</p>
+        <pre><code class="language-bash">tar -cvf ArchiveLab.tar ArchiveLab/
+tar -tvf ArchiveLab.tar</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>创建归档</h3>
+            <p><code>-c</code> 创建归档；<code>-v</code> 显示过程；<code>-f</code> 指定归档文件名。</p>
+          </div>
+          <div class="card green">
+            <h3>查看归档</h3>
+            <p><code>-t</code> 列出归档中的文件，不会解压或修改原始目录。</p>
+          </div>
+        </div>
+        <div class="band band-blue">tar 文件完成了打包，但不代表已经进行了压缩。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>先查看归档：tar -tvf</h2>
+        <p class="subtitle">解压之前，先确认归档里到底有什么</p>
+        <pre><code class="language-bash">tar -tvf ArchiveLab.tar</code></pre>
+        <div class="card-grid">
+          <div class="card blue"><h3>文件清单</h3><p>逐行列出归档中的文件和目录</p></div>
+          <div class="card green"><h3>不解压</h3><p>只读取归档，不生成新文件</p></div>
+          <div class="card blue"><h3>不改原始目录</h3><p>源目录保持原样</p></div>
+          <div class="card green"><h3>核对完整性</h3><p>确认需要的文件都已被打包</p></div>
+        </div>
+        <div class="band band-blue">解压前先看清单，能避免把不需要的文件覆盖到当前目录。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>tar -xvf：解开归档文件</h2>
+        <p class="subtitle">将 .tar 文件中的内容恢复到目录</p>
+        <pre><code class="language-bash">mkdir -p restore_tar
+tar -xvf ArchiveLab.tar -C restore_tar
+find restore_tar -type f</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-x</h3>
+            <p>表示从归档文件中提取内容。</p>
+          </div>
+          <div class="card green">
+            <h3>-C 目录</h3>
+            <p>指定解压目标目录，把恢复结果与原始文件分开比较。</p>
+          </div>
+        </div>
+        <div class="band band-orange">不指定 <code>-C</code> 时，文件会解压到当前目录，可能覆盖同名文件。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>tar -czvf：创建 tar.gz 压缩包</h2>
+        <p class="subtitle">在打包的同时使用 gzip 压缩</p>
+        <pre><code class="language-bash">tar -czvf ArchiveLab.tar.gz ArchiveLab/
+ls -lh ArchiveLab.tar ArchiveLab.tar.gz</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-z</h3>
+            <p>调用 gzip 对归档数据进行压缩，常见扩展名为 .tar.gz 或 .tgz。</p>
+          </div>
+          <div class="card green">
+            <h3>比较文件大小</h3>
+            <p>用 <code>ls -lh</code> 比较 .tar 与 .tar.gz 的大小，压缩效果与文件内容有关。</p>
+          </div>
+        </div>
+        <div class="band band-blue">tar -czvf = 创建归档 + gzip 压缩；原始目录仍然保留。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>tar -xzvf：解压 tar.gz</h2>
+        <p class="subtitle">将压缩归档恢复为文件和目录</p>
+        <pre><code class="language-bash">mkdir -p restore_gz
+tar -xzvf ArchiveLab.tar.gz -C restore_gz
+find restore_gz -type f</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>-x 与 -z</h3>
+            <p><code>-x</code> 提取归档；<code>-z</code> 通过 gzip 解压。</p>
+          </div>
+          <div class="card green">
+            <h3>-C</h3>
+            <p>指定恢复文件的目标目录，避免覆盖当前目录内容。</p>
+          </div>
+        </div>
+        <div class="band band-blue">解压完成后，检查目录结构和文件数量是否与原始内容一致。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>gzip 与 gunzip</h2>
+        <p class="subtitle">处理单个文件的 .gz 压缩格式</p>
+        <pre><code class="language-bash">gzip -k ArchiveLab/README.txt
+ls -lh ArchiveLab/README.txt*
+gunzip ArchiveLab/README.txt.gz</code></pre>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>gzip</h3>
+            <p>压缩单个文件，通常生成 <code>.gz</code>；默认会用 .gz 替代原文件，<code>-k</code> 可保留原文件。</p>
+          </div>
+          <div class="card green">
+            <h3>gunzip</h3>
+            <p>解压 .gz 文件，恢复原始文件。</p>
+          </div>
+        </div>
+        <div class="band band-orange">gzip 只处理单个文件；要压缩整个目录，应先用 tar 打包。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>zip 与 unzip：跨平台的压缩格式</h2>
+        <p class="subtitle">创建 ZIP 包，查看内容并解压到指定目录</p>
+        <div class="split-panel">
+          <div class="stack">
+            <pre><code class="language-bash">zip -r ArchiveLab.zip ArchiveLab/
+unzip -l ArchiveLab.zip
+mkdir -p restore_zip
+unzip ArchiveLab.zip -d restore_zip</code></pre>
+          </div>
+          <div class="stack">
+            <div class="card blue">
+              <h3>创建与查看</h3>
+              <ul>
+                <li><code>zip -r</code>：递归压缩目录及其内容</li>
+                <li><code>unzip -l</code>：只查看 ZIP 包中的文件列表</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>解压</h3>
+              <p><code>unzip -d</code> 指定解压目标目录，恢复结果不会散落在当前目录。</p>
+            </div>
+          </div>
+        </div>
+        <div class="band band-blue">ZIP 对 Windows 用户很熟悉；Linux 项目中 tar.gz 也非常常见。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>练习1：创建 tar 归档</h2>
+        <p class="subtitle">把 ArchiveLab 目录打包，并查看归档内容</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">cd /home/njucm/Desktop
+tar -cvf ArchiveLab.tar ArchiveLab/
+tar -tvf ArchiveLab.tar</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>归档文件是否创建成功？</li>
+              <li>归档中包含哪些文件？</li>
+              <li>原始 ArchiveLab 目录是否仍然存在？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：能创建 .tar 文件，并能使用 -t 查看归档清单。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>练习2：解开 tar 归档</h2>
+        <p class="subtitle">将归档内容恢复到单独目录</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">mkdir -p restore_tar
+tar -xvf ArchiveLab.tar -C restore_tar
+find restore_tar -type f</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>解压后生成了什么目录？</li>
+              <li>恢复出的文件是否齐全？</li>
+              <li>为什么建议指定单独的解压目录？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：能使用 -x 解包，并通过文件列表核对恢复结果。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>练习3：tar.gz 与 ZIP 格式</h2>
+        <p class="subtitle">比较普通归档和压缩归档，并体验 ZIP 包</p>
+        <div class="two-col uneven-left">
+          <div>
+            <pre><code class="language-bash">tar -czvf ArchiveLab.tar.gz ArchiveLab/
+ls -lh ArchiveLab.tar ArchiveLab.tar.gz
+mkdir -p restore_gz
+tar -xzvf ArchiveLab.tar.gz -C restore_gz
+zip -r ArchiveLab.zip ArchiveLab/
+unzip -l ArchiveLab.zip</code></pre>
+          </div>
+          <div class="card green">
+            <h3>观察与思考</h3>
+            <ul class="num-list">
+              <li>.tar.gz 是否比 .tar 更小？</li>
+              <li>-z 在命令中起什么作用？</li>
+              <li>ZIP 包中包含哪些文件？</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">压缩效果取决于文件内容，不保证每次都明显变小。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>课堂综合练习：整理并备份实验目录</h2>
+        <p class="subtitle">独立完成归档、压缩、查看和恢复任务</p>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标与环境</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop</code></li>
+              <li>源目录：<code>ArchiveLab/</code></li>
+              <li>完成 tar、tar.gz、ZIP 三种格式的创建与恢复</li>
+              <li>不覆盖原始目录</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>用 pwd、ls、find 确认源目录</li>
+              <li>创建 ArchiveLab.tar</li>
+              <li>用 tar -tvf 查看归档清单</li>
+              <li>创建 ArchiveLab.tar.gz，并用 ls -lh 比较大小</li>
+              <li>创建 ArchiveLab.zip，用 unzip -l 查看内容</li>
+              <li>解压到 restore_gz 或 restore_zip 并核对文件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">实验报告的实验结果部分展示这套课堂综合练习。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">保存三组关键结果，每张截图下方写简要说明</p>
+        <div class="card-grid three">
+          <div class="card blue">
+            <h3>截图1｜tar 归档</h3>
+            <p>显示 ArchiveLab.tar 创建过程，以及 tar -tvf 查看归档清单的结果。</p>
+          </div>
+          <div class="card green">
+            <h3>截图2｜压缩比较</h3>
+            <p>显示 tar.gz 与 tar 文件大小比较，并说明 -z 的作用。</p>
+          </div>
+          <div class="card blue">
+            <h3>截图3｜ZIP 恢复</h3>
+            <p>显示 zip -r、unzip -l 和解压后的文件列表。</p>
+          </div>
+        </div>
+        <div class="band band-blue">完成标准：命令正确、截图清晰，能解释归档、压缩和解压的区别。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>常见问题：先检查路径与压缩格式</h2>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>tar: Cannot open</h3>
+            <p>检查当前目录、归档文件名和权限，用 pwd、ls 确认文件位置。</p>
+          </div>
+          <div class="card green">
+            <h3>解压后找不到文件</h3>
+            <p>检查是否指定了 -C 或 -d 目标目录，并查看解压时的完整路径。</p>
+          </div>
+          <div class="card blue">
+            <h3>gzip 后原文件不见了</h3>
+            <p>gzip 默认生成 .gz 并替代原文件；需要保留原文件时使用 <code>gzip -k</code>。</p>
+          </div>
+          <div class="card green">
+            <h3>ZIP 包中缺少子目录</h3>
+            <p>压缩目录时使用 <code>zip -r</code>，确保递归包含目录中的文件。</p>
+          </div>
+        </div>
+        <div class="band band-blue">排错顺序：检查路径 → 检查文件名与格式 → 检查选项 → 查看解压目录。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>如何保存截图与提交报告</h2>
+        <p class="subtitle">使用实验电脑 Windows 桌面上的“截图工具”</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>步骤 1</h3><p>从 Windows 桌面或开始菜单打开截图工具。</p></div>
+          <div class="card green"><h3>步骤 2</h3><p>框选终端，保留完整命令、输出和当前提示符。</p></div>
+          <div class="card blue"><h3>步骤 3</h3><p>保存为 PNG 或 JPG，例如 <code>exp9_archive.png</code>。</p></div>
+          <div class="card green"><h3>步骤 4</h3><p>确认用户名、命令和结果清晰可读，关键内容未被裁切。</p></div>
+        </div>
+        <div class="band band-blue">报告内容：基本信息、实验目的、实验内容和要求、实验结果、问题、总结；截图下写 1～2 句说明。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>实验9作业与回顾</h2>
+        <p class="subtitle">按课程实验报告模板填写，提交课堂综合练习</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>作业提交</h3>
+            <ul>
+              <li>报告按模板完整填写</li>
+              <li>实验结果含 tar 归档、压缩比较、ZIP 恢复三类截图</li>
+              <li>问题汇总写清原因与解决办法</li>
+              <li>实验总结写 3～5 句</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>本课回顾</h3>
+            <ul>
+              <li>打包与压缩不是一回事</li>
+              <li>tar -cvf / -tvf / -xvf 完成归档、查看、解包</li>
+              <li>tar -czvf / -xzvf 创建与解压 tar.gz</li>
+              <li>gzip 处理单文件；zip -r / unzip 处理 ZIP 包</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray">提交平台：雨课堂。提交完整实验报告，前面的分步练习不单独提交。</div>
+        <div class="slide-footer"><span>Linux 实验9｜文件压缩与解压</span><span>23</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

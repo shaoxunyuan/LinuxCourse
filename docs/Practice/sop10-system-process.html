@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验10：系统信息与进程管理</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>查看系统基本信息</a>
+              <a href="#p1-2"><span class="n">1.2</span>ps 查看进程</a>
+              <a href="#p1-3"><span class="n">1.3</span>top 动态观察</a>
+              <a href="#p1-4"><span class="n">1.4</span>pgrep、kill 与 kill -9</a>
+              <a href="#p1-5"><span class="n">1.5</span>free 查看内存</a>
+              <a href="#p1-6"><span class="n">1.6</span>df、du 查看磁盘</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：系统状态检查（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：进程定位与资源解释（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验10
+        </div>
+        <h1>实验10：系统信息与进程管理</h1>
+        <p class="practice-lead">程序在运行吗？谁占用了 CPU 和内存？磁盘还够不够？本节用一组系统命令回答这些问题：先看系统与进程，再找到并结束自己启动的测试进程，最后检查内存和磁盘空间。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能查看系统基本信息；用 ps、top 观察进程；理解 PID；用 pgrep 定位、用 kill 结束自己启动的测试进程；用 free、df、du 查看资源</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>系统运行状态检查。围绕当前 CentOS 会话完成进程查看、测试进程管理和资源核对</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 查看系统基本信息</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">先回答“我是谁、在哪台机器上、系统运行了多久”。这几条命令都很短，但输出里的每一段都对应一个具体信息。</p>
+          <div class="step-label">Step 1 / 逐条执行系统信息命令</div>
+          <pre><code class="language-bash">whoami
+hostname
+uname -a
+uptime
+date</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（主机名、内核版本和时间以实际为准）：</p>
+          <pre><code class="language-bash">njucm
+centos
+Linux centos 3.10.0-1160.el7.x86_64 #1 SMP Mon Oct 19 16:18:59 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+ 10:23:41 up  2:15,  1 user,  load average: 0.00, 0.01, 0.05
+Mon Nov  9 10:23:41 CST 2026</code></pre>
+          <ul class="tasks">
+            <li><code>uname -a</code> 输出中哪一段是内核版本？哪一段是 CPU 架构？</li>
+            <li><code>uptime</code> 的 <code>load average</code> 三个数字分别代表最近 1、5、15 分钟的平均负载</li>
+            <li><code>date</code> 显示的时区是什么？和你的实际时间一致吗？</li>
+          </ul>
+          <div class="book-callout"><code>uname -a</code> 一次显示内核名、主机名、内核版本、编译信息和硬件架构。<code>uname -r</code> 只显示内核版本，信息更简洁。</div>
+          <div class="check-point"><strong>检查点：</strong>能读出当前用户名、主机名、内核版本、系统已运行时长和当前时间。</div>
+
+          <h3 id="p1-2">1.2 ps 查看进程</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">进程是正在运行的程序实例，每个进程都有一个 PID。<code>ps</code> 显示的是执行命令那一刻的进程快照，不会持续刷新。</p>
+          <div class="step-label">Step 1 / 先看当前终端相关进程，再看完整列表</div>
+          <pre><code class="language-bash">ps
+ps aux | head
+ps -ef | head</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（节选，PID 与时间以实际为准）：</p>
+          <pre><code class="language-bash">  PID TTY          TIME CMD
+ 2318 pts/0    00:00:00 bash
+ 2450 pts/0    00:00:00 ps
+
+USER   PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root     1  0.1  0.4 128164  6804 ?        Ss   08:00   0:04 /usr/lib/systemd/systemd --switched-root --system
+root     2  0.0  0.0      0     0 ?        S    08:00   0:00 [kthreadd]
+
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 08:00 ?        00:00:04 /usr/lib/systemd/systemd --switched-root --system
+root         2     0  0 08:00 ?        00:00:00 [kthreadd]</code></pre>
+          <div class="step-label">Step 2 / 用 grep 定位指定进程</div>
+          <pre><code class="language-bash">ps -ef | grep '[b]ash'
+ps -ef | grep '[s]shd'</code></pre>
+          <ul class="tasks">
+            <li>PID 位于输出的第几列？<code>CMD</code> 列表示什么？</li>
+            <li><code>ps -ef</code> 比 <code>ps</code> 多了哪些列？<code>PPID</code> 有什么含义？</li>
+            <li>为什么写成 <code>[b]ash</code> 而不是直接写 <code>bash</code>？</li>
+          </ul>
+          <div class="book-callout"><code>grep bash</code> 会把 grep 自己的命令行也匹配进去；写成 <code>grep '[b]ash'</code> 可以避免这一类“假结果”。<code>ps aux</code> 关注资源占用，<code>ps -ef</code> 关注父子进程关系。</div>
+          <div class="check-point"><strong>检查点：</strong>能从 <code>ps</code> 输出中指出 PID 列，并找到当前终端里运行的 <code>bash</code> 进程。</div>
+
+          <h3 id="p1-3">1.3 top 动态观察</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>top</code> 是交互式界面，会持续刷新 CPU、内存和进程列表。进入后先看顶部汇总，再看下面占资源较多的进程。</p>
+          <div class="step-label">Step 1 / 进入 top，观察并按需排序</div>
+          <pre><code class="language-bash">top
+
+# 进入后：
+# 按 P  —— 按 CPU 使用率排序
+# 按 M  —— 按内存使用率排序
+# 按 q  —— 退出 top</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">顶部汇总示意（CentOS 7 的 top 默认以 KiB 显示，数值随机器变化）：</p>
+          <pre><code class="language-bash">top - 10:30:12 up  2:21,  1 user,  load average: 0.00, 0.01, 0.05
+Tasks: 121 total,   1 running, 120 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.3 us,  0.2 sy,  0.0 ni, 99.3 id,  0.1 wa,  0.0 hi,  0.1 si,  0.0 st
+KiB Mem :  1865460 total,  1233452 free,    184598 used,    447410 buff/cache
+KiB Swap:  2097148 total,  2097148 free,         0 used</code></pre>
+          <ul class="tasks">
+            <li>顶部第一行显示了哪些信息？</li>
+            <li>按 P 后列表排序依据是什么？按 M 后又变成什么？</li>
+            <li>退出 top 应该按哪个键？</li>
+          </ul>
+          <div class="book-callout"><code>top</code> 是交互界面，优先按 <code>q</code> 退出，不要在学生机上直接关闭终端窗口。界面里的 <code>%Cpu(s)</code> 和 <code>KiB Mem</code> 会随时间不断变化。</div>
+          <div class="check-point"><strong>检查点：</strong>能进入 top、用 P 和 M 改变排序、再用 q 正常退出，并说出顶部三行各显示什么。</div>
+
+          <h3 id="p1-4">1.4 pgrep、kill 与 kill -9</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本练习只操作自己启动的 <code>sleep</code> 测试进程。先用 <code>sleep 300 &amp;</code> 在后台启动一个“什么都不做、只等待”的进程，再找到它的 PID 并结束它。</p>
+          <div class="step-label">Step 1 / 启动测试进程并取得 PID</div>
+          <pre><code class="language-bash">sleep 300 &amp;
+PID=$!
+echo $PID
+ps -p $PID -o pid,ppid,stat,cmd</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（PID 以实际为准）：</p>
+          <pre><code class="language-bash">[1] 2456
+2456
+  PID  PPID STAT CMD
+ 2456  2318 S    sleep 300</code></pre>
+          <div class="step-label">Step 2 / 用 pgrep 和 ps 交叉确认</div>
+          <pre><code class="language-bash">pgrep -a -x sleep
+ps -ef | grep '[s]leep 300'</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（如果还有别的 sleep 练习进程，可能看到多行）：</p>
+          <pre><code class="language-bash">2456 sleep 300
+njucm  2456  2318  0 10:30 pts/0  00:00:00 sleep 300</code></pre>
+          <div class="step-label">Step 3 / 先正常结束，再验证进程已经消失</div>
+          <pre><code class="language-bash">kill $PID
+ps -p $PID
+echo $?</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（没有找到进程时只打印表头，退出码为 1）：</p>
+          <pre><code class="language-bash">  PID TTY          TIME CMD
+1</code></pre>
+          <div class="step-label">Step 4 / 再启动一个测试进程，了解强制结束</div>
+          <pre><code class="language-bash">sleep 300 &amp;
+PID2=$!
+kill -9 $PID2
+ps -p $PID2
+echo $?</code></pre>
+          <ul class="tasks">
+            <li><code>echo $!</code> 和 <code>echo $PID</code> 显示的是什么？为什么 PID 要保存到变量里？</li>
+            <li><code>kill $PID</code> 与 <code>kill -9 $PID</code> 有什么区别？</li>
+            <li><code>ps -p $PID</code> 只打印表头并返回 1，说明什么？</li>
+          </ul>
+          <div class="book-callout"><strong>不要随意 kill 系统进程。</strong>默认的 <code>kill</code> 发送 <code>-15</code>（SIGTERM），请求进程正常退出并有机会清理；<code>kill -9</code>（SIGKILL）强制结束，进程来不及保存或清理。只对本次练习中自己启动的 <code>sleep</code> 进程使用，PID 不确定时先用 <code>ps -p</code> 确认。</div>
+          <div class="book-callout"><strong>拓展提示（nice / renice）：</strong>nice 值范围是 -20 到 19，数值越大优先级越低。可以用 <code>nice -n 10 sleep 300 &amp;</code> 以较低优先级启动进程，用 <code>renice -n 15 -p PID</code> 调整已有进程。普通用户通常只能把 nice 值调大（降低优先级），调小需要 root 权限。</div>
+          <div class="check-point"><strong>检查点：</strong>能启动 <code>sleep 300 &amp;</code>、保存并打印 PID、用 <code>ps -p</code> 确认存在，<code>kill</code> 后再次用 <code>ps -p</code> 确认进程已经结束。</div>
+
+          <h3 id="p1-5">1.5 free 查看内存</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>free</code> 查看物理内存和交换空间（Swap）。加 <code>-h</code> 用更适合人阅读的单位显示。</p>
+          <div class="step-label">Step 1 / 查看内存概况</div>
+          <pre><code class="language-bash">free
+free -h</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（数值随机器变化）：</p>
+          <pre><code class="language-bash">              total        used        free      shared  buff/cache   available
+Mem:           1.8G        620M        180M         9M        1.0G        1.0G
+Swap:          2.0G          0B        2.0G</code></pre>
+          <div class="step-label">Step 2 / 观察自动刷新（可选）</div>
+          <pre><code class="language-bash">free -h -s 2
+# 每 2 秒刷新一次，按 Ctrl+C 结束</code></pre>
+          <ul class="tasks">
+            <li><code>Mem</code> 行与 <code>Swap</code> 行分别表示什么？</li>
+            <li><code>free</code> 列的数值很小，就说明内存一定不够用吗？应该重点看哪一列？</li>
+            <li><code>free</code>、<code>buff/cache</code> 与 <code>available</code> 三者有什么关系？</li>
+          </ul>
+          <div class="book-callout">Linux 会把空闲内存用于缓存，所以 <code>free</code> 很小是常见现象。<code>buff/cache</code> 在需要时可以回收，判断“还能不能用”应重点看 <code>available</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能读出内存总量、已用量和可用量，并能说出 Mem 与 Swap 的区别。</div>
+
+          <h3 id="p1-6">1.6 df、du 查看磁盘</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>df -h</code> 从文件系统层面看各挂载点的总容量与剩余空间；<code>du -sh</code> 从目录层面统计某个目录及其内容占用了多少空间。两者统计对象不同，数值不必完全相等。</p>
+          <div class="step-label">Step 1 / 查看文件系统空间</div>
+          <pre><code class="language-bash">df -h</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（分区与容量以实际为准）：</p>
+          <pre><code class="language-bash">Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   50G  8.1G   42G  16% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G     0  1.9G   0% /dev/shm
+tmpfs                    1.9G  9.0M  1.9G   1% /run
+/dev/sda1               1014M  153M  862M  15% /boot</code></pre>
+          <div class="step-label">Step 2 / 统计目录占用</div>
+          <pre><code class="language-bash">du -sh ~
+du -sh ~/LinuxProject
+du -sh ~/ArchiveLab
+du -sh ~/LinuxProject/* | sort -h | tail -n 5</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（数值示意）：</p>
+          <pre><code class="language-bash">1.2G    /home/njucm
+1.3M    /home/njucm/LinuxProject
+160K    /home/njucm/ArchiveLab
+228K    /home/njucm/LinuxProject/logs
+1.0M    /home/njucm/LinuxProject/archive</code></pre>
+          <div class="step-label">Step 3 / 进程与资源命令对照</div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>命令</th><th>主要看什么</th><th>关键字段 / 选项</th><th>典型用途</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>uname -a</code></td><td>内核与主机信息</td><td>内核版本、架构</td><td>确认系统环境</td></tr>
+                <tr><td><code>uptime</code></td><td>运行时长与负载</td><td>load average 的 1、5、15 分钟值</td><td>判断系统忙不忙</td></tr>
+                <tr><td><code>date</code></td><td>系统时间与时区</td><td>年、月、日、时分秒、CST</td><td>记录操作时间</td></tr>
+                <tr><td><code>ps aux</code></td><td>进程快照与资源占用</td><td>USER、PID、%CPU、%MEM、STAT、COMMAND</td><td>找占用较高的进程</td></tr>
+                <tr><td><code>ps -ef</code></td><td>完整进程列表</td><td>UID、PID、PPID、C、CMD</td><td>查父子进程关系</td></tr>
+                <tr><td><code>top</code></td><td>动态进程与资源</td><td>%Cpu(s)、KiB Mem、P / M / q</td><td>实时观察变化</td></tr>
+                <tr><td><code>pgrep</code></td><td>按名称查找 PID</td><td><code>-a</code> 显示命令、<code>-x</code> 精确匹配、<code>-f</code> 匹配完整命令行</td><td>定位测试进程</td></tr>
+                <tr><td><code>kill</code></td><td>向进程发送信号</td><td><code>-15</code> 正常结束、<code>-9</code> 强制结束</td><td>结束自己的测试进程</td></tr>
+                <tr><td><code>free -h</code></td><td>内存与 Swap</td><td>total、used、free、available</td><td>看内存够不够</td></tr>
+                <tr><td><code>df -h</code></td><td>文件系统空间</td><td>Size、Used、Avail、Use%、Mounted on</td><td>看分区是否快满</td></tr>
+                <tr><td><code>du -sh</code></td><td>目录或文件占用</td><td><code>-s</code> 只显示汇总、<code>-h</code> 易读单位</td><td>找出占空间最大的目录</td></tr>
+                <tr><td><code>nice / renice</code></td><td>进程优先级</td><td><code>-n</code> 指定 nice 值</td><td>拓展了解，本课不作必做要求</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul class="tasks">
+            <li><code>df -h</code> 的 <code>Use%</code> 与 <code>du -sh</code> 的结果为什么不能直接相等？</li>
+            <li>如果根分区快满了，应该先用 <code>df -h</code> 还是 <code>du -sh</code>？接下来再怎么定位？</li>
+            <li><code>du -sh ~/LinuxProject/*</code> 与 <code>du -sh ~/LinuxProject</code> 有什么区别？</li>
+          </ul>
+          <div class="book-callout">排查“磁盘满”的顺序通常是：先用 <code>df -h</code> 找到快满的挂载点，再进入该挂载点用 <code>du -sh * | sort -h</code> 逐层定位大目录。不要在不确认对象的情况下直接删除文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能读出根分区的总容量、已用量与剩余量；能用 <code>du -sh</code> 比较 <code>~/LinuxProject</code> 与 <code>~/ArchiveLab</code> 的大小。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请亲自执行并记录结果。所有进程操作都只针对自己启动的测试进程，遇到不确定的 PID 先停下确认。</p>
+
+          <h3 id="p2-1">2.1 任务 A：系统状态检查（必做）</h3>
+          <ul class="tasks">
+            <li>记录 <code>whoami</code>、<code>hostname</code>、<code>uname -a</code>、<code>uptime</code>、<code>date</code> 的输出</li>
+            <li>用 <code>ps aux</code> 与 <code>ps -ef</code> 查看进程列表，指出 PID 列并找到自己的 <code>bash</code> 进程</li>
+            <li>进入 <code>top</code>，分别按 P、M 观察排序变化，最后按 q 退出</li>
+            <li>启动 <code>sleep 300 &amp;</code>，用 <code>echo $!</code> 保存 PID，用 <code>ps -p</code> 与 <code>pgrep</code> 确认存在，再用 <code>kill</code> 结束并验证</li>
+            <li>再启动一个测试进程，用 <code>kill -9</code> 强制结束，比较两种 kill 的结果</li>
+            <li>用 <code>free -h</code>、<code>df -h</code>、<code>du -sh ~/LinuxProject</code> 记录内存、分区与目录占用</li>
+            <li>填写下面的结果记录表，并在实验报告中附上对应截图</li>
+          </ul>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>检查项</th><th>你的执行命令</th><th>关键输出</th><th>说明</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>系统与内核</td><td>____</td><td>____</td><td>主机名、内核版本</td></tr>
+                <tr><td>运行时长与负载</td><td>____</td><td>____</td><td>up 时长、load average</td></tr>
+                <tr><td>测试进程 PID</td><td>____</td><td>____</td><td>启动方式与确认命令</td></tr>
+                <tr><td>结束测试进程</td><td>____</td><td>____</td><td>kill 后 <code>ps -p</code> 的结果</td></tr>
+                <tr><td>内存</td><td>____</td><td>____</td><td>total、used、available</td></tr>
+                <tr><td>根分区空间</td><td>____</td><td>____</td><td>Size、Avail、Use%</td></tr>
+                <tr><td>LinuxProject 占用</td><td>____</td><td>____</td><td><code>du -sh</code> 结果</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="check-point"><strong>检查点：</strong>结果记录表全部填写完成；测试进程在 kill 前存在、kill 后消失；截图能看清命令与输出。</div>
+
+          <h3 id="p2-2">2.2 任务 B：进程定位与资源解释（拓展）</h3>
+          <ul class="tasks">
+            <li>用 <code>ps aux --sort=-%cpu | head -n 5</code> 找出当前 CPU 占用最高的几个进程，记录 USER、PID、%CPU 与 COMMAND</li>
+            <li>用 <code>ps aux --sort=-%mem | head -n 5</code> 找出内存占用最高的几个进程</li>
+            <li>用 <code>du -sh ~/LinuxProject/* | sort -h | tail -n 5</code> 找出数据集中最大的三个目录</li>
+            <li>比较 <code>df -h</code> 与 <code>du -sh ~</code> 的数值，用 2～3 句话解释为什么统计结果不同</li>
+            <li>了解 nice / renice：用 <code>nice -n 10 sleep 300 &amp;</code> 启动进程，记录 PID 与 nice 值，结束后再用 <code>renice</code> 调整一次</li>
+            <li>任选一个你遇到的报错（例如 <code>kill: No such process</code>），写出命令、报错原文、原因与修正方法</li>
+          </ul>
+          <div class="step-label">Step 1 / 按资源占用排序（可选执行）</div>
+          <pre><code class="language-bash">ps aux --sort=-%cpu | head -n 5
+ps aux --sort=-%mem | head -n 5
+du -sh ~/LinuxProject/* | sort -h | tail -n 5</code></pre>
+          <div class="book-callout">拓展内容中仍然只操作自己启动的 <code>sleep</code> 进程。对不确定来源的 PID 使用 <code>ps -p PID -o pid,user,cmd</code> 先确认属主和命令，再决定是否结束。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>用 <code>uname -a</code>、<code>uptime</code>、<code>date</code> 读出系统的基本信息</li>
+            <li>区分程序与进程，理解 PID 的作用</li>
+            <li>用 <code>ps aux</code>、<code>ps -ef</code> 查看进程快照，用 <code>top</code> 动态观察并正确退出</li>
+            <li>用 <code>pgrep</code> 定位自己启动的测试进程，用 <code>kill</code> 结束并验证</li>
+            <li>说明 <code>kill</code> 与 <code>kill -9</code> 的区别，知道不能随意结束系统进程</li>
+            <li>用 <code>free -h</code>、<code>df -h</code>、<code>du -sh</code> 查看内存、文件系统和目录占用</li>
+          </ul>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际运行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong><code>ps -ef</code> 输出中哪一列是 PID？<code>CMD</code> 列表示什么？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>kill PID</code> 与 <code>kill -9 PID</code> 有什么区别？为什么优先使用默认的 kill？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong><code>free -h</code> 中的 <code>free</code> 与 <code>available</code> 有什么区别？判断内存是否够用应看哪一列？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong><code>df -h</code> 与 <code>du -sh</code> 的统计对象有什么不同？为什么两者结果不能直接相等？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong>写出“启动 <code>sleep 300 &amp;</code>、保存 PID、确认存在、正常结束、再次确认消失”的完整命令序列。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>根据 <code>uname -a</code> 和 <code>uptime</code> 的实际输出，写出你的内核版本、系统已运行时长和 1 分钟平均负载。</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成实验后，按照雨课堂中的题目填写实验记录，并提交完整实验报告（模板六部分：基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结）。本次主要记录：</p>
+          <ul class="tasks">
+            <li>系统基本信息、<code>ps</code> 进程列表和 <code>top</code> 观察结果截图</li>
+            <li><code>sleep 300 &amp;</code> 启动、PID 获取、<code>ps -p</code> 确认与 <code>kill</code> 后验证的截图</li>
+            <li><code>free -h</code>、<code>df -h</code>、<code>du -sh</code> 的运行结果，并说明各自统计对象</li>
+            <li>任务 A 结果记录表的实际数值</li>
+            <li>用 3～5 句话总结：如何查看进程、识别 PID、结束自己的测试进程，以及如何区分内存与磁盘信息</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">请按照雨课堂发布的要求完成提交。</p>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop09-compression.html">实验9：文件压缩与解压</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

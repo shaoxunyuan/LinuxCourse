@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验7：文本字段提取与筛选</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>字段、记录与分隔符</a>
+              <a href="#p1-2"><span class="n">1.2</span>准备 FieldLab 与观察表头</a>
+              <a href="#p1-3"><span class="n">1.3</span>cut -d 与 -f 提取单列</a>
+              <a href="#p1-4"><span class="n">1.4</span>cut 同时提取两列</a>
+              <a href="#p1-5"><span class="n">1.5</span>awk -F 按字段输出</a>
+              <a href="#p1-6"><span class="n">1.6</span>awk 按成绩条件筛选</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：成绩表字段提取（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：筛选与统计（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验7
+        </div>
+        <h1>实验7：文本字段提取与筛选</h1>
+        <p class="practice-lead">一张成绩表有三列，实际任务往往只需要其中一列或两列。本页先用 <code>scores.csv</code> 看清表头和逗号分隔的字段，再用 <code>cut</code> 取出姓名与成绩，最后用 <code>awk</code> 按成绩条件筛出高分学生。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>理解字段、记录与分隔符；能用 cut 按列提取；能用 awk 输出字段并按第二列成绩筛选</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>成绩数据整理。从 <code>scores.csv</code> 提取姓名与成绩，筛出符合分数条件的记录</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 字段、记录与分隔符</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">CSV 是“逗号分隔值”的缩写。第一行是表头，说明每一列叫什么；从第二行起，每一行是一条学生记录。一行中的每一个列值称为一个字段。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>字段</th><th>列号</th><th>cut 写法</th><th>awk 写法</th><th>示例值</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>姓名 Name</td><td>第 1 列</td><td><code>-f 1</code></td><td><code>$1</code></td><td><code>Alice</code></td></tr>
+                <tr><td>成绩 Score</td><td>第 2 列</td><td><code>-f 2</code></td><td><code>$2</code></td><td><code>88</code></td></tr>
+                <tr><td>班级 Class</td><td>第 3 列</td><td><code>-f 3</code></td><td><code>$3</code></td><td><code>Class1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 1 / 数一数一行被逗号分成了几段</div>
+          <pre><code class="language-bash"># scores.csv 的前三行示意
+Name,Score,Class
+Alice,88,Class1
+Bob,72,Class1</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">先看清这三行，下面再把文件放进练习目录，用 <code>head</code> 实际观察。</p>
+          <ul class="tasks">
+            <li>表头 <code>Name,Score,Class</code> 被逗号分成 3 段，所以有 3 个字段。</li>
+            <li>学生记录 <code>Alice,88,Class1</code> 同样是 3 段：姓名、成绩、班级。</li>
+            <li><code>cut</code> 与 <code>awk</code> 的字段编号都从 1 开始，<code>$0</code> 表示整行。</li>
+          </ul>
+          <div class="book-callout">逗号既是“列与列之间的边界”，也是 cut 和 awk 识别字段的依据。分隔符写错，取出来的就会是整行或错误内容。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出姓名、成绩、班级分别是第几列，并说出本文件的分隔符是英文逗号。</div>
+
+          <h3 id="p1-2">1.2 准备 FieldLab 与观察表头</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">本次实验统一在 <code>~/Desktop/FieldLab</code> 中操作。先把 <code>scores.csv</code> 拖入 CentOS 桌面，再移动到练习目录。</p>
+          <div class="step-label">Step 1 / 建立目录并确认文件</div>
+          <pre><code class="language-bash">cd ~/Desktop
+mkdir -p FieldLab
+cd FieldLab
+mv ~/Desktop/scores.csv .
+pwd
+ls
+head -n 5 scores.csv
+wc -l scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">/home/njucm/Desktop/FieldLab
+scores.csv
+Name,Score,Class
+Alice,88,Class1
+Bob,72,Class1
+Cindy,95,Class2
+David,60,Class2
+31 scores.csv</code></pre>
+          <ul class="tasks">
+            <li><code>31 scores.csv</code> 表示文件共 31 行，其中第 1 行是表头，后面 30 行是学生记录。</li>
+            <li><code>head -n 5</code> 只看前 5 行，不足以看到全部数据，但足以确认格式。</li>
+            <li>如果提示找不到文件，先用 <code>ls ~/Desktop</code> 确认它是否真的在桌面。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong><code>pwd</code> 显示 FieldLab，<code>wc -l</code> 显示 31，且能说出 31 行里包含 1 行表头。</div>
+
+          <h3 id="p1-3">1.3 cut -d 与 -f 提取单列</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-d</code> 告诉 cut 用什么字符分隔字段，<code>-f</code> 告诉 cut 要第几列。两者必须配合使用。</p>
+          <div class="step-label">Step 1 / 只取姓名与只取成绩</div>
+          <pre><code class="language-bash">cut -d ',' -f 1 scores.csv | head -n 6
+cut -d ',' -f 2 scores.csv | head -n 6
+cut -d ',' -f 1 scores.csv | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Name
+Alice
+Bob
+Cindy
+David
+Eva
+Score
+88
+72
+95
+60
+100
+31</code></pre>
+          <div class="step-label">Step 2 / 观察格式</div>
+          <ul class="tasks">
+            <li><code>-d ','</code> 中的逗号必须放在引号内，并且必须是英文逗号。</li>
+            <li><code>-f 1</code> 输出姓名，<code>-f 2</code> 输出成绩，两者都保留了表头。</li>
+            <li><code>wc -l</code> 再次得到 31，说明提取没有减少行数，只是减少了每行的列数。</li>
+          </ul>
+          <div class="book-callout">如果看到 <code>cut: the delimiter must be a single character</code>，先检查 <code>-d</code> 后面是不是只有一个字符，以及是否误用了中文逗号。</div>
+          <div class="check-point"><strong>检查点：</strong>能分别写出“只看姓名”和“只看成绩”的命令，并解释 <code>-d</code> 与 <code>-f</code> 各控制什么。</div>
+
+          <h3 id="p1-4">1.4 cut 同时提取两列</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">在 <code>-f</code> 后用逗号列出多个列号，就可以一次取出多列；输出会保留原来的字段顺序与分隔符。</p>
+          <div class="step-label">Step 1 / 同时取出姓名和成绩</div>
+          <pre><code class="language-bash">cut -d ',' -f 1,2 scores.csv | head -n 6
+cut -d ',' -f 3 scores.csv | tail -n +2 | sort | uniq -c</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Name,Score
+Alice,88
+Bob,72
+Cindy,95
+David,60
+Eva,100
+     11 Class1
+     11 Class2
+      8 Class3</code></pre>
+          <ul class="tasks">
+            <li><code>-f 1,2</code> 的输出仍然用逗号连接两列，并不会自动变成空格。</li>
+            <li>班级统计里 <code>11 + 11 + 8 = 30</code>，正好是 30 条学生记录；<code>tail -n +2</code> 的作用是跳过第 1 行表头。</li>
+            <li>注意 <code>-f 1,2</code> 中间不能写成 <code>1 2</code> 或 <code>1、2</code>。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>能取出任意两列，并说明 <code>-f 1,2</code> 与 <code>-f 3</code> 各自输出了哪几列。</div>
+
+          <h3 id="p1-5">1.5 awk -F 按字段输出</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>awk</code> 默认按空白字符分列，而 CSV 用逗号分列，所以必须用 <code>-F ','</code> 指定分隔符。<code>$1</code> 表示第一列，<code>$2</code> 表示第二列。</p>
+          <div class="step-label">Step 1 / 输出第一列与第一、二列</div>
+          <pre><code class="language-bash">awk -F ',' '{print $1}' scores.csv | head -n 6
+awk -F ',' '{print $1, $2}' scores.csv | head -n 6
+awk '{print $1}' scores.csv | head -n 3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Name
+Alice
+Bob
+Cindy
+David
+Eva
+Name Score
+Alice 88
+Bob 72
+Cindy 95
+David 60
+Eva 100
+Name,Score,Class
+Alice,88,Class1
+Bob,72,Class1</code></pre>
+          <div class="step-label">Step 2 / 比较三种写法</div>
+          <ul class="tasks">
+            <li>没有 <code>-F ','</code> 时，整行没有空格，awk 把整行当作第一个字段，所以输出整行。</li>
+            <li><code>print $1, $2</code> 中的逗号是“输出分隔符”，awk 默认用空格连接各字段。</li>
+            <li><code>'...'</code> 中的内容是 awk 程序，单引号防止 shell 提前解释 <code>$1</code>。</li>
+          </ul>
+          <div class="book-callout">cut 与 awk 都能取列：cut 用 <code>-d</code> 和 <code>-f</code>，awk 用 <code>-F</code> 和 <code>$编号</code>。看到输出整行时，先检查是否漏写了逗号分隔符。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释不加 <code>-F</code> 为什么输出整行，并说明 awk 输出的两列之间为什么是空格。</div>
+
+          <h3 id="p1-6">1.6 awk 按成绩条件筛选</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">在 awk 程序前写条件，只有条件为真的行才执行后面的 <code>print</code>。成绩是第二列，所以条件写成 <code>$2 &gt; 80</code>；<code>NR</code> 表示当前行号，<code>NR &gt; 1</code> 用来跳过表头。</p>
+          <div class="step-label">Step 1 / 直接按 $2 &gt; 80 筛选</div>
+          <pre><code class="language-bash">awk -F ',' '$2 &gt; 80 {print $1, $2}' scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出（共 14 行）：</p>
+          <pre><code class="language-bash">Name Score
+Alice 88
+Cindy 95
+Eva 100
+Frank 88
+Kevin 83
+Lily 91
+Peter 100
+Rose 88
+Victor 90
+Xavier 84
+Zoe 96
+Alice 88
+Cindy 95</code></pre>
+          <div class="book-callout">第一行 <code>Name Score</code> 也会出现：表头第二列是文本 <code>Score</code>，与数字 80 比较时按字符串规则处理，结果恰好为真。真实学生记录是 13 条，不是 14 条。</div>
+          <div class="step-label">Step 2 / 跳过表头再筛选</div>
+          <pre><code class="language-bash">awk -F ',' 'NR&gt;1 &amp;&amp; $2 &gt; 80 {print $1, $2}' scores.csv | wc -l
+awk -F ',' 'NR&gt;1 &amp;&amp; $2 &gt;= 90 {print $1, $2}' scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">13
+Cindy 95
+Eva 100
+Lily 91
+Peter 100
+Victor 90
+Zoe 96
+Cindy 95</code></pre>
+          <ul class="tasks">
+            <li><code>NR&gt;1</code> 跳过第一行表头，剩下 13 条成绩大于 80 的学生记录。</li>
+            <li><code>&gt;=90</code> 包含 90 分，所以 <code>Victor 90</code> 被选中；改成 <code>&gt;90</code> 就会少这一条。</li>
+            <li>文件末尾的 Alice、Cindy 是重复记录，因此筛选结果里也会重复出现。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>$2 &gt; 80</code> 输出 14 行但只有 13 条学生记录的原因，并能写出不包含表头的 <code>NR&gt;1</code> 版本。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+
+          <h3 id="p2-1">2.1 任务 A：成绩表字段提取（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">全部在 <code>~/Desktop/FieldLab</code> 中完成。每道题先写出命令，再执行并把命令与输出截入实验报告。</p>
+          <ol class="tasks">
+            <li>用 <code>pwd</code>、<code>ls</code>、<code>head -n 5 scores.csv</code> 确认当前目录和表头，写出文件总行数以及学生记录条数。</li>
+            <li>只显示全部学生姓名；再只显示全部成绩。两条命令分别使用 <code>cut</code> 的哪个选项？</li>
+            <li>同时显示姓名和成绩，要求输出仍用逗号分隔。写出完整命令。</li>
+            <li>用 <code>awk -F ','</code> 完成上面第 2、3 题，比较 awk 输出与 cut 输出的分隔方式。</li>
+            <li>找出成绩大于等于 85 分的学生（跳过表头）。参考核对结果：共 11 条，第一条为 <code>Alice 88</code>，最后一条为 <code>Cindy 95</code>。</li>
+            <li>把第 5 题结果写入 <code>high85.txt</code>，再用 <code>wc -l high85.txt</code> 核对是否为 11 行。</li>
+          </ol>
+          <div class="book-callout">任务 A 的截图至少要包含：当前提示符、完整命令、输出结果。只截输出不截命令，无法证明这条结果是你运行出来的。</div>
+
+          <h3 id="p2-2">2.2 任务 B：筛选与统计（拓展）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">下面三题仍然使用 <code>scores.csv</code>，需要把命令与结果一起记录。</p>
+          <div class="step-label">题目 1 / 每个班各有多少条记录</div>
+          <pre><code class="language-bash">awk -F ',' 'NR&gt;1 {print $3}' scores.csv | sort | uniq -c</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">参考核对结果：</p>
+          <pre><code class="language-bash">     11 Class1
+     11 Class2
+      8 Class3</code></pre>
+          <div class="step-label">题目 2 / 找出低于 60 分的学生</div>
+          <pre><code class="language-bash">awk -F ',' 'NR&gt;1 &amp;&amp; $2 &lt; 60 {print $1, $2}' scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">参考核对结果：</p>
+          <pre><code class="language-bash">Grace 45
+Henry 9
+Ivy 18
+Mike 55
+Queen 42
+Uma 58</code></pre>
+          <div class="step-label">题目 3 / 用一句话说明区别</div>
+          <ul class="tasks">
+            <li>在实验报告中用 3～5 句话说明：什么情况下用 cut，什么情况下用 awk。</li>
+            <li>说明 <code>$2</code> 与 <code>NR</code> 各代表什么，并各举一个本页用到的例子。</li>
+            <li>解释为什么筛选时要写 <code>NR&gt;1</code>，不写会出现什么结果。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>任务 B 的班级统计结果相加为 30，低分名单为 6 人，且两条命令都跳过了表头。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验结果部分至少包含以下三组截图，每张截图下写 1～2 句说明“这条命令做了什么、结果说明了什么”。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>截图</th><th>必须显示的内容</th><th>说明要点</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>截图 1</td><td><code>pwd</code>、<code>ls</code>、<code>head -n 5 scores.csv</code>、<code>wc -l scores.csv</code></td><td>文件位置、表头、31 行总数与 30 条记录</td></tr>
+                <tr><td>截图 2</td><td><code>cut -d ',' -f 1</code>、<code>-f 2</code>、<code>-f 1,2</code></td><td>-d 指定逗号，-f 指定列号</td></tr>
+                <tr><td>截图 3</td><td><code>awk -F ',' '$2 &gt; 80'</code>（观察表头）、<code>NR&gt;1 &amp;&amp; $2 &gt; 80</code> 与 <code>NR&gt;1 &amp;&amp; $2 &gt;= 90</code></td><td>跳过表头后 13 条大于 80，7 条大于等于 90</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">作业题直接写在实验报告的“实验结果”或“实验总结”之后，要求给出命令和实际结果，不能只写结论。</p>
+          <ol class="tasks">
+            <li><code>scores.csv</code> 共有多少行、多少列？其中表头几行、学生记录几条？</li>
+            <li>分别写出只显示姓名、只显示成绩、同时显示姓名和成绩的三条 cut 命令，并说明 <code>-d</code> 与 <code>-f</code> 的作用。</li>
+            <li>写出用 awk 输出第一列的命令。若去掉 <code>-F ','</code>，输出会变成什么？为什么？</li>
+            <li>执行 <code>awk -F ',' '$2 &gt; 80 {print $1, $2}' scores.csv</code> 为什么第一行是 <code>Name Score</code>？怎样去掉这一行？去掉后共几条学生记录？</li>
+            <li><code>$2 &gt;= 90</code> 与 <code>$2 &gt; 90</code> 的结果差哪一条记录？请写出两条命令并对比输出。</li>
+            <li>写一条命令统计每个班的学生人数，并写出三个班的实际人数。</li>
+            <li>用 3～5 句话总结：字段和分隔符是什么，cut 与 awk 各自适合什么任务。</li>
+          </ol>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <ul class="tasks">
+            <li>提交平台：雨课堂。</li>
+            <li>提交内容：按课程实验报告模板填写的完整报告，包含基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结六部分。</li>
+            <li>截图命名建议：<code>exp7_file.png</code>、<code>exp7_cut.png</code>、<code>exp7_awk.png</code>。</li>
+            <li>问题汇总示例：awk 输出整行 → 原因是没有指定 <code>-F ','</code> → 补上逗号分隔符后正常输出姓名。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>三类截图齐全、命令与输出清晰可读，报告中至少写出一条自己实际遇到的问题及解决办法。</div>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop06-text-sort.html">实验6：文本排序与去重</a> | 下一节：<a href="sop08-text-edit.html">实验8：文本编辑与替换</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

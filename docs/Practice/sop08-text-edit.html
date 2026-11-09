@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验8：文本编辑与替换</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>先观察：sed -n 只看指定行</a>
+              <a href="#p1-2"><span class="n">1.2</span>s/// 首次替换与 g 全部替换</a>
+              <a href="#p1-3"><span class="n">1.3</span>sed -i 就地修改与备份</a>
+              <a href="#p1-4"><span class="n">1.4</span>按行号或模式删除 d</a>
+              <a href="#p1-5"><span class="n">1.5</span>sed 与管道组合</a>
+              <a href="#p1-6"><span class="n">1.6</span>Vim、Nano 与配置文件修改</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：替换、筛选与配置修改（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：编辑器与安全改写（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验8
+        </div>
+        <h1>实验8：文本编辑与替换</h1>
+        <p class="practice-lead">修改文本时，最安全的顺序是“先看、再预览、最后才写回”。本页用 <code>sed</code> 完成指定行查看、批量替换、按模式删除和管道组合，再用 Vim 与 Nano 修改 <code>hospital.conf</code> 的日志级别，并学会在 <code>sed -i</code> 之前备份。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>能读懂 sed 的 <code>-n</code>、<code>p</code>、<code>s///</code>、<code>g</code>、<code>d</code>、<code>-i</code>；能在 Vim / Nano 中完成最小编辑并安全改写配置</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>文本维护与配置修改。批量处理成绩记录，修改 <code>~/LinuxProject/config/hospital.conf</code> 并核对结果</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 先观察：sed -n 只看指定行</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">sed 默认逐行读取文件，把每一行都输出到终端。加上 <code>-n</code> 会关闭默认输出，再配合 <code>p</code> 只打印你指定的行或匹配行。</p>
+          <div class="step-label">Step 1 / 建立 SedLab 并准备两个文件</div>
+          <pre><code class="language-bash">cd ~/Desktop
+mkdir -p SedLab
+cd SedLab
+cp ~/Desktop/scores.csv .
+cat &gt; notes.txt &lt;&lt;'EOF'
+2026-08-01 old draft: first note
+2026-08-02 old record: replace old once
+2026-08-03 draft status: old marker appears twice old
+2026-08-04 INFO course record ready
+2026-08-05 WARN disk almost full
+2026-08-06 ERROR cannot open config
+2026-08-07 draft note: Linux practice
+2026-08-08 INFO backup finished
+2026-08-09 WARN network slow
+2026-08-10 draft summary: old value kept
+EOF
+pwd
+ls
+wc -l scores.csv notes.txt</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">/home/njucm/Desktop/SedLab
+notes.txt
+scores.csv
+ 31 scores.csv
+ 10 notes.txt
+ 41 total</code></pre>
+          <div class="step-label">Step 2 / 只查看 scores.csv 的前 10 行</div>
+          <pre><code class="language-bash">sed -n '1,10p' scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Name,Score,Class
+Alice,88,Class1
+Bob,72,Class1
+Cindy,95,Class2
+David,60,Class2
+Eva,100,Class3
+Frank,88,Class1
+Grace,45,Class2
+Henry,9,Class3
+Ivy,18,Class1</code></pre>
+          <ul class="tasks">
+            <li><code>'1,10p'</code> 中的 <code>p</code> 是打印命令，<code>1,10</code> 是行号范围。</li>
+            <li>去掉 <code>-n</code> 再执行一次，会看到这 10 行被打印两遍：一次是默认输出，一次是 <code>p</code>。</li>
+            <li><code>sed -n '8p' scores.csv</code> 只显示第 8 行，可用来核对单行。</li>
+          </ul>
+          <div class="book-callout">牢记：<code>p</code> 必须与 <code>-n</code> 配合。只写 <code>p</code> 不加 <code>-n</code>，同一行会重复出现，很多“输出越来越多”的困惑都来自这里。</div>
+          <div class="check-point"><strong>检查点：</strong>能只显示第 1～10 行，并说出 <code>-n</code> 与 <code>p</code> 各自的作用。</div>
+
+          <h3 id="p1-2">1.2 s/// 首次替换与 g 全部替换</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>s/旧/新/</code> 表示替换，默认只替换每行中第一次出现的旧内容；在末尾加 <code>g</code>，才会替换这一行里的全部匹配。先不加 <code>-i</code>，只观察终端输出。</p>
+          <div class="step-label">Step 1 / 先看要替换的原始行</div>
+          <pre><code class="language-bash">grep '2026-08-02' notes.txt
+grep -o 'old' notes.txt | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">2026-08-02 old record: replace old once
+6</code></pre>
+          <div class="step-label">Step 2 / 首次替换与全局替换</div>
+          <pre><code class="language-bash">sed 's/old/new/' notes.txt | head -n 3
+sed 's/old/new/g' notes.txt | head -n 3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">2026-08-01 new draft: first note
+2026-08-02 new record: replace old once
+2026-08-03 draft status: new marker appears twice old
+2026-08-01 new draft: first note
+2026-08-02 new record: replace new once
+2026-08-03 draft status: new marker appears twice new</code></pre>
+          <ul class="tasks">
+            <li>不加 <code>g</code> 时，第 2 行只替换了第一个 <code>old</code>，后面的 <code>old</code> 仍然保留。</li>
+            <li>加 <code>g</code> 后，第 2 行两个 <code>old</code> 都变成 <code>new</code>；第 3 行的两个 <code>old</code> 也同样全部替换。</li>
+            <li>两次命令都没有写回文件，原文件仍有 6 处 <code>old</code>，可用 <code>grep -o 'old' notes.txt | wc -l</code> 复核。</li>
+          </ul>
+          <div class="book-callout">“先看再改”的标准动作：先用不带 <code>-i</code> 的 sed 预览替换结果，确认行号、大小写和匹配范围都正确，再决定是否写回文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能指出第 2 行替换前后差异，并解释 <code>g</code> 为什么让同一行的多个 <code>old</code> 都被换掉。</div>
+
+          <h3 id="p1-3">1.3 sed -i 就地修改与备份</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>-i</code> 表示直接修改文件本身，终端不会再输出替换结果。它没有“撤销”按钮，写错模式就会改错文件，因此执行前必须先备份。</p>
+          <div class="step-label">Step 1 / 在副本上练习 -i</div>
+          <pre><code class="language-bash">cp scores.csv scores_demo.csv
+cp scores_demo.csv scores_demo.csv.bak
+sed -i 's/Class1/ClassOne/g' scores_demo.csv
+head -n 4 scores_demo.csv
+grep -c 'ClassOne' scores_demo.csv
+grep -c 'Class1' scores.csv
+ls scores_demo.csv*</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Name,Score,Class
+Alice,88,ClassOne
+Bob,72,ClassOne
+Cindy,95,Class2
+11
+11
+scores_demo.csv
+scores_demo.csv.bak</code></pre>
+          <ul class="tasks">
+            <li><code>sed -i</code> 执行时没有输出，这是正常的；用 <code>head</code>、<code>grep</code> 才能确认文件真的被改了。</li>
+            <li>副本中 <code>ClassOne</code> 出现 11 次，而原始 <code>scores.csv</code> 中的 <code>Class1</code> 仍是 11 次，说明原文件没有被误改。</li>
+            <li>备份文件 <code>scores_demo.csv.bak</code> 的作用是：改错时可以用 <code>cp scores_demo.csv.bak scores_demo.csv</code> 恢复。</li>
+          </ul>
+          <div class="book-callout">公式：<code>cp 文件 文件.bak</code> → 预览 sed 输出 → 确认无误后 <code>sed -i</code> → <code>diff 文件.bak 文件</code> 核对。顺序颠倒，就可能把唯一一份数据改坏。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>sed -i</code> 与不带 <code>-i</code> 的 sed 的区别，并展示备份文件确实存在。</div>
+
+          <h3 id="p1-4">1.4 按行号或模式删除 d</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);"><code>d</code> 表示删除当前行。它同样只影响“输出结果”，不加 <code>-i</code> 时不会改动原文件。既能按行号删除，也能按关键词模式删除。</p>
+          <div class="step-label">Step 1 / 按行号删除与按模式排除</div>
+          <pre><code class="language-bash">sed '3d' notes.txt | head -n 4
+sed -n '/ERROR/p' notes.txt
+sed '/ERROR/d' notes.txt
+wc -l notes.txt</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">2026-08-01 old draft: first note
+2026-08-02 old record: replace old once
+2026-08-04 INFO course record ready
+2026-08-05 WARN disk almost full
+2026-08-06 ERROR cannot open config
+2026-08-01 old draft: first note
+2026-08-02 old record: replace old once
+2026-08-03 draft status: old marker appears twice old
+2026-08-04 INFO course record ready
+2026-08-05 WARN disk almost full
+2026-08-07 draft note: Linux practice
+2026-08-08 INFO backup finished
+2026-08-09 WARN network slow
+2026-08-10 draft summary: old value kept
+10 notes.txt</code></pre>
+          <ul class="tasks">
+            <li><code>sed '3d'</code> 删掉第 3 行，所以输出从第 4 行继续。</li>
+            <li><code>sed -n '/ERROR/p'</code> 只打印包含 ERROR 的 1 行；<code>sed '/ERROR/d'</code> 输出其余 9 行。</li>
+            <li>最后 <code>wc -l</code> 仍是 10，证明前面的删除只影响了屏幕输出，原文件没有被改写。</li>
+          </ul>
+          <div class="book-callout"><code>d</code> 与 <code>p</code> 是一对相反操作：<code>p</code> 留下匹配行，<code>d</code> 排除匹配行。是否写回文件，仍然由有没有 <code>-i</code> 决定。</div>
+          <div class="check-point"><strong>检查点：</strong>能分别用行号 <code>3d</code> 和模式 <code>/ERROR/d</code> 删除，并说明原文件为什么仍保留 10 行。</div>
+
+          <h3 id="p1-5">1.5 sed 与管道组合</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">管道 <code>|</code> 把前一条命令的输出交给后一条命令作为输入。可以先取行，再替换；也可以先筛选，再格式化。</p>
+          <div class="step-label">Step 1 / 先取第 2～6 行，再替换班级名</div>
+          <pre><code class="language-bash">sed -n '2,6p' scores.csv | sed 's/Class1/ClassOne/g'</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Alice,88,ClassOne
+Bob,72,ClassOne
+Cindy,95,Class2
+David,60,Class2
+Eva,100,Class3</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>sed 写法</th><th>作用</th><th>本次数据的实际效果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>sed 's/old/new/'</code></td><td>每行只替换第一次匹配</td><td>第 2 行只换第一个 old</td></tr>
+                <tr><td><code>sed 's/old/new/g'</code></td><td>每行替换全部匹配</td><td>6 处 old 全部变成 new</td></tr>
+                <tr><td><code>sed -n '1,10p'</code></td><td>只打印第 1～10 行</td><td>scores.csv 前 10 行</td></tr>
+                <tr><td><code>sed -n '/ERROR/p'</code></td><td>只打印匹配行</td><td>notes.txt 中 1 行 ERROR 记录</td></tr>
+                <tr><td><code>sed '/ERROR/d'</code></td><td>排除匹配行后输出其余行</td><td>10 行输出变成 9 行</td></tr>
+                <tr><td><code>sed -i 's/旧/新/g'</code></td><td>直接写回原文件</td><td>无屏幕输出，需提前备份并复核</td></tr>
+                <tr><td><code>命令 | sed '...'</code></td><td>把前一条命令的输出交给 sed</td><td>先筛选行，再对剩余文本替换</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="step-label">Step 2 / 筛选与格式化再组合</div>
+          <pre><code class="language-bash">awk -F ',' 'NR&gt;1 &amp;&amp; $2 &gt;= 90 {print $1, $2}' scores.csv | sed 's/ /,/g' | head -n 4</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Cindy,95
+Eva,100
+Lily,91
+Peter,100</code></pre>
+          <div class="book-callout">管道组合不会自动保存结果。屏幕上看到的是处理后的输出；若想保存，需要另写重定向，例如 <code>... &gt; result.txt</code>，并先确认不会覆盖重要文件。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释管道中后一个 sed 的输入来自哪里，并说明原文件在管道组合后是否被修改。</div>
+
+          <h3 id="p1-6">1.6 Vim、Nano 与配置文件修改</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">Vim 有三种常用模式：一般模式（打开后默认所在，用来移动、复制、删除）、插入模式（按 <code>i</code> 进入，真正输入文字）、命令行模式（按 <code>:</code> 进入，执行保存与退出）。按 <code>Esc</code> 可以从插入模式回到一般模式。</p>
+          <div class="step-label">Step 1 / Vim 最小操作</div>
+          <pre><code class="language-bash">cd ~/Desktop/SedLab
+vim notes.txt
+
+# 在 Vim 中依次按键
+i                         # 进入插入模式
+2026-08-11 INFO vim edit  # 新起一行输入内容
+Esc                       # 回到一般模式
+:w                        # 保存
+:q                        # 退出
+# 如果改错了不想保存：按 Esc，再输入 :q! 强制退出
+# 想保存并退出：按 Esc，再输入 :wq</code></pre>
+          <div class="step-label">Step 2 / Nano 保存与退出</div>
+          <pre><code class="language-bash">nano notes.txt
+
+# 在 Nano 中依次按键
+Ctrl+O    # 写入保存，按 Enter 确认文件名
+Ctrl+X    # 退出编辑器</code></pre>
+          <ul class="tasks">
+            <li>Vim 中 <code>:wq</code> 等于“保存并退出”，<code>:q!</code> 等于“不保存强制退出”。</li>
+            <li>Nano 底部会显示快捷键提示，<code>^O</code> 表示 Ctrl+O，<code>^X</code> 表示 Ctrl+X。</li>
+            <li>编辑后回到终端，用 <code>wc -l notes.txt</code> 和 <code>tail -n 2 notes.txt</code> 核对内容是否真的写入。</li>
+          </ul>
+          <div class="step-label">Step 3 / 修改 hospital.conf 的日志级别</div>
+          <pre><code class="language-bash">cd ~/LinuxProject/config
+sed -n '1,4p' hospital.conf
+cp hospital.conf hospital.conf.bak
+sed -i 's/log_level=INFO/log_level=DEBUG/' hospital.conf
+grep 'log_level' hospital.conf
+diff hospital.conf.bak hospital.conf
+ls hospital.conf*</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash"># Hospital application configuration
+app_name=HospitalDemo
+mode=production
+log_level=INFO
+log_level=DEBUG
+4c4
+&lt; log_level=INFO
+---
+&gt; log_level=DEBUG
+hospital.conf
+hospital.conf.bak</code></pre>
+          <ul class="tasks">
+            <li><code>sed -n '1,4p'</code> 先确认原配置里确实写着 <code>log_level=INFO</code>。</li>
+            <li>备份文件名建议固定为 <code>hospital.conf.bak</code>，恢复命令是 <code>cp hospital.conf.bak hospital.conf</code>。</li>
+            <li><code>diff</code> 输出的 <code>4c4</code> 表示第 4 行被修改，<code>&lt;</code> 是备份中的旧值，<code>&gt;</code> 是修改后的新值。</li>
+            <li>只改配置文本并不等于服务立刻生效；本实验只要求正确改写并核对文件内容。</li>
+          </ul>
+          <div class="book-callout">修改系统或项目配置前，一律先备份。若 <code>sed -i</code> 执行后发现改错，立即用备份恢复，不要在原文件上反复尝试替换。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 Vim 三种模式及 <code>:wq</code> 与 <code>:q!</code> 的区别，并能用 <code>grep</code> 证明 <code>log_level=DEBUG</code> 已写入。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+
+          <h3 id="p2-1">2.1 任务 A：替换、筛选与配置修改（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">在 <code>~/Desktop/SedLab</code> 与 <code>~/LinuxProject/config</code> 中完成以下操作，命令与结果都要截图。</p>
+          <ol class="tasks">
+            <li>用 <code>wc -l</code> 确认 <code>scores.csv</code> 为 31 行、<code>notes.txt</code> 为 10 行，并用 <code>sed -n '1,10p' scores.csv</code> 查看前 10 行。</li>
+            <li>对 <code>notes.txt</code> 分别执行首次替换和全局替换，比较第 2 行输出；写出原文件中 <code>old</code> 的总处数（6 处）。</li>
+            <li>执行 <code>sed '/ERROR/d' notes.txt</code>，数一数输出几行；再执行 <code>wc -l notes.txt</code>，说明原文件为什么仍是 10 行。</li>
+            <li>用管道先取 <code>scores.csv</code> 第 2～6 行，再把 <code>Class1</code> 替换成 <code>ClassOne</code>，写出完整命令并保存截图。</li>
+            <li>备份 <code>hospital.conf</code>，用 <code>sed -i</code> 把 <code>log_level=INFO</code> 改为 <code>DEBUG</code>，用 <code>grep</code> 与 <code>diff</code> 核对。</li>
+            <li>最后执行 <code>cp hospital.conf.bak hospital.conf</code> 恢复原配置，再用 <code>grep 'log_level' hospital.conf</code> 确认已回到 INFO。</li>
+          </ol>
+          <div class="book-callout">任务 A 的第 5 题必须先备份再执行 <code>sed -i</code>。截图中应同时出现 <code>cp ... .bak</code>、<code>sed -i</code>、<code>grep</code> 与 <code>diff</code> 四类命令。</div>
+
+          <h3 id="p2-2">2.2 任务 B：编辑器与安全改写（拓展）</h3>
+          <div class="step-label">题目 1 / 按关键词筛选</div>
+          <pre><code class="language-bash">sed -n '/WARN/p' notes.txt
+sed -n '/INFO/p' notes.txt</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">参考核对：WARN 有 2 行，INFO 有 2 行。</p>
+          <div class="step-label">题目 2 / 用 Vim 增加一行</div>
+          <ul class="tasks">
+            <li>用 Vim 打开 <code>notes.txt</code>，在第一行前新增一行 <code>2026-08-11 INFO vim edit</code>，保存退出。</li>
+            <li>回到终端执行 <code>wc -l notes.txt</code>，确认从 10 行变成 11 行；再执行 <code>head -n 2 notes.txt</code> 核对新行。</li>
+            <li>再用 Nano 删除这一行并保存，确认文件恢复为 10 行。</li>
+          </ul>
+          <div class="step-label">题目 3 / 比较安全改写方式</div>
+          <ul class="tasks">
+            <li>分别写出“先 <code>cp</code> 备份再 <code>sed -i</code>”和“用 <code>sed -i.bak</code> 自动备份”两条命令。</li>
+            <li>说明为什么在修改 <code>hospital.conf</code> 时不建议直接运行未备份的 <code>sed -i</code>。</li>
+            <li>写出把 <code>notes.txt</code> 中所有 <code>draft</code> 替换为 <code>final</code> 但只查看输出的命令，并说明原文件是否改变。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>Vim 增加行后 <code>wc -l</code> 为 11，Nano 删除后回到 10；能写出带备份的安全替换命令。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">实验结果至少包含以下三组截图，每张图下写 1～2 句说明“执行了什么、结果证明什么”。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>截图</th><th>必须显示的内容</th><th>说明要点</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>截图 1</td><td><code>sed 's/old/new/'</code> 与 <code>sed 's/old/new/g'</code> 的前三行输出</td><td>首次替换只换每行第一个，g 换全部</td></tr>
+                <tr><td>截图 2</td><td><code>sed -n '1,10p' scores.csv</code>、<code>sed -n '/ERROR/p'</code></td><td>-n 关闭默认输出，p 只打印指定内容</td></tr>
+                <tr><td>截图 3</td><td>备份、<code>sed -i</code>、<code>grep</code>、<code>diff hospital.conf.bak hospital.conf</code></td><td>第 4 行从 INFO 改为 DEBUG，原文件有备份</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">作业要求给出命令和实际输出，不能只写结论。</p>
+          <ol class="tasks">
+            <li><code>sed -n '1,10p' scores.csv</code> 输出了哪些行？如果去掉 <code>-n</code>，为什么内容会重复？</li>
+            <li>说明 <code>s/old/new/</code> 与 <code>s/old/new/g</code> 的区别，并用 <code>notes.txt</code> 第 2 行写出替换前后的完整内容。</li>
+            <li><code>notes.txt</code> 原文件中共有几处 <code>old</code>？执行不带 <code>-i</code> 的替换后，原文件中的 <code>old</code> 还剩几处？为什么？</li>
+            <li><code>sed '/ERROR/d' notes.txt</code> 输出几行？原文件有几行？请用 <code>wc -l notes.txt</code> 的结果说明 <code>d</code> 的作用范围。</li>
+            <li>写出把 <code>scores.csv</code> 第 2～6 行中的 <code>Class1</code> 全部替换为 <code>ClassOne</code> 的管道命令，并给出输出。</li>
+            <li>写出修改 <code>hospital.conf</code> 的完整安全流程（备份、修改、核对、恢复），并说明 <code>diff</code> 中 <code>4c4</code>、<code>&lt;</code>、<code>&gt;</code> 的含义。</li>
+            <li>列出 Vim 的三种模式，说明 <code>i</code>、<code>Esc</code>、<code>:w</code>、<code>:q</code>、<code>:wq</code>、<code>:q!</code> 各做什么；再写出 Nano 的保存与退出按键。</li>
+          </ol>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <ul class="tasks">
+            <li>提交平台：雨课堂。</li>
+            <li>提交内容：按课程实验报告模板填写的完整报告，包含基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结六部分。</li>
+            <li>截图命名建议：<code>exp8_replace.png</code>、<code>exp8_sed_n.png</code>、<code>exp8_conf.png</code>。</li>
+            <li>问题汇总示例：替换后没有变化 → 查找内容与文件中的大小写不一致 → 用 <code>grep</code> 确认原文后重新执行。</li>
+          </ul>
+          <div class="check-point"><strong>检查点：</strong>三类截图齐全，报告中至少包含一条自己的报错或误操作记录，以及对应的解决办法。</div>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop07-field-extract.html">实验7：文本字段提取与筛选</a> | 下一节：<a href="sop09-compression.html">实验9：文件压缩与解压</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>
