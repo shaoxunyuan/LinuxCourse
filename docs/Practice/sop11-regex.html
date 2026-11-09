@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验11：正则表达式</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./practice.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+  <div class="book-shell practice-page">
+    <aside class="book-sidebar" aria-label="本页目录">
+      <div class="toc-scroll">
+        <div class="toc__title">目录</div>
+        <ul class="book-nav toc">
+          <li>
+            <a class="lv1" href="#p1">1. 练习</a>
+            <div class="lv2">
+              <a href="#p1-1"><span class="n">1.1</span>为什么需要正则：固定字符串 vs 模式</a>
+              <a href="#p1-2"><span class="n">1.2</span>位置与单个字符：^ $ . [] [^]</a>
+              <a href="#p1-3"><span class="n">1.3</span>量词：* + ? {n,m}</a>
+              <a href="#p1-4"><span class="n">1.4</span>常用字符类：\d \w \s 与 POSIX</a>
+              <a href="#p1-5"><span class="n">1.5</span>分组与“或”：( ) 与 a|b</a>
+              <a href="#p1-6"><span class="n">1.6</span>在 grep / sed / awk 中使用正则</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p2">2. 任务</a>
+            <div class="lv2">
+              <a href="#p2-1"><span class="n">2.1</span>任务 A：用正则分析 app.log（必做）</a>
+              <a href="#p2-2"><span class="n">2.2</span>任务 B：用正则校验 scores.csv（拓展）</a>
+            </div>
+          </li>
+          <li>
+            <a class="lv1" href="#p3">3. 实验结果与作业</a>
+            <div class="lv2">
+              <a href="#p3-1"><span class="n">3.1</span>本次实验结果要求</a>
+              <a href="#p3-2"><span class="n">3.2</span>作业</a>
+              <a href="#p3-3"><span class="n">3.3</span>实验提交</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="book-main">
+      <article class="article">
+        <div class="practice-breadcrumb">
+          <a href="./">Practice</a><span class="sep">/</span>实验11
+        </div>
+        <h1>实验11：正则表达式</h1>
+        <p class="practice-lead">实验5里我们只会搜索固定的字符串：<code>ERROR</code> 就是 <code>ERROR</code>，<code>error</code> 就是 <code>error</code>。实验8用 <code>sed</code> 做替换时，也只能按固定文字改。本页把“固定字符串”升级成“模式匹配”：用一套描述规则的方法，一次抓住一整类符合形状的内容，例如任意 4 位请求编号、任意大小的成绩、行首的时间戳。学完后，你应当能读懂并写出常见正则，还能用它配合 <code>grep</code>、<code>sed</code>、<code>awk</code> 完成日志分析和格式校验。</p>
+
+        <div class="meta-row">
+          <div>
+            <strong>本课目标</strong>
+            <span>理解正则“描述模式而不是固定文字”；掌握锚点、字符集合、量词、字符类、分组与“或”；能在 <code>grep -E</code>、<code>sed</code>、<code>awk</code> 中写正则并验证结果</span>
+          </div>
+          <div>
+            <strong>项目阶段</strong>
+            <span>日志与数据处理的进阶。从实验5的查找、实验8的替换，走向“按结构批量提取与校验”</span>
+          </div>
+          <div>
+            <strong>练习方式</strong>
+            <span>在 CentOS 课程虚拟机中亲手输入命令，截图留存结果，再按实验报告模板提交到雨课堂</span>
+          </div>
+        </div>
+
+        <section class="exercise" id="p1">
+          <h2>1. 练习</h2>
+
+          <h3 id="p1-1">1.1 为什么需要正则：固定字符串 vs 模式</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">固定字符串只能表述“这几个字必须原样出现”。正则表达式（regular expression，常写作 regex）表述的是“形状”：第几个位置是什么类型、重复几次、哪些字符可选。两者是同一件事的两种描述能力。</p>
+          <div class="step-label">Step 1 / 准备实验目录</div>
+          <pre><code class="language-bash">cd ~/Desktop
+mkdir -p RegExLab
+mv app.log scores.csv RegExLab/     # 若文件已在目录中，可跳过
+cd RegExLab
+wc -l app.log scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">120 app.log
+31 scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>app.log</code> 共 120 行；<code>scores.csv</code> 共 31 行，其中第 1 行是表头，后面 30 行是学生成绩。</p>
+          <div class="step-label">Step 2 / 同一个需求，三种写法</div>
+          <pre><code class="language-bash">grep "error" app.log | wc -l          # 只要小写 error
+grep -cE "[Ee]rror" app.log           # 大写 E 或小写 e 开头
+grep -cE "(ERROR|Error|error)" app.log  # 三种写法都算</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">10
+20
+30</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>写法</th><th>它描述什么</th><th>在 app.log 上的真实结果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>grep "error"</code></td><td>固定字符串：只有连续的小写 error</td><td>10 行</td></tr>
+                <tr><td><code>grep -E "[Ee]rror"</code></td><td>模式：首字母是 E 或 e，后面固定 rror</td><td>20 行（Error 10 + error 10）</td></tr>
+                <tr><td><code>grep -E "(ERROR|Error|error)"</code></td><td>模式：三个完整备选写法之一</td><td>30 行（三种各 10）</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">再看一个锚点的价值：固定字符串 <code>"08:"</code> 会连 <code>09:08:00</code> 这种分钟位置也一起抓进来，而锚定行首的正则只抓 8 点这一小时。</p>
+          <pre><code class="language-bash">grep -c "08:" app.log
+grep -cE "^2026-11-06 08:" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">24
+19</code></pre>
+          <div class="book-callout">正则不是“更长的关键词”，而是“形状说明书”。先想清楚要匹配的形状，再选元字符；不要一上来就堆符号。</div>
+          <div class="check-point"><strong>检查点：</strong>能解释 10、20、30 三个数字分别是哪条命令的结果，并说出“固定字符串”和“模式”的区别。</div>
+          <h3 id="p1-2">1.2 位置与单个字符：^ $ . [] [^]</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">这一组元字符解决“在哪个位置、匹配哪一类单个字符”。默认情况下，<code>grep</code> 只要行内任意位置出现符合模式的一段就选中整行；锚点把匹配位置钉在行首或行尾。</p>
+
+          <div class="step-label">Step 1 / ^ 锚定行首</div>
+          <pre><code class="language-bash">grep -cE "^2026-11-06" app.log
+grep -cE "^2026-11-07" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">120
+0</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>^2026-11-06</code> 匹配“以 2026-11-06 开头的行”，120 行全部符合；把日期改成 11-07 就没有任何行符合。对照例子：<code>^2026-11-06</code> 能匹配 <code>2026-11-06 08:00:00 ...</code>，不能匹配 <code>INFO 2026-11-06 ...</code>（日期不在行首）。</p>
+
+          <div class="step-label">Step 2 / $ 锚定行尾</div>
+          <pre><code class="language-bash">grep -cE "requests$" app.log
+grep -cE "request$" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">1
+0</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>requests$</code> 匹配“以 requests 结尾的行”，只有第 1 行的 <code>... service is accepting requests</code> 符合。少写一个 s 就变成 <code>request$</code>，结果为 0。对照例子：<code>requests$</code> 能匹配 <code>... accepting requests</code>，不能匹配 <code>... accepting requests now</code>。</p>
+
+          <div class="step-label">Step 3 / . 匹配任意一个字符</div>
+          <pre><code class="language-bash">grep -oE "worker-." app.log | head -3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">worker-1
+worker-2
+worker-3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>.</code> 表示“任意一个字符”，注意是“一个”，不是“一串”。对照例子：<code>c.t</code> 能匹配 <code>cat</code>，不能匹配 <code>coat</code>（中间变成了两个字符）。想表示“任意多个字符”要写 <code>.*</code>。</p>
+          <pre><code class="language-bash">echo "cat"  | grep -oE "c.t"
+echo "coat" | grep -E "c.t"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">第一条输出 <code>cat</code>；第二条没有任何输出（退出码为 1）。</p>
+
+          <div class="step-label">Step 4 / [] 与 [^]</div>
+          <pre><code class="language-bash">grep -cE "[Ee]rror" app.log
+grep -cE "[[]ERROR[]]" app.log
+grep -cE "^[^0-9]" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">20
+10
+0</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>[Ee]</code> 匹配集合中的任意一个字符（E 或 e）；<code>[[]ERROR[]]</code> 用 <code>[ ]</code> 把方括号变成普通字符，因此匹配的是字面量 <code>[ERROR]</code>。<code>[^0-9]</code> 开头的 <code>^</code> 表示“取反”，匹配非数字字符；因为每一行都以数字年份开头，所以结果是 0。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">对照例子：<code>[^0-9]+</code> 能匹配整行 <code>abc</code>；不能匹配 <code>a12</code>（里面含数字）。</p>
+          <pre><code class="language-bash">echo "abc" | grep -cE "^[^0-9]+$"
+echo "a12" | grep -cE "^[^0-9]+$"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">1
+0</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>元字符</th><th>匹配什么</th><th>能匹配的小例子</th><th>不能匹配的小例子</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>^</code></td><td>行首位置</td><td><code>^2026</code> → <code>2026-11-06 ...</code></td><td><code>^2026</code> → <code>INFO 2026 ...</code></td></tr>
+                <tr><td><code>$</code></td><td>行尾位置</td><td><code>requests$</code> → <code>... accepting requests</code></td><td><code>requests$</code> → <code>... requests now</code></td></tr>
+                <tr><td><code>.</code></td><td>任意一个字符（不含换行）</td><td><code>c.t</code> → <code>cat</code></td><td><code>c.t</code> → <code>coat</code></td></tr>
+                <tr><td><code>[ ]</code></td><td>集合中的一个字符</td><td><code>[Ee]rror</code> → <code>Error</code></td><td><code>[Ee]rror</code> → <code>ERROR</code></td></tr>
+                <tr><td><code>[^ ]</code></td><td>不在集合中的一个字符</td><td><code>[^0-9]</code> → <code>a</code></td><td><code>[^0-9]</code> → <code>7</code></td></tr>
+                <tr><td><code>\</code></td><td>取消后面字符的特殊含义</td><td><code>\.</code> → 字面点号 <code>.</code></td><td><code>\.</code> → 字母 <code>a</code></td></tr>
+                <tr><td><code>|</code></td><td>“或”，二选一</td><td><code>cat|dog</code> → <code>dog</code></td><td><code>cat|dog</code> → <code>cow</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">方括号里的 <code>^</code> 是“取反”，方括号外的 <code>^</code> 是“行首”，两个含义完全不同。写 <code>[^0-9]</code> 时不要把 <code>^</code> 写到括号外面。</div>
+          <div class="check-point"><strong>检查点：</strong>能写出“以日期开头”和“以 requests 结尾”的两条命令；能解释 <code>[[]ERROR[]]</code> 为什么匹配字面方括号。</div>
+          <h3 id="p1-3">1.3 量词：* + ? {n,m}</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">量词说明“前一个单元重复几次”。正则里的量词只作用于它前面紧挨着的那一个字符、字符类或分组。</p>
+
+          <div class="step-label">Step 1 / * 与 +</div>
+          <pre><code class="language-bash">echo "bbb"  | grep -cE "a*b"
+echo "aaab" | grep -cE "a*b"
+echo "b"    | grep -cE "a+b"
+echo "aab"  | grep -cE "a+b"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">1
+1
+0
+1</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>a*</code> 表示“a 出现 0 次或多次”，所以 <code>bbb</code> 也能匹配；<code>a+</code> 表示“a 至少出现 1 次”，所以单独的 <code>b</code> 不匹配。对照例子：<code>a*</code> 能匹配 <code>bbb</code>，不能匹配 <code>ac</code>（因为结尾要求是 b）。</p>
+
+          <div class="step-label">Step 2 / ? 表示可有可无</div>
+          <pre><code class="language-bash">echo "color colour" | grep -oE "colou?r"
+echo "colr" | grep -E "colou?r"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">color
+colour</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">第二条命令没有输出（退出码 1）。<code>u?</code> 表示“u 出现 0 次或 1 次”，所以 color 与 colour 都能匹配，而 colr 中间少了 o，不匹配。</p>
+
+          <div class="step-label">Step 3 / {n} 与 {n,m} 精确控制次数</div>
+          <pre><code class="language-bash">grep -oE "[[:digit:]]{4}" app.log | head -3
+grep -cE "req-01[0-9]{2}" app.log
+grep -cE "req-0{2}[0-9]{2}" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">2026
+2100
+0001
+21
+99</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>[[:digit:]]{4}</code> 匹配连续 4 个数字；<code>req-01[0-9]{2}</code> 匹配 request_id 在 0100–0199 之间的记录，共 21 行（req-0100 到 req-0120）；<code>req-0{2}[0-9]{2}</code> 匹配 req-0001 到 req-0099，共 99 行。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">对照例子：<code>[0-9]{3}</code> 能匹配 <code>100</code>，不能匹配 <code>88</code>（只有两位）。在 <code>scores.csv</code> 中正好有 2 条三位数成绩：</p>
+          <pre><code class="language-bash">grep -E ",[0-9]{3},Class[123]$" scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">Eva,100,Class3
+Peter,100,Class2</code></pre>
+
+          <div class="step-label">Step 4 / 量词作用于整个模式</div>
+          <pre><code class="language-bash">grep -cE "request_id=req-[0-9]{4}" app.log
+grep -oE "request_id=req-[0-9]{4}" app.log | head -2
+grep -oE "req-[0-9]{4}" app.log | tail -2</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">120
+request_id=req-0001
+request_id=req-0002
+req-0119
+req-0120</code></pre>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>量词</th><th>含义</th><th>例子</th><th>能匹配</th><th>不能匹配</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>*</code></td><td>前一项出现 0 次或多次</td><td><code>a*b</code></td><td><code>bbb</code></td><td><code>ac</code></td></tr>
+                <tr><td><code>+</code></td><td>前一项出现 1 次或多次</td><td><code>a+b</code></td><td><code>aaab</code></td><td><code>b</code></td></tr>
+                <tr><td><code>?</code></td><td>前一项出现 0 次或 1 次</td><td><code>colou?r</code></td><td><code>color</code></td><td><code>colr</code></td></tr>
+                <tr><td><code>{n}</code></td><td>恰好 n 次</td><td><code>[0-9]{4}</code></td><td><code>2100</code></td><td><code>88</code></td></tr>
+                <tr><td><code>{n,}</code></td><td>至少 n 次</td><td><code>[0-9]{2,}</code></td><td><code>100</code></td><td><code>7</code></td></tr>
+                <tr><td><code>{n,m}</code></td><td>n 到 m 次</td><td><code>req-01[0-9]{2}</code></td><td><code>req-0100</code></td><td><code>req-0099</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout"><code>*</code> 和 <code>+</code> 很容易“匹配过头”。写完后先用一个具体文件或 <code>echo</code> 小样本测试，确认它能匹配想要的、不匹配不想要的，再拿去批量处理。</div>
+          <div class="check-point"><strong>检查点：</strong>能区分 <code>*</code> 与 <code>+</code>；能解释 <code>req-0100</code> 被 <code>req-01[0-9]{2}</code> 匹配而不被 <code>req-0{2}[0-9]{2}</code> 匹配。</div>
+          <h3 id="p1-4">1.4 常用字符类：\d \w \s 与 POSIX 字符类</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">字符类是一组字符的简写。要特别注意：不同工具的“方言”不一样。<strong>CentOS 上的 GNU grep 使用扩展正则（ERE）时，支持 <code>\w</code> 和 <code>\s</code>，但不支持 <code>\d</code>；<code>\d</code> 会被当成普通字母 d。</strong></p>
+
+          <div class="step-label">Step 1 / 亲眼看见 \d 的真实行为</div>
+          <pre><code class="language-bash">echo "dog123" | grep -oE "\d+"
+echo "123"    | grep -E "\d+"; echo "exit=$?"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">d
+exit=1</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">第一条只输出了字母 <code>d</code>，说明 <code>\d</code> 被当作普通字符 d；第二条纯数字行反而没有匹配。想匹配数字，在 GNU grep 里请写 <code>[0-9]</code> 或 <code>[[:digit:]]</code>。</p>
+          <pre><code class="language-bash">echo "abcd123" | grep -oE "[[:digit:]]+"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">123</code></pre>
+
+          <div class="step-label">Step 2 / \w 与 \s</div>
+          <pre><code class="language-bash">grep -oE "\w+" app.log | head -4
+echo "a b" | grep -E "a\sb"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">2026
+11
+06
+08
+a b</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>\w</code> 等价于“字母、数字、下划线”，所以时间戳被切成 2026、11、06、08；<code>\s</code> 匹配一个空白字符。对照例子：<code>\s</code> 能匹配 <code>a b</code> 中间的空格，不能匹配 <code>ab</code>（没有空白）。</p>
+
+          <div class="step-label">Step 3 / POSIX 字符类</div>
+          <pre><code class="language-bash">echo "ABC123" | grep -oE "[[:upper:]]+"
+echo "a,b;c"  | grep -oE "[[:punct:]]"
+grep -oE "[[:digit:]]{4}" app.log | head -3</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">ABC
+,
+;
+2026
+2100
+0001</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">POSIX 字符类写在双方括号里，例如 <code>[[:digit:]]</code>、<code>[[:alpha:]]</code>、<code>[[:upper:]]</code>、<code>[[:space:]]</code>、<code>[[:punct:]]</code>、<code>[[:alnum:]]</code>。它们比 <code>\d</code> 更通用，在 grep、sed、awk 中都能用。</p>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>字符类</th><th>含义</th><th>等价写法</th><th>能匹配</th><th>不能匹配</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>\w</code></td><td>字母、数字、下划线</td><td><code>[[:alnum:]_]</code></td><td><code>worker_1</code></td><td><code>-</code>（连字符不属于 \w）</td></tr>
+                <tr><td><code>\s</code></td><td>一个空白字符</td><td><code>[[:space:]]</code></td><td><code>a b</code></td><td><code>ab</code></td></tr>
+                <tr><td><code>\d</code></td><td>GNU ERE 中<strong>不表示数字</strong>，等于字母 d</td><td>改用 <code>[[:digit:]]</code></td><td><code>dog</code> 中的 d</td><td><code>123</code></td></tr>
+                <tr><td><code>[[:digit:]]</code></td><td>0–9</td><td><code>[0-9]</code></td><td><code>2100</code></td><td><code>abc</code></td></tr>
+                <tr><td><code>[[:alpha:]]</code></td><td>字母</td><td><code>[A-Za-z]</code></td><td><code>Alice</code></td><td><code>123</code></td></tr>
+                <tr><td><code>[[:upper:]]</code></td><td>大写字母</td><td><code>[A-Z]</code></td><td><code>ABC</code></td><td><code>abc</code></td></tr>
+                <tr><td><code>[[:space:]]</code></td><td>空格、制表符等空白</td><td><code>\s</code>（GNU 扩展）</td><td><code>a b</code></td><td><code>ab</code></td></tr>
+                <tr><td><code>[[:punct:]]</code></td><td>标点符号</td><td>无简单等价写法</td><td><code>,</code></td><td><code>2</code></td></tr>
+                <tr><td><code>[[:alnum:]]</code></td><td>字母或数字</td><td><code>[A-Za-z0-9]</code></td><td><code>ab12</code></td><td><code>ab-12</code> 中的连字符本身</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="book-callout">如果网上抄来的正则用了 <code>\d</code>、<code>\b</code> 或 <code>(?=...)</code> 却在 CentOS 的 <code>grep -E</code> 里不生效，先不要怀疑文件。多半是“方言”问题：把这些 PCRE 写法换成 POSIX 写法，或明确使用支持 PCRE 的工具。本课必做内容只用 ERE 与 POSIX 字符类。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 GNU grep 中 <code>\d</code> 的真实含义；能把 <code>\d+</code> 改写为 <code>[[:digit:]]+</code> 或 <code>[0-9]+</code>。</div>
+          <h3 id="p1-5">1.5 分组与“或”：( ) 与 a|b</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">圆括号把若干字符打包成一个“单元”，竖线表示“或”。这样量词就能作用于一整组，而不是单个字符，也便于在一个模式里列出多个备选。</p>
+
+          <div class="step-label">Step 1 / 用“或”一次覆盖多种写法</div>
+          <pre><code class="language-bash">grep -cE "(ERROR|Error|error)" app.log
+grep -cE " [[](INFO|WARN)[]] " app.log
+grep -cE "worker-(1|2)" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">30
+60
+60</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>(ERROR|Error|error)</code> 表示三者之一；<code>[[](INFO|WARN)[]]</code> 在字面方括号内选择 INFO 或 WARN，共 60 行（INFO 40 + WARN 20）；<code>worker-(1|2)</code> 匹配 worker-1 与 worker-2，各 30 行，合计 60。</p>
+
+          <div class="step-label">Step 2 / 分组让量词作用于整组</div>
+          <pre><code class="language-bash">echo "xyxyxy" | grep -oE "(xy){2,3}"
+echo "xyxy"   | grep -cE "(xy){3}"</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">xyxyxy
+0</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>(xy){2,3}</code> 表示 xy 这一整组重复 2 到 3 次；写成 <code>xy{3}</code> 则只重复字母 y，含义完全不同。</p>
+
+          <div class="step-label">Step 3 / 分组后的“或”用于字段值</div>
+          <pre><code class="language-bash">grep -cE "^[A-Za-z]+,[0-9]{1,3},(Class1|Class2)$" scores.csv
+awk -F, '$3 ~ /Class[12]/' scores.csv | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">22
+22</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">第一条在 CSV 行尾的班级字段用 <code>(Class1|Class2)</code> 二选一；第二条用 awk 的 <code>~</code> 对第三个字段做同样的正则判断，两者都得到 22 行。</p>
+
+          <div class="step-label">Step 4 / 后向引用（只作概念提示）</div>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">把分组的内容“反引用”回来，形如 <code>(abc)\1</code>，可以表达“前后必须完全相同”。例如它描述 <code>abcabc</code>，而不描述 <code>abcabd</code>。这种写法叫后向引用，属于更进阶的内容：不同工具对它的支持并不一致（sed 的分组引用与 PCRE 工具中较常见），本课只要求知道这个概念，不要求用它完成任务。</p>
+          <pre><code class="language-bash"># 概念示例，不必在本次实验中执行
+# (abc)\1  可以描述 abcabc，不能描述 abcabd
+# 需要时可用支持 PCRE 的工具，或查阅 sed 的分组引用写法</code></pre>
+          <div class="book-callout">“或”的优先级很低：<code>cat|dog</code> 表示 cat 或 dog；如果想让“或”只作用于一小段，就用括号包起来，例如 <code>req-(00|01)[0-9]{2}</code>。括号也会改变量词的作用范围。</div>
+          <div class="check-point"><strong>检查点：</strong>能写出匹配 INFO 或 WARN 的分组正则；能解释 <code>(xy){2,3}</code> 与 <code>xy{3}</code> 的区别。</div>
+          <h3 id="p1-6">1.6 在 grep / sed / awk 中使用正则</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">正则本身只是一段描述；真正干活的是调用它的工具。三个工具各有分工：<code>grep</code> 负责“找出符合条件的行”，<code>sed</code> 负责“按行编辑”，<code>awk</code> 负责“按字段处理”。</p>
+
+          <div class="step-label">Step 1 / grep -E、-o、-w</div>
+          <pre><code class="language-bash">grep -cE "ERROR|Error|error" app.log
+grep -oE "pid=[0-9]+" app.log | head -5
+grep -c "connect" app.log
+grep -cE -w "connect" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">30
+pid=2100
+pid=2101
+pid=2102
+pid=2103
+pid=2104
+8
+0</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>-E</code> 启用扩展正则（直接写 <code>|</code>、<code>+</code>、<code>{n,m}</code>，不用反斜杠）；<code>-o</code> 只输出匹配到的片段而不是整行；<code>-w</code> 要求整词匹配，所以 <code>connect</code> 不会命中 <code>connection</code>，结果为 0。</p>
+
+          <div class="step-label">Step 2 / sed -n '/模式/p'</div>
+          <pre><code class="language-bash">sed -n "/ERROR/p" app.log | wc -l
+sed -n "/^2026-11-06 08:/p" app.log | wc -l
+sed -nE "/^2026-11-06 08:.*ERROR/p" app.log</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">10
+19
+2026-11-06 08:08:00 [ERROR] pid=2102 thread=worker-3 request_id=req-0003 Database connection failed after three attempts
+2026-11-06 08:44:00 [ERROR] pid=2114 thread=worker-3 request_id=req-0015 Unable to write report file to the output directory</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>sed -n</code> 默认不打印，<code>p</code> 表示“把匹配的行打印出来”，所以效果类似 <code>grep</code>。基础 sed 中竖线要写成 <code>\|</code>；加 <code>-E</code> 后可以直接写 <code>|</code>。</p>
+
+          <div class="step-label">Step 3 / awk '/模式/' 与字段正则</div>
+          <pre><code class="language-bash">awk '/ERROR/' app.log | wc -l
+awk -F, '$3 == "Class1"' scores.csv | wc -l
+awk -F, '$2 ~ /^[0-9]+$/' scores.csv | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：</p>
+          <pre><code class="language-bash">10
+11
+30</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><code>awk '/模式/'</code> 对整行做正则匹配；<code>~</code> 表示“该字段是否匹配这个正则”；<code>-F,</code> 指定逗号为字段分隔符。第三个命令检查成绩字段是否全为数字，30 条数据行都符合。</p>
+
+          <div class="book-callout">涉及 <code>sed -i</code>（就地修改）时，务必先备份：<code>cp scores.csv scores.csv.bak</code>。正则写错时，<code>sed -i</code> 会直接改坏原文件，而备份能让你一条命令恢复。<strong>先小范围测试，再批量执行</strong>：先 <code>grep</code> 或 <code>sed -n</code> 预览，确认匹配范围后再加 <code>-i</code>。</div>
+          <div class="check-point"><strong>检查点：</strong>能说出 <code>-E</code>、<code>-o</code>、<code>-w</code> 各改变什么；能写出“先预览、再备份、最后才 sed -i”的顺序。</div>
+        </section>
+
+        <section class="exercise" id="p2">
+          <h2>2. 任务</h2>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">任务全部在 <code>~/Desktop/RegExLab</code> 中完成。所有命令都只读取原文件；本任务不要求使用 <code>sed -i</code>，因此不会修改数据。</p>
+
+          <h3 id="p2-1">2.1 任务 A：用正则分析 app.log（必做）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">按顺序完成以下八步，把实际输出记录到表格中。每一步先用小范围查看（<code>head</code>），再统计数量。</p>
+          <div class="step-label">Step 1 / 确认文件与总行数</div>
+          <pre><code class="language-bash">cd ~/Desktop/RegExLab
+wc -l app.log</code></pre>
+          <div class="step-label">Step 2 / 行首日期</div>
+          <pre><code class="language-bash">grep -cE "^2026-11-06" app.log</code></pre>
+          <div class="step-label">Step 3 / 提取进程号</div>
+          <pre><code class="language-bash">grep -oE "pid=[0-9]+" app.log | head -5</code></pre>
+          <div class="step-label">Step 4 / 提取请求编号</div>
+          <pre><code class="language-bash">grep -oE "req-[0-9]{4}" app.log | head -3
+grep -oE "req-[0-9]{4}" app.log | tail -2</code></pre>
+          <div class="step-label">Step 5 / 按编号段筛选</div>
+          <pre><code class="language-bash">grep -cE "request_id=req-01[0-9]{2}" app.log</code></pre>
+          <div class="step-label">Step 6 / 统计错误级别</div>
+          <pre><code class="language-bash">grep -cE "[[]ERROR[]]" app.log
+grep -cE "(ERROR|Error|error)" app.log</code></pre>
+          <div class="step-label">Step 7 / 统计 8 点这一小时</div>
+          <pre><code class="language-bash">grep -cE "^2026-11-06 08:[0-9]{2}:[0-9]{2}" app.log</code></pre>
+          <div class="step-label">Step 8 / 提取时间戳并核对首尾</div>
+          <pre><code class="language-bash">grep -oE "2026-11-06 [0-9]{2}:[0-9]{2}:[0-9]{2}" app.log | head -2
+grep -oE "2026-11-06 [0-9]{2}:[0-9]{2}:[0-9]{2}" app.log | tail -2</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>结果记录表：</strong>先自己运行，再填入实际数值。</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>项目</th><th>命令要点</th><th>你的结果</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>日志总行数</td><td><code>wc -l app.log</code></td><td>____</td></tr>
+                <tr><td>行首为 2026-11-06 的行数</td><td><code>grep -cE "^2026-11-06"</code></td><td>____</td></tr>
+                <tr><td>前 5 个 pid</td><td><code>grep -oE "pid=[0-9]+"</code></td><td>____</td></tr>
+                <tr><td>request_id 编号范围</td><td><code>grep -oE "req-[0-9]{4}"</code></td><td>____</td></tr>
+                <tr><td>req-01xx 的记录数</td><td><code>grep -cE "req-01[0-9]{2}"</code></td><td>____</td></tr>
+                <tr><td>大写 ERROR 行数</td><td><code>grep -cE "[[]ERROR[]]"</code></td><td>____</td></tr>
+                <tr><td>三种 error 写法合计</td><td><code>grep -cE "(ERROR|Error|error)"</code></td><td>____</td></tr>
+                <tr><td>8 点这一小时的行数</td><td><code>grep -cE "^2026-11-06 08:..."</code></td><td>____</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="check-point"><strong>检查点：</strong>八步全部成功执行；能解释 120、21、10、30、19 分别来自哪条命令；截图含提示符、命令与输出。</div>
+
+          <h3 id="p2-2">2.2 任务 B：用正则校验 scores.csv（拓展）</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">用一条正则描述“合法数据行”的整体形状：姓名由字母组成、成绩 1–3 位数字、班级为 Class1/Class2/Class3、字段之间用逗号、整行从行首到行尾。再用“反向匹配”找出不符合形状的行。</p>
+          <div class="step-label">Step 1 / 总行数与表头</div>
+          <pre><code class="language-bash">wc -l scores.csv
+head -3 scores.csv</code></pre>
+          <div class="step-label">Step 2 / 合法数据行计数</div>
+          <pre><code class="language-bash">grep -cE "^[^,]+,[0-9]{1,3},Class[123]$" scores.csv
+grep -vE "^[^,]+,[0-9]{1,3},Class[123]$" scores.csv</code></pre>
+          <div class="step-label">Step 3 / 排除表头后的非法行</div>
+          <pre><code class="language-bash">tail -n +2 scores.csv | grep -vcE "^[^,]+,[0-9]{1,3},Class[123]$"</code></pre>
+          <div class="step-label">Step 4 / 按成绩位数分类</div>
+          <pre><code class="language-bash">grep -cE ",[0-9],Class[123]$" scores.csv
+grep -cE ",[0-9]{2},Class[123]$" scores.csv
+grep -cE ",[0-9]{3},Class[123]$" scores.csv</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出依次为 1、27、2：个位数只有 Henry 的 9 分，三位数只有 Eva 和 Peter 的 100 分，其余 27 行是两位数。</p>
+          <div class="step-label">Step 5 / 姓名与班级校验</div>
+          <pre><code class="language-bash">tail -n +2 scores.csv | grep -cE "^[A-Za-z]+,"
+awk -F, '$3 == "Class1"' scores.csv | wc -l
+awk -F, '$3 == "Class2"' scores.csv | wc -l
+awk -F, '$3 == "Class3"' scores.csv | wc -l</code></pre>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">预期输出：30、11、11、8。三个班级合计 30 行。</p>
+          <div class="check-point"><strong>检查点：</strong>能解释“合法 30 行 / 表头 1 行”的来源；能用 <code>grep -vE</code> 找出不符合格式的行；能说出 <code>^</code> 与 <code>$</code> 为什么必须同时使用。</div>
+        </section>
+
+        <section class="exercise" id="p3">
+          <h2>3. 实验结果与作业</h2>
+          <h3 id="p3-1">3.1 本次实验结果要求</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成本次实验后，你应该能够：</p>
+          <ul class="tasks">
+            <li>说明正则描述的是“模式/形状”，不是固定字符串</li>
+            <li>用 <code>^</code>、<code>$</code> 锚定位置，用 <code>.</code>、<code>[]</code>、<code>[^]</code> 描述单个字符</li>
+            <li>用量词 <code>*</code>、<code>+</code>、<code>?</code>、<code>{n,m}</code> 控制重复次数</li>
+            <li>区分 GNU grep 中的 <code>\d</code> 与 POSIX 的 <code>[[:digit:]]</code></li>
+            <li>用分组与 <code>|</code> 表达多个备选写法</li>
+            <li>在 <code>grep -E</code>、<code>sed -n '/模式/p'</code>、<code>awk '/模式/'</code> 中正确使用正则</li>
+            <li>按“先小范围测试 → 再统计/预览 → 最后批量执行”的顺序操作</li>
+          </ul>
+
+          <h3 id="p3-2">3.2 作业</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">请先在终端实际运行，再按雨课堂题目作答。</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目1：</strong>写出匹配“以 2026-11-06 开头”的正则命令，并说明结果为什么是 120 行。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目2：</strong><code>grep -c "08:" app.log</code> 与 <code>grep -cE "^2026-11-06 08:" app.log</code> 分别是多少？为什么不同？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目3：</strong><code>[Ee]rror</code> 与 <code>(ERROR|Error|error)</code> 在 app.log 上的结果分别是多少？各自匹配了哪些写法？________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目4：</strong>在 CentOS 的 <code>grep -E</code> 中执行 <code>echo "123" | grep -E "\d+"</code> 会匹配吗？请解释原因，并写出正确的数字匹配写法。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目5：</strong>写出从 app.log 中只提取 4 位请求编号（如 <code>req-0001</code>）的命令，并给出前 3 个结果。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目6：</strong>写出校验 <code>scores.csv</code> 数据行格式的正则，并说明合法行数、表头行数、非法数据行数各是多少。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目7：</strong>任选一条正则，写出一个能匹配的例子和一个不能匹配的例子，并解释原因。________</p>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);"><strong>题目8：</strong>为什么在 <code>sed -i</code> 之前必须先备份、先预览？请结合一条具体命令说明。________</p>
+
+          <h3 id="p3-3">3.3 实验提交</h3>
+          <p style="margin: 0 0 10px; color: var(--ink-light);">完成实验后，按照雨课堂中的题目填写实验记录，并提交完整实验报告（模板六部分：基本信息、实验目的、实验内容和要求、实验结果、问题汇总、实验总结）。本次主要记录：</p>
+          <ul class="tasks">
+            <li>锚点与字符集合截图：<code>^2026-11-06</code>、<code>requests$</code>、<code>[[]ERROR[]]</code> 的结果</li>
+            <li>量词截图：<code>req-[0-9]{4}</code> 与 <code>req-01[0-9]{2}</code> 的提取与计数</li>
+            <li>字符类截图：<code>\d</code> 的真实行为，以及 <code>[[:digit:]]</code> 的正确结果</li>
+            <li>分组与“或”截图：<code>(ERROR|Error|error)</code> 或 <code>(INFO|WARN)</code> 的计数</li>
+            <li>工具截图：<code>grep -oE</code>、<code>sed -n '/模式/p'</code>、<code>awk '/模式/'</code> 各一张</li>
+            <li>任务 A 记录表中的实际数值</li>
+            <li>问题汇总：至少写一个你遇到的报错或疑问，以及原因和解决方法</li>
+            <li>实验总结：用 3～5 句说明如何“先小范围测试再批量执行”</li>
+          </ul>
+          <p style="margin: 16px 0 10px; color: var(--ink-light);">请按照雨课堂发布的要求完成提交。</p>
+        </section>
+
+        <p class="practice-footer-note">上一节：<a href="sop10-system-process.html">实验10：系统信息与进程管理</a></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('pre > code').forEach((code) => {
+        const pre = code.parentElement;
+        if (!pre || pre.querySelector('.copy-btn')) return;
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.type = 'button';
+        btn.textContent = '复制';
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            btn.dataset.state = 'ok';
+            btn.textContent = '已复制';
+            setTimeout(() => { delete btn.dataset.state; btn.textContent = '复制'; }, 1200);
+          } catch (e) {
+            const range = document.createRange();
+            range.selectNodeContents(code);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            btn.textContent = '请 Ctrl+C';
+            setTimeout(() => { btn.textContent = '复制'; }, 1200);
+          }
+        });
+        pre.appendChild(btn);
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      const links = Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+      const idToLink = new Map();
+      links.forEach((a) => {
+        const id = decodeURIComponent(a.getAttribute('href').slice(1));
+        if (id) idToLink.set(id, a);
+      });
+      const headings = Array.from(document.querySelectorAll('h2[id], h3[id], section[id]'))
+        .filter((h) => idToLink.has(h.id));
+      if (headings.length === 0) return;
+      const clear = () => links.forEach((a) => a.classList.remove('is-active'));
+      const setActive = (id) => { clear(); const a = idToLink.get(id); if (a) a.classList.add('is-active'); };
+      const initial = (location.hash && location.hash.slice(1)) || headings[0].id;
+      setActive(decodeURIComponent(initial));
+      const obs = new IntersectionObserver((entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => (a.boundingClientRect.top - b.boundingClientRect.top));
+        if (visible.length > 0) setActive(visible[0].target.id);
+      }, { rootMargin: '-15% 0px -75% 0px', threshold: [0, 1] });
+      headings.forEach((h) => obs.observe(h));
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>hljs.highlightAll();</script>
+  <script src="./split.js"></script>
+</body>
+</html>

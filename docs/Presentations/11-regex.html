@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验十一：正则表达式 · Linux 操作系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/white.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css">
+  <style>
+    :root {
+      --ink: #12141a;
+      --ink-soft: #3d4450;
+      --muted: #7a8290;
+      --line: #d8dde6;
+      --code-bg: #e7edf4;
+      --surface: #ffffff;
+      --paper: #f4f5f7;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --blue-bg: #e8f0fe;
+      --blue-ink: #1e3a5f;
+      --green-bg: #e6f6ed;
+      --green-ink: #14532d;
+      --orange-bg: #fff1e6;
+      --orange-ink: #9a3412;
+      --gray-bg: #eef0f3;
+      --font: "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+    }
+
+    .reveal {
+      font-family: var(--font);
+      font-size: 28px;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section {
+      padding: 36px 48px 64px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--surface) 42%, #f7f8fa 100%);
+    }
+    .reveal .slides section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 120px, transparent 320px);
+    }
+
+    .reveal h1, .reveal h2 {
+      color: var(--ink);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.025em;
+      margin: 0 0 0.55em;
+      font-size: 1.18em;
+      line-height: 1.25;
+      position: relative;
+      padding-bottom: 0.32em;
+    }
+    .reveal h1::after, .reveal h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal h1 { font-size: 1.45em; letter-spacing: -0.03em; }
+    .reveal p, .reveal li { color: var(--ink); line-height: 1.5; font-weight: 450; }
+    .reveal ul {
+      margin: 0.3em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .reveal ul > li {
+      margin: 0.32em 0;
+      padding-left: 1em;
+      position: relative;
+      font-size: 0.82em;
+    }
+    .reveal ul > li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 0.4em;
+      height: 2px;
+      background: var(--accent);
+    }
+    .reveal a { color: var(--accent-deep); }
+    .reveal .subtitle {
+      color: var(--ink-soft);
+      font-size: 0.78em;
+      font-weight: 500;
+      margin: -0.2em 0 0.55em;
+      letter-spacing: -0.01em;
+    }
+    .reveal .small {
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .reveal .exp-name {
+      font-size: 0.88em;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.2em 0 0.7em;
+      line-height: 1.4;
+    }
+
+    .reveal pre {
+      width: 100% !important;
+      max-width: 100%;
+      box-sizing: border-box;
+      box-shadow: none !important;
+      border: none !important;
+      border-left: 3px solid var(--accent) !important;
+      background: var(--code-bg) !important;
+      padding: 0.55em 0.75em !important;
+      margin: 0.3em 0 !important;
+      border-radius: 0;
+      overflow-x: auto;
+    }
+    .reveal pre code {
+      background: transparent !important;
+      color: var(--ink) !important;
+      font-family: var(--mono);
+      font-size: 0.62em;
+      font-weight: 450;
+      line-height: 1.45;
+      max-height: none;
+      padding: 0 !important;
+      tab-size: 4;
+    }
+    .reveal code {
+      font-family: var(--mono);
+      background: var(--code-bg);
+      color: var(--ink);
+      padding: 0.06em 0.28em;
+      border-radius: 2px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .band {
+      padding: 0.45em 0.75em;
+      margin: 0.45em 0;
+      font-size: 0.72em;
+      line-height: 1.4;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+    .band-blue { background: var(--blue-bg); color: var(--blue-ink); border-left-color: #3b82f6; }
+    .band-green { background: var(--green-bg); color: var(--green-ink); border-left-color: #22c55e; }
+    .band-orange { background: var(--orange-bg); color: var(--orange-ink); border-left-color: #f97316; }
+    .band-gray { background: var(--gray-bg); color: var(--ink); border-left-color: var(--line); }
+
+    .two-col,
+    .split-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin-top: 0.35em;
+      align-items: stretch;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .two-col.uneven { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr); }
+    .two-col.uneven-left { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr); }
+    .two-col > *,
+    .split-panel > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .split-panel .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55em;
+      min-width: 0;
+      height: 100%;
+    }
+    .split-panel .stack > .card {
+      flex: 1;
+    }
+    .split-panel .stack > pre {
+      flex: 0 0 auto;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      padding: 0.55em 0.7em;
+    }
+    .card.blue { border-left-color: #3b82f6; }
+    .card.green { border-left-color: #22c55e; }
+    .card h3 {
+      margin: 0 0 0.35em;
+      font-size: 0.72em;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .card ul { margin-top: 0.15em; }
+    .card p, .card .body {
+      margin: 0;
+      font-size: 0.68em;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+    .card .cmd {
+      font-family: var(--mono);
+      font-size: 0.62em;
+      background: var(--code-bg);
+      padding: 0.35em 0.5em;
+      margin: 0 0 0.35em;
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65em;
+      margin-top: 0.35em;
+    }
+    .card-grid .card { min-height: 0; }
+
+    .five-nodes {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.45em;
+      margin: 0.85em 0 0.7em;
+    }
+    .five-nodes .node {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      padding: 0.55em 0.4em;
+      text-align: center;
+    }
+    .five-nodes .node .label {
+      display: block;
+      font-size: 0.58em;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 0.35em;
+    }
+    .five-nodes .node code {
+      font-size: 0.52em;
+      background: var(--code-bg);
+      display: inline-block;
+      padding: 0.15em 0.3em;
+    }
+
+    .flow-h {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.1fr;
+      gap: 0.35em;
+      align-items: center;
+      margin: 0.7em 0;
+      font-size: 0.68em;
+    }
+    .flow-h .box {
+      background: var(--gray-bg);
+      border: 1px solid var(--line);
+      padding: 0.55em 0.5em;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .flow-h .box code {
+      display: block;
+      margin-top: 0.25em;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    .flow-h .arrow {
+      color: var(--accent-deep);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 1.1em;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.4em;
+      margin: 0.5em 0 0.7em;
+    }
+    .flow-steps .step {
+      background: var(--gray-bg);
+      padding: 0.5em 0.4em;
+      text-align: center;
+      font-size: 0.58em;
+      font-weight: 600;
+      line-height: 1.35;
+      border-top: 2px solid var(--accent);
+    }
+    .flow-steps .step span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.85em;
+      color: var(--muted);
+      margin-bottom: 0.25em;
+      font-weight: 500;
+    }
+
+    .reveal ol.num-list,
+    .reveal ul.num-list,
+    .num-list {
+      margin: 0.2em 0 0;
+      padding: 0;
+      padding-inline-start: 0;
+      margin-left: 0;
+      list-style: none !important;
+      list-style-type: none !important;
+      counter-reset: n;
+    }
+    .reveal .num-list > li,
+    .num-list > li {
+      counter-increment: n;
+      margin: 0.28em 0;
+      padding-left: 1.6em;
+      position: relative;
+      font-size: 0.72em;
+      line-height: 1.4;
+      list-style: none !important;
+      list-style-type: none !important;
+    }
+    .reveal .num-list > li::marker,
+    .num-list > li::marker {
+      content: "" !important;
+      font-size: 0;
+    }
+    .reveal .num-list > li::before,
+    .num-list > li::before {
+      content: counter(n);
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      width: 1.25em;
+      height: 1.25em;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.75em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide-footer {
+      position: absolute;
+      left: 48px;
+      right: 48px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      pointer-events: none;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .slide-footer span:last-child {
+      color: var(--accent-deep);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .reveal .controls { color: var(--accent); }
+    .reveal .progress {
+      color: var(--accent);
+      height: 2px;
+      background: rgba(13, 148, 136, 0.12);
+    }
+    .reveal .slide-number { display: none; }
+
+    .back-link {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 30;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      text-decoration: none !important;
+      color: var(--accent-deep) !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .back-link:hover {
+      background: #fff;
+      border-color: var(--accent);
+    }
+
+
+    .flow-steps.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .card-grid.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .card-grid.four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal .slides section { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="index.html">← 演示列表</a>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 -->
+      <section data-page="01">
+        <h1>实验十一：正则表达式</h1>
+        <p class="subtitle">从固定字符串到模式匹配：描述一类文本，而不只是一个词</p>
+        <div class="five-nodes">
+          <div class="node"><span class="label">为什么</span><code>固定串局限</code></div>
+          <div class="node"><span class="label">元字符</span><code>. ^ $ [ ]</code></div>
+          <div class="node"><span class="label">重复次数</span><code>* + ? {n,m}</code></div>
+          <div class="node"><span class="label">分组与或</span><code>( ) |</code></div>
+          <div class="node"><span class="label">使用工具</span><code>grep -E</code></div>
+        </div>
+        <div class="band band-blue">本次主线：观察数据 → 写出模式 → 筛选与提取 → 在 sed、awk 中复用。</div>
+        <div class="band band-gray">配套数据：<code>data/app.log</code>（120 行日志）与 <code>data/scores.csv</code>（成绩表）。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>01</span></div>
+      </section>
+
+      <!-- 02 -->
+      <section data-page="02">
+        <h1>实验基本信息</h1>
+        <p class="exp-name">实验十一：正则表达式｜从固定字符串到模式匹配</p>
+        <div class="two-col">
+          <div class="card blue">
+            <h3>实验目的</h3>
+            <ul class="num-list">
+              <li>理解正则表达式要解决的问题</li>
+              <li>掌握常用元字符的含义与写法</li>
+              <li>掌握字符类、分组与“或”的用法</li>
+              <li>能在 grep、sed、awk 中使用正则</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>实验内容和要求</h3>
+            <ul class="num-list">
+              <li>使用 grep -E 编写模式并筛选日志</li>
+              <li>使用 -o 提取时间戳、pid、request_id</li>
+              <li>用正则校验 scores.csv 的每行格式</li>
+              <li>完成课堂综合练习并填写实验报告</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-gray">运行环境：CentOS · 登录用户名统一为 <code>njucm</code> · 命令均在数据文件所在目录执行。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>02</span></div>
+      </section>
+
+      <!-- 03 -->
+      <section data-page="03">
+        <h2>实验流程与学习目标</h2>
+        <div class="flow-steps six">
+          <div class="step"><span>01</span>发现问题</div>
+          <div class="step"><span>02</span>元字符</div>
+          <div class="step"><span>03</span>字符类</div>
+          <div class="step"><span>04</span>分组与或</div>
+          <div class="step"><span>05</span>grep -E</div>
+          <div class="step"><span>06</span>sed / awk</div>
+        </div>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>本次实验结束时，你应该能做到</h3>
+            <ul>
+              <li>说出 <code>.</code>、<code>^</code>、<code>$</code>、<code>[ ]</code>、<code>[^ ]</code> 的作用</li>
+              <li>用 <code>*</code>、<code>+</code>、<code>?</code>、<code>{n,m}</code> 控制重复次数</li>
+              <li>用 <code>( )</code> 与 <code>|</code> 表达“这一组或那一组”</li>
+              <li>把同一个模式用于 grep、sed、awk</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>课堂原则</h3>
+            <ul>
+              <li>先看原始数据，再写模式</li>
+              <li>先用 <code>-o</code> 看“到底匹配到了什么”</li>
+              <li>看到结果后，解释模式中每一段在做什么</li>
+              <li>不修改原始数据文件</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>03</span></div>
+      </section>
+
+      <!-- 04 -->
+      <section data-page="04">
+        <h2>为什么需要正则：固定字符串只能“逐字相同”</h2>
+        <p class="subtitle">同一个含义可能有多种写法，写固定字符串就要写很多条命令</p>
+        <pre><code class="language-bash">grep "ERROR" app.log | wc -l
+grep "Error" app.log | wc -l
+grep "error" app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>大写</h3><p><code>ERROR</code> 共 <strong>10 行</strong></p></div>
+          <div class="card green"><h3>首字母大写</h3><p><code>Error</code> 共 <strong>10 行</strong></p></div>
+          <div class="card blue"><h3>全小写</h3><p><code>error</code> 共 <strong>10 行</strong></p></div>
+          <div class="card green"><h3>合计</h3><p>三种写法共 <strong>30 行</strong>，要运行三次</p></div>
+        </div>
+        <div class="band band-orange">固定字符串要求每个字符完全一致；<code>pid=2100</code> 也会把 <code>pid=21000</code> 这类更长的编号算进来。</div>
+        <div class="band band-blue">正则表达式描述的是“一类字符串的共同结构”，一个模式就能覆盖多种写法。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>04</span></div>
+      </section>
+
+      <!-- 05 -->
+      <section data-page="05">
+        <h2>正则表达式与 grep -E</h2>
+        <p class="subtitle">模式描述“哪些字符串符合条件”，grep 负责把符合条件的行挑出来</p>
+        <pre><code class="language-bash">grep -E 'ERROR|Error' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>模式</h3><p>用元字符写成的模板，例如 <code>ERROR|Error</code></p></div>
+          <div class="card green"><h3>匹配</h3><p>文本中有一段符合模板，这一行就被选中</p></div>
+          <div class="card blue"><h3>输出</h3><p>默认输出整行，而不是只输出匹配片段</p></div>
+          <div class="card green"><h3>结果</h3><p>大写加首字母大写，共 <strong>20 行</strong></p></div>
+        </div>
+        <div class="band band-gray">本课使用的扩展正则元字符：<code>. ^ $ [ ] [^] * + ? {n,m} ( ) |</code>。其余字符按普通字符处理。</div>
+        <div class="band band-orange">grep 默认使用基础正则（BRE）；<code>grep -E</code> 才启用扩展正则（ERE），本课统一加 <code>-E</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>05</span></div>
+      </section>
+
+      <!-- 06 -->
+      <section data-page="06">
+        <h2>元字符 <code>.</code>：任意一个字符</h2>
+        <p class="subtitle">除换行符外，任意一个字符都能被 <code>.</code> 匹配</p>
+        <pre><code class="language-bash">grep -E 'p.d=2100' app.log | wc -l
+grep -E 'pid=21..' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>匹配什么</h3><p>恰好一个字符：字母、数字、空格、符号都可以</p></div>
+          <div class="card green"><h3>能匹配</h3><p><code>p.d</code> 可匹配 <code>pid</code>、<code>pXd</code>、<code>p d</code></p></div>
+          <div class="card blue"><h3>不能匹配</h3><p><code>pd</code>（少一个字符）、<code>piid</code>（多一个字符）</p></div>
+          <div class="card green"><h3>本课结果</h3><p><code>p.d=2100</code> 命中 <strong>8 行</strong>；<code>pid=21..</code> 命中 <strong>120 行</strong></p></div>
+        </div>
+        <div class="band band-orange">点号本身是元字符；要匹配真正的句点，写成 <code>\.</code>，例如 <code>app\.log</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>06</span></div>
+      </section>
+
+      <!-- 07 -->
+      <section data-page="07">
+        <h2>锚点 <code>^</code> 与 <code>$</code>：限定位置</h2>
+        <p class="subtitle">它们不匹配字符，只表示“行的开头”和“行的结尾”</p>
+        <pre><code class="language-bash">grep -E '^2026-11-06' app.log | wc -l
+grep -E 'requests$' app.log
+grep -E '^ERROR' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>^</code> 行首</h3><p>模式必须从行首开始；日志行首是时间戳，所以命中 <strong>120 行</strong></p></div>
+          <div class="card green"><h3><code>$</code> 行尾</h3><p>模式必须到行尾结束；<code>requests$</code> 只命中 <strong>1 行</strong></p></div>
+          <div class="card blue"><h3><code>^ERROR</code></h3><p>要求 ERROR 出现在行首；本日志行首是日期，因此 <strong>0 行</strong></p></div>
+          <div class="card green"><h3>整行限定</h3><p><code>^...$</code> 表示整行都符合模式，常用于格式校验</p></div>
+        </div>
+        <div class="band band-orange"><code>^</code> 放在方括号内表示“排除”，如 <code>[^0-9]</code>；放在方括号外才是行首锚点。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>07</span></div>
+      </section>
+
+      <!-- 08 -->
+      <section data-page="08">
+        <h2>字符集合 <code>[ ]</code>：任意一个备选字符</h2>
+        <p class="subtitle">方括号里列出候选，匹配其中任意一个字符</p>
+        <pre><code class="language-bash">grep -E 'thread=worker-[12]' app.log | wc -l
+grep -E '\[[Ee]rror\]' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>匹配什么</h3><p><code>[12]</code> 匹配字符 1 或字符 2，只占一个位置</p></div>
+          <div class="card green"><h3>能匹配</h3><p><code>worker-1</code>、<code>worker-2</code>，共 <strong>60 行</strong></p></div>
+          <div class="card blue"><h3>不能匹配</h3><p><code>worker-3</code>、<code>worker-4</code>；<code>[12]</code> 也不匹配字符串 “12” 整体</p></div>
+          <div class="card green"><h3>范围写法</h3><p><code>[0-9]</code>、<code>[a-z]</code>、<code>[A-Fa-f0-9]</code></p></div>
+        </div>
+        <div class="band band-orange"><code>[Ee]rror</code> 同时覆盖 <code>Error</code> 与 <code>error</code>，共 <strong>20 行</strong>。注意日志里级别带方括号，模式中要写 <code>\[</code> 和 <code>\]</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>08</span></div>
+      </section>
+
+      <!-- 09 -->
+      <section data-page="09">
+        <h2>排除集合 <code>[^ ]</code>：不是这些字符</h2>
+        <p class="subtitle">方括号内第一个位置写 <code>^</code>，表示“除了列出的字符以外”</p>
+        <pre><code class="language-bash">grep -E 'Class[^1]' scores.csv | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>匹配什么</h3><p>任意一个不在集合中的字符，仍然只占一个位置</p></div>
+          <div class="card green"><h3>能匹配</h3><p><code>[^0-9]</code> 匹配 <code>a</code>、<code>-</code>、空格；<code>[^1]</code> 匹配 <code>2</code>、<code>3</code></p></div>
+          <div class="card blue"><h3>不能匹配</h3><p><code>[^0-9]</code> 不匹配 <code>5</code>；也不能匹配“空”</p></div>
+          <div class="card green"><h3>本课结果</h3><p><code>Class[^1]</code> 命中 Class2、Class3，共 <strong>19 行</strong></p></div>
+        </div>
+        <div class="band band-orange"><code>[^...]</code> 要求该位置必须有一个字符。要表达“整行都不含某内容”，用 <code>grep -v</code> 更直接。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>09</span></div>
+      </section>
+
+      <!-- 10 -->
+      <section data-page="10">
+        <h2>量词 <code>*</code>：前一项出现 0 次或多次</h2>
+        <p class="subtitle">星号修饰它左边的那一个字符或那一组</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3>匹配什么</h3><p>左边的项可以不出现，也可以连续出现很多次</p></div>
+          <div class="card green"><h3>能匹配</h3><p><code>ab*c</code> 匹配 <code>ac</code>、<code>abc</code>、<code>abbbc</code></p></div>
+          <div class="card blue"><h3>不能匹配</h3><p><code>ab*c</code> 不匹配 <code>ad</code>；结尾必须是 c，<code>abbd</code> 也不行</p></div>
+          <div class="card green"><h3>常见组合</h3><p><code>.*</code> 表示“任意长度的任意内容”</p></div>
+        </div>
+        <pre><code class="language-bash">grep -E '^[0-9]*$' app.log | wc -l
+grep -E 'ERROR.*attempts' app.log | wc -l</code></pre>
+        <div class="band band-blue">第一条结果为 <strong>0 行</strong>：允许零个数字，但整行仍必须只由数字组成；第二条结果为 <strong>1 行</strong>，中间由 <code>.*</code> 跨过。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>10</span></div>
+      </section>
+
+      <!-- 11 -->
+      <section data-page="11">
+        <h2>量词 <code>+</code>：前一项出现 1 次或多次</h2>
+        <p class="subtitle">与 <code>*</code> 的区别：<code>+</code> 至少要求出现一次</p>
+        <pre><code class="language-bash">grep -Eo 'pid=[0-9]+' app.log | wc -l
+grep -E 'thread=worker-[0-9]+' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>ab+c</code></h3><p>匹配 <code>abc</code>、<code>abbbc</code>；不匹配 <code>ac</code></p></div>
+          <div class="card green"><h3><code>ab*c</code></h3><p>匹配 <code>ac</code>、<code>abc</code>、<code>abbbc</code></p></div>
+          <div class="card blue"><h3>本课结果</h3><p>每行都有 pid 和 worker 编号，两个模式各命中 <strong>120 次</strong></p></div>
+          <div class="card green"><h3>使用建议</h3><p>知道“至少有一个数字”时优先用 <code>+</code>，语义更准确</p></div>
+        </div>
+        <div class="band band-orange">量词只修饰紧挨着它左边的一项：<code>[0-9]+</code> 是“一串数字”，<code>[0-9]+[0-9]</code> 仍是“至少两位数字”。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>11</span></div>
+      </section>
+
+      <!-- 12 -->
+      <section data-page="12">
+        <h2>量词 <code>?</code> 与 <code>{n,m}</code>：精确控制次数</h2>
+        <p class="subtitle">用区间写法描述“几位数字”“几年几月几日”</p>
+        <pre><code class="language-bash">grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}' app.log | wc -l
+grep -Eo 'req-[0-9]{4}' app.log | head -3</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>?</code></h3><p>0 次或 1 次；<code>colou?r</code> 匹配 color 与 colour，不匹配 colouur</p></div>
+          <div class="card green"><h3><code>{n}</code></h3><p>恰好 n 次；<code>[0-9]{4}</code> 恰好四位数字</p></div>
+          <div class="card blue"><h3><code>{n,}</code></h3><p>至少 n 次；<code>[0-9]{2,}</code> 两位及以上数字</p></div>
+          <div class="card green"><h3><code>{n,m}</code></h3><p>n 到 m 次；<code>[0-9]{2,3}</code> 两到三位数字</p></div>
+        </div>
+        <div class="band band-blue">本课结果：120 行全部以“四位年-两位月-两位日”开头；request_id 依次为 req-0001、req-0002、req-0003。</div>
+        <div class="band band-orange">在 grep 的基础正则中，<code>?</code> 与 <code>{ }</code> 需要写成 <code>\?</code>、<code>\{n,m\}</code>；加 <code>-E</code> 后可直接书写。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>12</span></div>
+      </section>
+
+      <!-- 13 -->
+      <section data-page="13">
+        <h2>字符类：<code>\d</code>、<code>\w</code>、<code>\s</code> 与 POSIX 写法</h2>
+        <p class="subtitle">它们是对常见字符集合的简写，但不同工具的识别情况不一样</p>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>\d</code></h3><p>一个数字 0–9，等价 <code>[0-9]</code>、<code>[[:digit:]]</code></p></div>
+          <div class="card green"><h3><code>\w</code></h3><p>字母、数字、下划线，等价 <code>[A-Za-z0-9_]</code>、<code>[[:alnum:]_]</code></p></div>
+          <div class="card blue"><h3><code>\s</code></h3><p>一个空白字符（空格、制表符等），等价 <code>[[:space:]]</code></p></div>
+          <div class="card green"><h3>POSIX 类</h3><p><code>[[:digit:]]</code>、<code>[[:alpha:]]</code>、<code>[[:alnum:]]</code>、<code>[[:upper:]]</code>、<code>[[:lower:]]</code></p></div>
+        </div>
+        <pre><code class="language-bash">grep -Eo '[[:digit:]]{4}' app.log | head -3
+grep -Eo '[[:alpha:]]{4,}' app.log | head -3</code></pre>
+        <div class="band band-orange">实测注意：GNU grep -E 不识别 <code>\d</code>，请写 <code>[0-9]</code> 或 <code>[[:digit:]]</code>；<code>\w</code>、<code>\s</code> 属于 GNU 扩展，换工具时优先用 POSIX 类。</div>
+        <div class="band band-blue">Python、JavaScript 等语言的字符串正则中，<code>\d</code>、<code>\w</code>、<code>\s</code> 是标准写法，记住对应关系即可。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>13</span></div>
+      </section>
+
+      <!-- 14 -->
+      <section data-page="14">
+        <h2>grep -E 的常用选项</h2>
+        <p class="subtitle">模式写好后，用选项控制“输出什么”和“怎么匹配”</p>
+        <pre><code class="language-bash">grep -Eo 'pid=[0-9]+' app.log | head -3
+grep -Ew 'pid=2100' app.log | wc -l
+grep -Eic '\[error\]' app.log</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>-E</code></h3><p>启用扩展正则，直接使用 <code>+ ? { } ( ) |</code></p></div>
+          <div class="card green"><h3><code>-o</code></h3><p>只输出匹配到的那一段，用于提取字段</p></div>
+          <div class="card blue"><h3><code>-w</code></h3><p>整词匹配，避免把更长的编号算进来；本课结果 <strong>8 行</strong></p></div>
+          <div class="card green"><h3><code>-i</code> / <code>-c</code></h3><p>忽略大小写并直接输出匹配行数，结果为 <strong>30</strong></p></div>
+        </div>
+        <div class="band band-blue"><code>-c</code> 已经完成计数；<code>grep -E ... | wc -l</code> 也会得到同样的数字，只是多经过一次管道。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>14</span></div>
+      </section>
+
+      <!-- 15 -->
+      <section data-page="15">
+        <h2>实战：用 <code>-o</code> 提取三类字段</h2>
+        <p class="subtitle">日志每行结构固定，可以分别提取时间戳、进程号和请求号</p>
+        <pre><code class="language-bash">grep -Eo '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' app.log | head -3
+grep -Eo 'pid=[0-9]+' app.log | head -3
+grep -Eo 'request_id=req-[0-9]{4}' app.log | head -3</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>时间戳</h3><p>每行一个，共 <strong>120 条</strong>，格式 <code>2026-11-06 08:00:00</code></p></div>
+          <div class="card green"><h3>pid</h3><p>共 <strong>120 个</strong>，去重后是 <strong>17 个</strong>不同进程号</p></div>
+          <div class="card blue"><h3>request_id</h3><p>共 <strong>120 条</strong>，从 req-0001 到 req-0120</p></div>
+          <div class="card green"><h3>提取思路</h3><p>先写模式，再用 <code>-o</code> 只留下匹配片段</p></div>
+        </div>
+        <div class="band band-blue">去重统计：<code>grep -Eo 'pid=[0-9]+' app.log | sort -u | wc -l</code> 输出 17。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>15</span></div>
+      </section>
+
+      <!-- 16 -->
+      <section data-page="16">
+        <h2>实战：ERROR 行的三种写法与计数</h2>
+        <pre><code class="language-bash">grep -E '\[ERROR\]' app.log | wc -l
+grep -E '\[ERROR\]|\[Error\]' app.log | wc -l
+grep -Ei '\[error\]' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>只写大写</h3><p><strong>10 行</strong>，漏掉 Error 与 error</p></div>
+          <div class="card green"><h3>用“或”写两种</h3><p><strong>20 行</strong>，仍漏掉全小写</p></div>
+          <div class="card blue"><h3>忽略大小写</h3><p><strong>30 行</strong>，三种写法全部覆盖</p></div>
+          <div class="card green"><h3>级别分布</h3><p>INFO 40、WARN 20、NOTICE 20、DEBUG 10</p></div>
+        </div>
+        <div class="band band-orange">正则默认区分大小写；当“大小写只是格式差异”时，用 <code>-i</code> 比写三套模式更稳妥。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>16</span></div>
+      </section>
+
+      <!-- 17 -->
+      <section data-page="17">
+        <h2>sed 中的正则：替换与按模式打印</h2>
+        <p class="subtitle">sed 逐行读取文本，正则用于“找什么”和“替换什么”</p>
+        <pre><code class="language-bash">sed -E 's/[0-9]{4}-[0-9]{2}-[0-9]{2}/DATE/' app.log | head -4
+sed -nE '/^2026-11-06 09:/p' app.log | wc -l
+sed -nE '/\[ERROR\]/p' app.log | wc -l</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>s/正则/替换/</code></h3><p>把匹配到的部分换成新文本；第一行开头变为 <code>DATE 08:00:00 ...</code></p></div>
+          <div class="card green"><h3><code>-n</code> + <code>/正则/p</code></h3><p>只打印匹配行；9 点日志共 <strong>20 行</strong></p></div>
+          <div class="card blue"><h3>ERROR 行</h3><p><code>/\[ERROR\]/p</code> 输出 <strong>10 行</strong></p></div>
+          <div class="card green"><h3>默认行为</h3><p>不加 <code>-n</code> 时 sed 会输出所有行，容易看错结果</p></div>
+        </div>
+        <div class="band band-orange"><code>s///</code> 默认只替换每行第一个匹配；加 <code>g</code> 才会替换全部。分组与 <code>\1</code> 反向引用属于拓展内容，本课只需知道有这个能力。</div>
+        <div class="band band-blue">sed 不加 <code>-i</code> 时只改变屏幕输出，不会修改 <code>app.log</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>17</span></div>
+      </section>
+
+      <!-- 18 -->
+      <section data-page="18">
+        <h2>awk 中的正则：整行匹配与字段匹配</h2>
+        <p class="subtitle">awk 默认按空白分列：$1 日期、$2 时间、$3 级别、$4 pid</p>
+        <pre><code class="language-bash">awk '/^2026-11-06 08:/ {n++} END {print n}' app.log
+awk '$3 ~ /\[ERROR\]/ {print $1, $2, $4}' app.log | head -3
+awk '$3 ~ /\[[Ee][Rr][Rr][Oo][Rr]\]/ {n++} END {print n}' app.log</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3><code>/正则/</code></h3><p>匹配整行，相当于对 <code>$0</code> 判断；8 点共 <strong>19 行</strong></p></div>
+          <div class="card green"><h3><code>$3 ~ /正则/</code></h3><p>只检查第 3 个字段；可输出日期、时间与 pid</p></div>
+          <div class="card blue"><h3><code>!~</code></h3><p>字段不匹配时才为真，用于排除某类记录</p></div>
+          <div class="card green"><h3>大小写覆盖</h3><p>逐字母写字符类，ERROR、Error、error 合计 <strong>30 行</strong></p></div>
+        </div>
+        <div class="band band-blue">awk 的字段从 1 开始编号，<code>$0</code> 表示整行；<code>~</code> 是“匹配”，<code>!~</code> 是“不匹配”。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>18</span></div>
+      </section>
+
+      <!-- 19 -->
+      <section data-page="19">
+        <h2>格式校验：用正则检查 scores.csv</h2>
+        <p class="subtitle">每行应当是“姓名,两位或三位分数,班级”，整行限定后即可判断</p>
+        <pre><code class="language-bash">grep -E '^[A-Za-z]+,[0-9]{2,3},Class[1-3]$' scores.csv | wc -l
+grep -Ev '^[A-Za-z]+,[0-9]{2,3},Class[1-3]$' scores.csv
+awk -F',' '$2 !~ /^[0-9][0-9][0-9]?$/' scores.csv</code></pre>
+        <div class="card-grid four">
+          <div class="card blue"><h3>合格行</h3><p><strong>29 行</strong>数据符合格式</p></div>
+          <div class="card green"><h3>不合格行</h3><p>共 <strong>2 行</strong>：表头与 <code>Henry,9,Class3</code></p></div>
+          <div class="card blue"><h3>数据总量</h3><p>文件共 31 行 = 1 行表头 + 30 行数据</p></div>
+          <div class="card green"><h3>校验思路</h3><p><code>^</code> 与 <code>$</code> 限定整行，各段用字符类和量词描述</p></div>
+        </div>
+        <div class="band band-orange">表头本来就不符合数据格式；只想检查数据行时，先执行 <code>tail -n +2 scores.csv</code> 跳过第一行，此时不合格只剩 <code>Henry,9,Class3</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>19</span></div>
+      </section>
+
+      <!-- 20 -->
+      <section data-page="20">
+        <h2>练习1：写出模式并核对结果</h2>
+        <p class="subtitle">先独立书写，再运行命令核对；每条都要求解释模式中的每一段</p>
+        <div class="card-grid">
+          <div class="card blue">
+            <h3>任务 A｜8 点日志有多少行</h3>
+            <p>以时间戳开头，小时固定为 08。<br>参考：<strong>19 行</strong></p>
+          </div>
+          <div class="card green">
+            <h3>任务 B｜worker-1 与 worker-2</h3>
+            <p>只匹配这两个线程编号，不能包含 3 和 4。<br>参考：<strong>60 行</strong></p>
+          </div>
+          <div class="card blue">
+            <h3>任务 C｜有多少个不同进程号</h3>
+            <p>先提取 pid，再去重计数。<br>参考：<strong>17 个</strong></p>
+          </div>
+          <div class="card green">
+            <h3>任务 D｜成绩表有多少合格行</h3>
+            <p>用整行限定校验姓名、分数、班级三段。<br>参考：<strong>29 行</strong></p>
+          </div>
+        </div>
+        <div class="band band-blue">提示：A 用 <code>^</code> 与空格；B 用方括号；C 用 <code>-o</code> 与 <code>sort -u</code>；D 用 <code>^...$</code> 与 <code>{2,3}</code>。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>20</span></div>
+      </section>
+
+      <!-- 21 -->
+      <section data-page="21">
+        <h2>课堂综合练习：分析 app.log</h2>
+        <div class="two-col uneven">
+          <div class="card blue">
+            <h3>目标文件与环境</h3>
+            <ul>
+              <li>目录：<code>/home/njucm/Desktop</code></li>
+              <li>文件：<code>app.log</code>（120 行）、<code>scores.csv</code></li>
+              <li>先确认文件已导入</li>
+              <li>不修改原始数据</li>
+              <li>最终给出一份可复现的命令清单</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>任务步骤</h3>
+            <ul class="num-list">
+              <li>统计日志总行数</li>
+              <li>用正则确认每行都以时间戳开头</li>
+              <li>提取全部 request_id 并计数</li>
+              <li>统计大写 ERROR 行数与全部 error 行数</li>
+              <li>统计 08 点与 09 点各有多少行</li>
+              <li>统计四个 worker 的分布</li>
+              <li>校验 scores.csv 并列出不合格行</li>
+              <li>用 3 句话总结正则带来的便利</li>
+            </ul>
+          </div>
+        </div>
+        <div class="band band-blue">参考结论：总 120 行；request_id 120 条；ERROR 10 行、error 共 30 行；08 点 19 行、09 点 20 行；每个 worker 30 行。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>21</span></div>
+      </section>
+
+      <!-- 22 -->
+      <section data-page="22">
+        <h2>常见问题：先检查引号与转义</h2>
+        <div class="card-grid">
+          <div class="card blue"><h3>grep -E 没有任何输出</h3><p>可能大小写不一致、模式多写了空格，或把普通字符写成了元字符。先用 <code>-o</code> 看匹配片段。</p></div>
+          <div class="card green"><h3><code>+ ? { }</code> 不生效</h3><p>忘记加 <code>-E</code> 时，这些符号按普通字符处理；基础正则中要写 <code>\+</code>、<code>\?</code>、<code>\{n,m\}</code>。</p></div>
+          <div class="card blue"><h3><code>[</code> 未闭合或空匹配</h3><p><code>[abc</code> 缺少右括号；<code>[]</code> 不是“空集合”。把 <code>]</code> 放首位、<code>-</code> 放首尾可表示字面量。</p></div>
+          <div class="card green"><h3><code>\d</code> 被当成字母 d</h3><p>GNU grep -E 不识别 <code>\d</code>；改用 <code>[0-9]</code> 或 <code>[[:digit:]]</code>。</p></div>
+        </div>
+        <div class="band band-orange">排错顺序：确认文件与路径 → 检查引号与转义 → 检查大小写 → 用 <code>grep -Eo</code> 观察实际匹配 → 再统计。</div>
+        <div class="band band-blue">模式写在单引号里最安全，可避免 shell 把 <code>$</code>、<code>|</code>、<code>*</code> 先解释掉。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>22</span></div>
+      </section>
+
+      <!-- 23 -->
+      <section data-page="23">
+        <h2>综合练习：完成标准与截图</h2>
+        <p class="subtitle">建议保存三张清晰截图，截图下方需要文字说明</p>
+        <div class="card-grid three">
+          <div class="card blue"><h3>截图1｜元字符演示</h3><p>显示 <code>^</code>、<code>$</code>、<code>[ ]</code>、<code>[^ ]</code> 与量词各一条命令及结果。</p></div>
+          <div class="card green"><h3>截图2｜字段提取</h3><p>显示用 <code>-o</code> 提取时间戳、pid、request_id 的结果，并说明 <code>-o</code> 的作用。</p></div>
+          <div class="card blue"><h3>截图3｜统计与校验</h3><p>显示 ERROR 10 / 30 行、08 点 19 行，以及 scores.csv 的 29 与 2。</p></div>
+        </div>
+        <div class="card-grid">
+          <div class="card blue"><h3>截图要求</h3><p>包含当前提示符、命令与输出；保存为 PNG 或 JPG，例如 <code>exp11_regex.png</code>。</p></div>
+          <div class="card green"><h3>完成标准</h3><p>命令正确、输出清晰、能逐段解释模式；报告中使用真实结果，不抄写他人数字。</p></div>
+        </div>
+        <div class="band band-blue">推荐截图范围：提示符 + 命令 + 输出 + 关键结果行。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>23</span></div>
+      </section>
+
+      <!-- 24 -->
+      <section data-page="24">
+        <h2>实验11作业：提交实验报告与回顾</h2>
+        <p class="subtitle">按课程实验报告模板完整填写，提交内容就是课堂综合练习</p>
+        <div class="card-grid">
+          <div class="card blue"><h3>报告内容</h3><p>基本信息、实验目的、实验内容和要求、实验结果、实验中出现的问题、实验总结。</p></div>
+          <div class="card green"><h3>实验结果</h3><p>放入元字符演示、字段提取、统计与校验三类截图，每张图下写 1～2 句说明。</p></div>
+          <div class="card blue"><h3>问题汇总</h3><p>例如：<code>+</code> 没生效，发现漏了 <code>-E</code>；<code>\d</code> 无效，改用 <code>[0-9]</code>。</p></div>
+          <div class="card green"><h3>实验总结</h3><p>用 3～5 句说明如何从固定字符串过渡到模式，以及 grep、sed、awk 中正则的差异。</p></div>
+        </div>
+        <div class="band band-blue">回顾链条：观察数据 → 元字符与量词 → 字符类 → 分组与“或” → <code>grep -E</code> 筛选提取 → sed 替换 → awk 字段匹配。提交平台：雨课堂。</div>
+        <div class="slide-footer"><span>Linux 实验11｜正则表达式</span><span>24</span></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: false,
+      transition: 'fade',
+      backgroundTransition: 'fade',
+      width: 960,
+      height: 540,
+      margin: 0.04,
+      plugins: [RevealHighlight]
+    });
+  </script>
+</body>
+</html>

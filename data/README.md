@@ -4,10 +4,10 @@
 
 | 文件 | 说明 | 用于实验 |
 |------|------|----------|
-| `app.log` | 120 行模拟程序运行日志，含 INFO / WARN / ERROR / Error / error 等不同写法 | 实验 5 文本搜索与统计 |
+| `app.log` | 120 行模拟程序运行日志，含 INFO / WARN / ERROR / Error / error 等不同写法 | 实验 5、实验 11 |
 | `scores.txt` | 40 行“姓名 成绩”记录，含相邻与不相邻的重复行、个位/两位/三位数成绩 | 实验 6 文本排序与去重 |
-| `scores.csv` | 30 行模拟学生成绩表，字段 `Name,Score,Class` | 实验 7 文本字段提取与筛选、实验 8 文本编辑与替换 |
-| `create_linux_practice_data.sh` | 生成 `~/LinuxProject` 综合练习数据集（目录、CSV、日志、配置、不同大小与时间戳文件） | 实验 1–10 综合练习 |
+| `scores.csv` | 30 行模拟学生成绩表，字段 `Name,Score,Class` | 实验 7、8、11 |
+| `create_linux_practice_data.sh` | 生成 `~/LinuxProject` 综合练习数据集（目录、CSV、日志、配置、不同大小与时间戳文件） | 实验 1–11 综合练习 |
 
 ## 使用方式
 
